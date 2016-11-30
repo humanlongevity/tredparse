@@ -1,5 +1,5 @@
-HLI Short Tandem Repeat (STR) caller
-====================================
+# HLI Short Tandem Repeat (STR) caller
+
 [![Travis-CI](https://travis-ci.org/tanghaibao/tredparse.svg?branch=master)](https://travis-ci.org/tanghaibao/tredparse)
 
 |||
@@ -9,44 +9,46 @@ HLI Short Tandem Repeat (STR) caller
 | Email | <htang@humanlongevity.com> |
 | License | [BSD](http://creativecommons.org/licenses/BSD/) |
 
+## Description
 
-Description
------------
 Process a list of TRED (trinucleotide repeats disease) loci, and infer
 the most likely genotype.
 
+## Installation
 
-Installation
-------------
--   Make sure your Python version &gt;= 2.7 (tested in ubuntu):
-    ```
-    virtualenv ~/t
-    source ~/t/bin/activate
-    pip install .
-    ```
+- Make sure your Python version &gt;= 2.7 (tested in ubuntu):
 
--   Test the installation by running against BAM file, or a list of BAM
-    files:
-    ```
-    tred.py tests/sample.csv
-    ```
+  ```bash
+  virtualenv ~/t
+  source ~/t/bin/activate
+  pip install .
+  ```
 
+- Test the installation by running against BAM file, or a list of BAM
+  files:
 
-Example
--------
+  ```bash
+  tred.py tests/sample.csv
+  ```
+
+## Example
+
 Run `tred.py` on sample CSV file and generate TSV file with the
 genotype:
-```
+
+```bash
 tred.py nucleus-20160321.csv --workdir work
 ```
 
 Highlight the potential risk individuals:
-```
+
+```bash
 tredreport.py work/*.vcf.gz --tsv nucleus-20160321-TREDs.tsv
 ```
 
 Several risk individuals show up in results:
-```
+
+```bash
 SCA17 disease_cutoff=41 patients=2
            SampleKey  SCA17.1  SCA17.2  SCA17.PP
     290983_169083774       41       41         1
@@ -55,3 +57,13 @@ SCA17 disease_cutoff=41 patients=2
 
 A `.report` file will also be generated that contains a summary of
 number of people affected by over-expanded TREDs.
+
+## Server demo
+
+The server/client allows `tredparse` to be run as a service, also showing the
+detailed debug information for the detailed computation.
+
+```bash
+yarn add next
+yarn
+```

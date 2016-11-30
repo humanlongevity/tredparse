@@ -1,0 +1,12 @@
+{
+  "name": "tredparse",
+  "version": "0.6.6",
+  "description": "Short Tandem Repeat (STR) genotyper",
+  "main": "index.js",
+  "repository": "https://github.com/tanghaibao/tredparse.git",
+  "author": "Haibao Tang <tanghaibao@gmail.com>",
+  "license": "BSD",
+  "scripts": {
+    "dev": "next"
+  }
+}
