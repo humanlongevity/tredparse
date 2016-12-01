@@ -5,8 +5,13 @@
   "main": "index.js",
   "repository": "https://github.com/tanghaibao/tredparse.git",
   "author": "Haibao Tang <tanghaibao@gmail.com>",
-  "license": "BSD",
+  "license": "BSD-3-Clause",
   "scripts": {
-    "dev": "next"
+    "start": "next"
+  },
+  "dependencies": {
+    "eslint": "^3.11.1",
+    "next": "^1.1.2",
+    "react-bootstrap": "^0.30.7"
   }
 }

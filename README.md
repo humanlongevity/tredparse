@@ -64,6 +64,7 @@ The server/client allows `tredparse` to be run as a service, also showing the
 detailed debug information for the detailed computation.
 
 ```bash
-yarn add next
+cd server
 yarn
+yarn run start
 ```
