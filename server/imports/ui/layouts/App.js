@@ -16,5 +16,5 @@ export default () => (
     <Introduction />
     <Content />
     <Footer />
-    </div>
+  </div>
 )

@@ -10,6 +10,7 @@
     "start": "next"
   },
   "dependencies": {
+    "csvtojson": "^1.0.3",
     "eslint": "^3.11.1",
     "next": "^1.1.2",
     "react-bootstrap": "^0.30.7"
