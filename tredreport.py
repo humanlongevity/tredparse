@@ -217,7 +217,8 @@ def main():
         tr = tr.row
         columns = ["abbreviation", "title", "motif", "inheritance",
                    "cutoff_prerisk", "cutoff_risk"]
-        d = dict((c, tr[c]) for c in columns)
+        d = dict((c, tr[c]) for c in columns[1:])
+        d["abbreviation"] = tred
         d["n_prerisk"] = n_prerisk
         d["n_risk"] = n_risk
         d["allele_freq"] = af

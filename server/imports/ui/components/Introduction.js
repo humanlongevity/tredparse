@@ -30,10 +30,11 @@ var Introduction = React.createClass({
 
             <div className="col-sm-12">
               <h2 style={introductionHeaderStyle}>
-                <strong> Short tandem repeats </strong> are a common source of genetic disease which can be assayed through sequencing
+                <strong> Short tandem repeats </strong> are a common source of
+                genetic diseases that can be assayed through genome sequencing
               </h2>
               <a className="btn btn-success btn-lg" style={buttonStyle} href="https://github.com/tanghaibao/tredparse">
-                  <i className="fa fa-github"></i> Find out how now
+                  <i className="fa fa-github"></i> Find out how
               </a>
             </div>
 

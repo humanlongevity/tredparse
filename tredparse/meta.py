@@ -1,3 +1,4 @@
+import json
 import os.path as op
 import pandas as pd
 
@@ -15,10 +16,10 @@ class TREDsRepo(dict):
         if not op.exists(repo):
             assert ref == REF, "Ref {} not supported currently!".format(ref)
 
-        df = pd.read_csv(repo)
-        for i, row in df.iterrows():
-            name = row["abbreviation"]
-            self[name] = TRED(row)
+        df = pd.read_csv(repo, index_col=0)
+        for name, row in df.iterrows():
+            self[name] = TRED(name, row)
+        self.df = df
 
         if toy:
             tr = self.get("HD")
@@ -26,6 +27,12 @@ class TREDsRepo(dict):
             tr.chromosome = "CHR4"
             tr.repeat_start = 1001
             self[tr.name] = tr
+
+    def to_json(self):
+        s = self.df.to_json(orient='index')
+        s = s.decode('windows-1252').encode('utf8')
+        s = json.dumps(json.loads(s), sort_keys=True, indent=2)
+        return s
 
     def set_ploidy(self, haploid):
         if not haploid:
@@ -45,10 +52,10 @@ class TREDsRepo(dict):
 
 class TRED(object):
 
-    def __init__(self, row):
+    def __init__(self, name, row):
 
         self.row = row
-        self.name = row["abbreviation"]
+        self.name = name
         self.repeat = row["repeat"]
         repeat_location = row["repeat_location"]
         self.chromosome, repeat_location = repeat_location.split(":")
