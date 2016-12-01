@@ -65,6 +65,7 @@ detailed debug information for the detailed computation.
 
 ```bash
 cd server
-yarn
-yarn run start
+meteor update
+meteor npm install
+meteor
 ```

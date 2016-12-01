@@ -5,8 +5,8 @@ var Brand = React.createClass({
 
     return (
       <div>
-        <a href="http://www.humanlongevity.com" class="logo">
-          <img src="/static/logo.png" alt="Human Longevity, Inc." class="tt-retina-logo" />
+        <a href="http://www.humanlongevity.com" className="logo">
+          <img src="/logo.png" alt="Human Longevity, Inc." className="tt-retina-logo" />
         </a>
       </div>
     );

@@ -21,7 +21,7 @@ const RunForm = React.createClass({
 
   render() {
     return (
-      <Form horizontol>
+      <Form>
         <FormGroup
           controlId="formBasicText"
           validationState={this.getValidationState()}
