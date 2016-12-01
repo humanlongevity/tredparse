@@ -1,15 +1,14 @@
 import React from 'react';
 
-var Introduction = React.createClass({
-  render: function () {
-
-    var containerStyle = {
+const Introduction = React.createClass({
+  render: () => {
+    const containerStyle = {
       fontFamily: '"Lato", sans-serif',
       padding: '0 0 30px 0',
       overflow: 'hidden'
     };
 
-    var introductionHeaderStyle = {
+    const introductionHeaderStyle = {
       fontSize: '26px',
       lineHeight: '36px',
       fontWeight: '300',
@@ -17,10 +16,10 @@ var Introduction = React.createClass({
       textTransform: 'uppercase'
     };
 
-    var buttonStyle = {
+    const buttonStyle = {
       fontWeight: 600,
       textTransform: 'uppercase',
-      marginBottom: '50px'
+      marginBottom: '50px',
     };
 
     return (
@@ -42,7 +41,7 @@ var Introduction = React.createClass({
         </div>
       </div>
     );
-  }
+  },
 });
 
 module.exports = Introduction;

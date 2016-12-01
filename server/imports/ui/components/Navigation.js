@@ -1,15 +1,14 @@
-var React = require('react');
+import React from 'react';
 
-var Navigation = React.createClass({
-  render: function () {
-
-    var navigationStyle = {
+const Navigation = React.createClass({
+  render: () => {
+    const navigationStyle = {
       margin: '25px 0',
       textTransform: 'uppercase',
-      textAlign: 'center'
+      textAlign: 'center',
     };
 
-    var navigationIteamStyle = {
+    const navigationIteamStyle = {
       display: 'inline-block',
       width: '100px',
       margin: '0 20px',
@@ -17,7 +16,7 @@ var Navigation = React.createClass({
       fontWeight: '400',
       color: '#000000',
       textTransform: 'uppercase',
-      lineHeight: '30px'
+      lineHeight: '30px',
     };
 
     return (
@@ -39,7 +38,7 @@ var Navigation = React.createClass({
         </div>
       </div>
     );
-  }
+  },
 });
 
 module.exports = Navigation;

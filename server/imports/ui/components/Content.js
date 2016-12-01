@@ -1,29 +1,26 @@
 import React from 'react';
-import Brand from './Brand';
-import Navigation from './Navigation';
 import RunForm from './RunForm';
 
-var Content = React.createClass({
-  render: function () {
-
-    var containerStyle = {
+const Content = React.createClass({
+  render: () => {
+    const containerStyle = {
       fontFamily: '"Lato", sans-serif',
       padding: '30px 0',
       borderTop: '1px solid #ddd',
-      overflow: 'hidden'
+      overflow: 'hidden',
     };
 
-    var contentHeaderStyle = {
+    const contentHeaderStyle = {
       fontSize: '26px',
       lineHeight: '36px',
       fontWeight: '300',
       margin: '0 0 30px 0',
-      textTransform: 'uppercase'
+      textTransform: 'uppercase',
     };
 
-    var contentStyle = {
+    const contentStyle = {
       fontSize: '20px',
-      margin: 0
+      margin: 0,
     };
 
     return (
@@ -39,12 +36,11 @@ var Content = React.createClass({
               <p></p>
               <RunForm />
             </div>
-
           </div>
         </div>
       </div>
     );
-  }
+  },
 });
 
 module.exports = Content;

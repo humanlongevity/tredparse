@@ -1,8 +1,7 @@
 import React from 'react';
 
-var Brand = React.createClass({
-  render: function () {
-
+const Brand = React.createClass({
+  render: () => {
     return (
       <div>
         <a href="http://www.humanlongevity.com" className="logo">
@@ -10,7 +9,7 @@ var Brand = React.createClass({
         </a>
       </div>
     );
-  }
+  },
 });
 
 module.exports = Brand;

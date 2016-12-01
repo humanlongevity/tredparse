@@ -1,10 +1,12 @@
 import React from 'react';
 import { ButtonToolbar, Button, Col, ControlLabel, FormControl, Form, FormGroup, HelpBlock } from 'react-bootstrap';
 
+const Treds = require('../../api/documents/treds.json');
+
 const RunForm = React.createClass({
   getInitialState() {
     return {
-      value: ''
+      value: '',
     };
   },
 
@@ -13,6 +15,7 @@ const RunForm = React.createClass({
     if (length > 10) return 'success';
     else if (length > 5) return 'warning';
     else if (length > 0) return 'error';
+    return null;
   },
 
   handleChange(e) {
@@ -20,6 +23,10 @@ const RunForm = React.createClass({
   },
 
   render() {
+    const Buttons = Object.keys(Treds).map((b) => {
+      return <Button key={ b }>{ b }</Button>;
+    });
+
     return (
       <Form>
         <FormGroup
@@ -50,17 +57,14 @@ const RunForm = React.createClass({
           </Col>
           <Col sm={ 10 }>
             <ButtonToolbar>
-              <Button>HD</Button>
-              <Button>SCA17</Button>
-              <Button>DM1</Button>
-              <Button>FRAXE</Button>
+              { Buttons }
             </ButtonToolbar>
           </Col>
 
         </FormGroup>
       </Form>
     );
-  }
+  },
 });
 
 export default RunForm;
