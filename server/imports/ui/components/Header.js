@@ -1,8 +1,9 @@
 import React from 'react';
 import Brand from './Brand';
+import { Col, Row } from 'react-bootstrap';
 
 const Header = React.createClass({
-  render: () => {
+  render() {
     const containerStyle = {
       fontFamily: '"Lato", sans-serif',
       margin: '40px 0',
@@ -11,15 +12,15 @@ const Header = React.createClass({
 
     return (
       <div className="container-fluid">
-        <div className="row">
+        <Row>
           <div style={containerStyle}>
-            <div className="col-sm-5">
+            <Col sm={ 5 }>
               <Brand />
-            </div>
-            <div className="col-sm-7">
-            </div>
+            </Col>
+            <Col sm={ 7 }>
+            </Col>
           </div>
-        </div>
+        </Row>
       </div>
     );
   },

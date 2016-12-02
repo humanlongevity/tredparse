@@ -1,7 +1,8 @@
 import React from 'react';
+import { Col, Row } from 'react-bootstrap';
 
 const Footer = React.createClass({
-  render: () => {
+  render() {
     const containerStyle = {
       fontFamily: '"Lato", sans-serif',
       padding: '40px 0',
@@ -18,15 +19,15 @@ const Footer = React.createClass({
 
     return (
       <div className="container-fluid text-center">
-        <div className="row">
+        <Row>
           <div style={containerStyle} data-style-footer>
-            <div className="col-sm-12">
+            <Col sm={ 12 }>
               <p style={footerContentStyle}>
                 Built by <a href="http://github.com/tanghaibao">Haibao Tang</a> in 2016
               </p>
-            </div>
+            </Col>
           </div>
-        </div>
+        </Row>
       </div>
     );
   },

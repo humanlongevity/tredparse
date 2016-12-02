@@ -1,8 +1,21 @@
 import React from 'react';
-import RunForm from './RunForm';
+import { Col, Row } from 'react-bootstrap';
+import FormInput from './FormInput';
+import FormOutput from './FormOutput';
 
 const Content = React.createClass({
-  render: () => {
+  getInitialState() {
+    return {
+      bam: null,
+      tred: null,
+    };
+  },
+
+  handleClick(t) {
+    this.setState({ tred: t });
+  },
+
+  render() {
     const containerStyle = {
       fontFamily: '"Lato", sans-serif',
       padding: '30px 0',
@@ -20,24 +33,24 @@ const Content = React.createClass({
 
     const contentStyle = {
       fontSize: '20px',
-      margin: 0,
     };
 
     return (
       <div className="container-fluid text-center">
-        <div className="row">
+        <Row>
           <div style={containerStyle}>
-
-            <div className="col-sm-12">
+            <Col sm={ 12 }>
               <h3 style={contentHeaderStyle}>Interactive demo</h3>
               <p style={contentStyle}>
                 Our STR caller requires a BAM file as well as the STR locus
               </p>
               <p></p>
-              <RunForm />
-            </div>
+              <FormInput clickHandler={ this.handleClick } />
+              <p></p>
+              <FormOutput object={ this.state.tred } />
+            </Col>
           </div>
-        </div>
+        </Row>
       </div>
     );
   },

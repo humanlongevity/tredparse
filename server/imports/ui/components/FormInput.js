@@ -3,7 +3,11 @@ import { ButtonToolbar, Button, Col, ControlLabel, FormControl, Form, FormGroup,
 
 const Treds = require('../../api/documents/treds.json');
 
-const RunForm = React.createClass({
+const FormInput = React.createClass({
+  propTypes: {
+    clickHandler: React.PropTypes.func.isRequired,
+  },
+
   getInitialState() {
     return {
       value: '',
@@ -24,7 +28,7 @@ const RunForm = React.createClass({
 
   render() {
     const Buttons = Object.keys(Treds).map((b) => {
-      return <Button key={ b }>{ b }</Button>;
+      return <Button key={ b } onClick={ this.props.clickHandler.bind(null, b) }>{ b }</Button>;
     });
 
     return (
@@ -40,9 +44,9 @@ const RunForm = React.createClass({
             <FormControl
               bsSize="sm"
               type="text"
-              value={this.state.value}
+              value={ this.state.value }
               placeholder="Enter sample BAM here"
-              onChange={this.handleChange}
+              onChange={ this.handleChange }
             />
             <FormControl.Feedback />
             <HelpBlock>
@@ -56,15 +60,16 @@ const RunForm = React.createClass({
             STR locus
           </Col>
           <Col sm={ 10 }>
-            <ButtonToolbar>
-              { Buttons }
-            </ButtonToolbar>
+            <div className="well">
+              <ButtonToolbar>
+                { Buttons }
+              </ButtonToolbar>
+            </div>
           </Col>
-
         </FormGroup>
       </Form>
     );
   },
 });
 
-export default RunForm;
+export default FormInput;

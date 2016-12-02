@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Brand = React.createClass({
-  render: () => {
+  render() {
     return (
       <div>
         <a href="http://www.humanlongevity.com" className="logo">

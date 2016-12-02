@@ -1,11 +1,12 @@
 import React from 'react';
+import { Button } from 'react-bootstrap';
 
 const Introduction = React.createClass({
-  render: () => {
+  render() {
     const containerStyle = {
       fontFamily: '"Lato", sans-serif',
       padding: '0 0 30px 0',
-      overflow: 'hidden'
+      overflow: 'hidden',
     };
 
     const introductionHeaderStyle = {
@@ -13,7 +14,7 @@ const Introduction = React.createClass({
       lineHeight: '36px',
       fontWeight: '300',
       margin: '0 0 30px 0',
-      textTransform: 'uppercase'
+      textTransform: 'uppercase',
     };
 
     const buttonStyle = {
@@ -32,11 +33,10 @@ const Introduction = React.createClass({
                 <strong> Short tandem repeats </strong> are a common source of
                 genetic diseases that can be assayed through genome sequencing
               </h2>
-              <a className="btn btn-success btn-lg" style={buttonStyle} href="https://github.com/tanghaibao/tredparse">
+              <Button bsStyle="success" bsSize="large" style={buttonStyle} href="https://github.com/tanghaibao/tredparse">
                   <i className="fa fa-github"></i> Find out how
-              </a>
+              </Button>
             </div>
-
           </div>
         </div>
       </div>
