@@ -9,13 +9,19 @@ const FormOutput = React.createClass({
   },
 
   render() {
-    const tred = Treds[this.props.object];
+    const object = this.props.object;
 
+    if (!object) {
+      return null;
+    }
+
+    const tred = Treds[object];
+    console.log(tred);
     return (
       <Row>
         <Col sm={ 12 }>
-          <Panel header={ this.props.object } bsStyle="success">
-            { tred ? tred.title : '' }
+          <Panel header={ `${object} (${tred.title})` } bsStyle="success">
+            { tred ? tred.symptom : '' }
           </Panel>
         </Col>
       </Row>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ButtonToolbar, Button, Col, ControlLabel, FormControl, Form, FormGroup, HelpBlock } from 'react-bootstrap';
+import { ButtonToolbar, Button, FormControl, Form, FormGroup, HelpBlock, Panel } from 'react-bootstrap';
 
 const Treds = require('../../api/documents/treds.json');
 
@@ -28,7 +28,11 @@ const FormInput = React.createClass({
 
   render() {
     const Buttons = Object.keys(Treds).map((b) => {
-      return <Button key={ b } onClick={ this.props.clickHandler.bind(null, b) }>{ b }</Button>;
+      return (
+        <Button key={ b } onClick={ this.props.clickHandler.bind(null, b) }>
+          { b }
+        </Button>
+      );
     });
 
     return (
@@ -37,10 +41,7 @@ const FormInput = React.createClass({
           controlId="formBasicText"
           validationState={this.getValidationState()}
         >
-          <Col componentClass={ ControlLabel } sm={ 2 }>
-            BAM
-          </Col>
-          <Col sm={ 10 }>
+          <Panel header={ <h2>BAM</h2> }>
             <FormControl
               bsSize="sm"
               type="text"
@@ -52,20 +53,15 @@ const FormInput = React.createClass({
             <HelpBlock>
                 BAM file could be either HTTP-accessible or local
             </HelpBlock>
-          </Col>
+          </Panel>
         </FormGroup>
 
         <FormGroup>
-          <Col componentClass={ ControlLabel } sm={ 2 }>
-            STR locus
-          </Col>
-          <Col sm={ 10 }>
-            <div className="well">
-              <ButtonToolbar>
-                { Buttons }
-              </ButtonToolbar>
-            </div>
-          </Col>
+          <Panel header={ <h2>STR locus</h2> }>
+            <ButtonToolbar>
+              { Buttons }
+            </ButtonToolbar>
+          </Panel>
         </FormGroup>
       </Form>
     );
