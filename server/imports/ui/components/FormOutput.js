@@ -1,7 +1,7 @@
 import React from 'react';
 import { Col, Row, Panel } from 'react-bootstrap';
 import AlleleFreq from './AlleleFreq';
-import TredInfo from './TredInfo';
+import TredTable from './TredTable';
 
 const Treds = require('../../api/documents/treds.json');
 
@@ -24,10 +24,10 @@ const FormOutput = React.createClass({
         <Col sm={ 12 }>
           <Panel header={ `${name} (${tred.title})` } bsStyle="success">
             <Col sm={ 7 }>
-              <TredInfo name={ name } />
+              <TredTable name={ name } />
             </Col>
             <Col sm={ 5 }>
-                <AlleleFreq text={ tred.allele_frequency } />
+              <AlleleFreq text={ tred.allele_frequency } />
             </Col>
           </Panel>
         </Col>
