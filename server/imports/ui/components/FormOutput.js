@@ -23,7 +23,9 @@ const FormOutput = React.createClass({
         <Col sm={ 12 }>
           <Panel header={ `${object} (${tred.title})` } bsStyle="success">
             <Col sm={ 6 }>
-              { tred ? tred.symptom : '' }
+              <div className='text-left'>
+                { tred ? tred.symptom : '' }
+              </div>
             </Col>
             <Col sm={ 6 }>
                 <AlleleFreq text={ tred.allele_frequency } />

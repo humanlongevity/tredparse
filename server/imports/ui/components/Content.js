@@ -42,8 +42,7 @@ const Content = React.createClass({
             <Col sm={ 12 }>
               <h3 style={contentHeaderStyle}>Interactive demo</h3>
               <p style={contentStyle}>
-                Our STR caller requires <strong>BAM</strong> file as well as
-                <strong> STR locus</strong>
+                Our STR caller requires BAM file as well as STR locus
               </p>
               <p></p>
               <FormInput clickHandler={ this.handleClick } />

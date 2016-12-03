@@ -41,7 +41,7 @@ const FormInput = React.createClass({
           controlId="formBasicText"
           validationState={this.getValidationState()}
         >
-          <Panel header={ <h2>BAM</h2> }>
+          <Panel header={ <strong>BAM file</strong> }>
             <FormControl
               bsSize="sm"
               type="text"
@@ -57,7 +57,7 @@ const FormInput = React.createClass({
         </FormGroup>
 
         <FormGroup>
-          <Panel header={ <h2>STR locus</h2> }>
+          <Panel header={ <strong>STR locus</strong> }>
             <ButtonToolbar>
               { Buttons }
             </ButtonToolbar>
