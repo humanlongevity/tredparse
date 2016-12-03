@@ -1,5 +1,6 @@
 import React from 'react';
 import { Col, Row, Panel } from 'react-bootstrap';
+import AlleleFreq from './AlleleFreq';
 
 const Treds = require('../../api/documents/treds.json');
 
@@ -21,7 +22,12 @@ const FormOutput = React.createClass({
       <Row>
         <Col sm={ 12 }>
           <Panel header={ `${object} (${tred.title})` } bsStyle="success">
-            { tred ? tred.symptom : '' }
+            <Col sm={ 6 }>
+              { tred ? tred.symptom : '' }
+            </Col>
+            <Col sm={ 6 }>
+                <AlleleFreq text={ tred.allele_frequency } />
+            </Col>
           </Panel>
         </Col>
       </Row>
