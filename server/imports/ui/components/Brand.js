@@ -5,7 +5,10 @@ const Brand = React.createClass({
     return (
       <div>
         <a href="http://www.humanlongevity.com" className="logo">
-          <img src="/logo.png" alt="Human Longevity, Inc." className="tt-retina-logo" />
+          <img src="/logo.png"
+               alt="Human Longevity, Inc."
+               className="tt-retina-logo"
+               width='50%' height='50%' />
         </a>
       </div>
     );

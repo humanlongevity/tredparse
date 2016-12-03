@@ -54,7 +54,6 @@ const AlleleFreq = React.createClass({
     text: React.PropTypes.string,
   },
 
-
   componentDidMount() {
     d3.select(this.refs.alleleFreq)
       .call(update(this.props));

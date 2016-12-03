@@ -1,13 +1,14 @@
 import React from 'react';
-import { Table, Button } from 'react-bootstrap';
-import PageModal from './PageModal';
+import { Table } from 'react-bootstrap';
 
 const Treds = require('../../api/documents/treds.json');
 
-const inheritanceFullNames = {AD: 'Autosomal dominant',
-                              AR: 'Autosomal recessive',
-                              XLD: 'X-linked dominant',
-                              XLR: 'X-linked recessive'};
+const inheritanceFullNames = {
+  AD: 'Autosomal dominant',
+  AR: 'Autosomal recessive',
+  XLD: 'X-linked dominant',
+  XLR: 'X-linked recessive',
+};
 
 const TredTable = React.createClass({
   propTypes: {
@@ -29,9 +30,12 @@ const TredTable = React.createClass({
           <tr>
             <td>Gene</td>
             <td>
-               <PageModal link={ `https://www.genecards.org/cgi-bin/carddisp.pl?gene=${tred.gene_name}` }
-                          text={ tred.gene_name }
-               /> ({ tred.gene_location })
+              <a href={ `https://www.genecards.org/cgi-bin/carddisp.pl?gene=${tred.gene_name}` }
+                title={ tred.gene_name }
+                target='_blank'
+              >
+                { tred.gene_name }
+              </a> ({ tred.gene_location })
             </td>
           </tr>
           <tr>
