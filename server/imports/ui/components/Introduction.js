@@ -5,7 +5,7 @@ const Introduction = React.createClass({
   render() {
     const containerStyle = {
       fontFamily: '"Lato", sans-serif',
-      padding: '0 0 30px 0',
+      padding: '0 0 10px 0',
       overflow: 'hidden',
     };
 
@@ -13,7 +13,7 @@ const Introduction = React.createClass({
       fontSize: '26px',
       lineHeight: '36px',
       fontWeight: '300',
-      margin: '0 0 30px 0',
+      margin: '0 0 10px 0',
       textTransform: 'uppercase',
     };
 

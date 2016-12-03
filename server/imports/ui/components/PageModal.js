@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button, Modal } from 'react-bootstrap';
 
 const PageModal = React.createClass({
   propTypes: {
@@ -31,23 +30,6 @@ const PageModal = React.createClass({
         >
           { this.props.text }
         </a>
-
-        <Modal
-          id='largeModal'
-          show={ this.state.show }
-          onHide={ this.close }
-          dialogClassName='custom-modal'
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Title</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            Body
-          </Modal.Body>
-          <Modal.Footer>
-            <Button onClick={ this.close }>Close</Button>
-          </Modal.Footer>
-        </Modal>
       </div>
     );
   },

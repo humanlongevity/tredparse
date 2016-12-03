@@ -29,9 +29,9 @@ const TredTable = React.createClass({
           <tr>
             <td>Gene</td>
             <td>
-               <PageModal link={ `https://www.genecards.org/cgi-bin/carddisp.pl?gene=${tred.gene_name}` } 
+               <PageModal link={ `https://www.genecards.org/cgi-bin/carddisp.pl?gene=${tred.gene_name}` }
                           text={ tred.gene_name }
-               /> ({ tred.gene_location }) 
+               /> ({ tred.gene_location })
             </td>
           </tr>
           <tr>
