@@ -38,16 +38,16 @@ const Content = React.createClass({
     return (
       <div className="container-fluid text-center">
         <Row>
-          <div style={containerStyle}>
+          <div style={ containerStyle }>
             <Col sm={ 12 }>
-              <h3 style={contentHeaderStyle}>Interactive demo</h3>
-              <p style={contentStyle}>
+              <h3 style={ contentHeaderStyle }>Interactive demo</h3>
+              <p style={ contentStyle }>
                 Our STR caller requires BAM file as well as STR locus
               </p>
               <p></p>
               <FormInput clickHandler={ this.handleClick } />
               <p></p>
-              <FormOutput object={ this.state.tred } />
+              <FormOutput name={ this.state.tred } />
             </Col>
           </div>
         </Row>

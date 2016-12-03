@@ -7,7 +7,7 @@ const getData = (text) => {
                     .map(d => d.split(':')
                     .map(d => +d));
   return data;
-}
+};
 
 const update = (props) => {
   const data = getData(props.text);
