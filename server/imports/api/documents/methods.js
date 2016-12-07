@@ -1,9 +1,11 @@
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import Documents from './documents';
+import Meteor from 'meteor/meteor';
 import rateLimit from '../../modules/rate-limit';
 
-const spawn = require('child_process').spawn;
+const exec = require('child_process').exec;
+const Fiber = require('fibers');
 
 export const upsertDocument = new ValidatedMethod({
   name: 'documents.upsert',
@@ -34,20 +36,16 @@ export const Shell = new ValidatedMethod({
     cmd: { type: String, optional: true },
   }).validator(),
   run(document) {
-    const child = spawn(document.cmd);
-    let output;
-    child.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`);
+    exec(document.cmd, (err, stdout, stderr) => {
+      console.log(`stdout: ${stdout}`);
       output = {
-        _id: document._id,
         title: document.cmd,
-        body: data,
+        body: stdout.toString(),
       };
-    });
-
-    child.on('close', (code) => {
-      console.log(`child process exited with code ${code}`);
-      return output;
+      console.log(output);
+      Fiber(() => {
+        return Documents.upsert({ _id: output._id }, { $set: output });
+      }).run();
     });
   },
 });
