@@ -1,14 +1,27 @@
 import React from 'react';
-import Documents from '../../api/documents/documents';
 import { Meteor } from 'meteor/meteor';
+import { ReactMeteorData } from 'meteor/react-meteor-data';
 import { Random } from 'meteor/random';
 import { ButtonToolbar, Button, FormControl, Form, FormGroup, HelpBlock, Panel } from 'react-bootstrap';
+import Documents from '../../api/documents/documents';
 
 const Treds = require('../../api/documents/treds.json');
 
 const FormInput = React.createClass({
   propTypes: {
     clickHandler: React.PropTypes.func.isRequired,
+  },
+
+  mixins: [ReactMeteorData],
+
+  getMeteorData() {
+    let data = {};
+    const currentId = this.state.currentId;
+    const handle = Meteor.subscribe('documents.view', currentId);
+    if (handle.ready()) {
+      data.post = Documents.findOne({ _id: currentId });
+    }
+    return data;
   },
 
   getInitialState() {
@@ -37,6 +50,18 @@ const FormInput = React.createClass({
     });
   },
 
+  getContent() {
+    return (
+      <div>
+        Current session Id: { this.state.currentId }
+        <br />
+        Command: { this.data.post.title }
+        <br />
+        Stdout: { this.data.post.body }
+      </div>
+    );
+  },
+
   render() {
     const Buttons = Object.keys(Treds).map((b) => {
       return (
@@ -45,25 +70,6 @@ const FormInput = React.createClass({
         </Button>
       );
     });
-
-    const Status = () => {
-      if (this.state.currentId === '') {
-        return <div></div>;
-      }
-
-      console.log(Documents.find().fetch());
-      const obj = Documents.find({ _id: this.state.currentId });
-      console.log(obj.count());
-      return (
-        <div>
-          Current session Id: { this.state.currentId }
-          <br />
-          Command: { obj.title }
-          <br />
-          Stdout: { obj.body }
-        </div>
-      );
-    };
 
     return (
       <Form>
@@ -98,7 +104,7 @@ const FormInput = React.createClass({
           Submit
         </Button>
         <br /><br />
-        <Status />
+        { this.data.post ? this.getContent() : <p>Loading ...</p>}
       </Form>
     );
   },
