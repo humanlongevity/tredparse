@@ -36,8 +36,7 @@ export const Shell = new ValidatedMethod({
   }).validator(),
   run(document) {
     exec(document.cmd, (err, stdout, stderr) => {
-      console.log(`stdout: ${stdout}`);
-      output = {
+      const output = {
         _id: document._id,
         title: document.cmd,
         body: stdout.toString(),

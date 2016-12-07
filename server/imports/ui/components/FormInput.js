@@ -1,4 +1,5 @@
 import React from 'react';
+import Documents from '../../api/documents/documents';
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { ButtonToolbar, Button, FormControl, Form, FormGroup, HelpBlock, Panel } from 'react-bootstrap';
@@ -31,8 +32,9 @@ const FormInput = React.createClass({
 
   handleSubmit(e) {
     const currentId = Random.id();
-    Meteor.call('shell', { _id: currentId, cmd: 'pwd' });
-    this.setState({ currentId });
+    Meteor.call('shell', { _id: currentId, cmd: 'pwd' }, (err) => {
+      this.setState({ currentId });
+    });
   },
 
   render() {
@@ -43,6 +45,25 @@ const FormInput = React.createClass({
         </Button>
       );
     });
+
+    const Status = () => {
+      if (this.state.currentId === '') {
+        return <div></div>;
+      }
+
+      console.log(Documents.find().fetch());
+      const obj = Documents.find({ _id: this.state.currentId });
+      console.log(obj.count());
+      return (
+        <div>
+          Current session Id: { this.state.currentId }
+          <br />
+          Command: { obj.title }
+          <br />
+          Stdout: { obj.body }
+        </div>
+      );
+    };
 
     return (
       <Form>
@@ -76,7 +97,8 @@ const FormInput = React.createClass({
         <Button bsStyle='danger' bsSize='large' onClick={ this.handleSubmit }>
           Submit
         </Button>
-        Current session Id: { this.state.currentId }
+        <br /><br />
+        <Status />
       </Form>
     );
   },
