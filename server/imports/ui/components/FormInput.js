@@ -2,6 +2,7 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { ReactMeteorData } from 'meteor/react-meteor-data';
 import { Random } from 'meteor/random';
+import Loading from './Loading';
 import { ButtonToolbar, Button, FormControl, Form, FormGroup, HelpBlock, Panel } from 'react-bootstrap';
 import Documents from '../../api/documents/documents';
 
@@ -45,7 +46,7 @@ const FormInput = React.createClass({
 
   handleSubmit(e) {
     const currentId = Random.id();
-    Meteor.call('shell', { _id: currentId, cmd: 'pwd' }, (err) => {
+    Meteor.call('shell', { _id: currentId, cmd: 'sleep 1 && pwd' }, (err) => {
       this.setState({ currentId });
     });
   },
@@ -104,7 +105,8 @@ const FormInput = React.createClass({
           Submit
         </Button>
         <br /><br />
-        { this.data.post ? this.getContent() : <p>Loading ...</p>}
+        { this.data.post ? this.getContent() :
+          ( this.state.currentId ? <Loading /> : '' )}
       </Form>
     );
   },
