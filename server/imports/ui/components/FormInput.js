@@ -1,4 +1,6 @@
 import React from 'react';
+import { Meteor } from 'meteor/meteor';
+import { Random } from 'meteor/random';
 import { ButtonToolbar, Button, FormControl, Form, FormGroup, HelpBlock, Panel } from 'react-bootstrap';
 
 const Treds = require('../../api/documents/treds.json');
@@ -10,6 +12,7 @@ const FormInput = React.createClass({
 
   getInitialState() {
     return {
+      currentId: '',
       value: '',
     };
   },
@@ -26,6 +29,12 @@ const FormInput = React.createClass({
     this.setState({ value: e.target.value });
   },
 
+  handleSubmit(e) {
+    const currentId = Random.id();
+    Meteor.call('shell', { _id: currentId, cmd: 'pwd' });
+    this.setState({ currentId });
+  },
+
   render() {
     const Buttons = Object.keys(Treds).map((b) => {
       return (
@@ -39,7 +48,7 @@ const FormInput = React.createClass({
       <Form>
         <FormGroup
           controlId="formBasicText"
-          validationState={this.getValidationState()}
+          validationState={ this.getValidationState() }
         >
           <Panel header={ <strong>BAM file</strong> }>
             <FormControl
@@ -63,6 +72,11 @@ const FormInput = React.createClass({
             </ButtonToolbar>
           </Panel>
         </FormGroup>
+
+        <Button bsStyle='danger' bsSize='large' onClick={ this.handleSubmit }>
+          Submit
+        </Button>
+        Current session Id: { this.state.currentId }
       </Form>
     );
   },
