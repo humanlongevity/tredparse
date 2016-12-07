@@ -20,7 +20,7 @@ const Introduction = React.createClass({
     const buttonStyle = {
       fontWeight: 600,
       textTransform: 'uppercase',
-      marginBottom: '50px',
+      marginBottom: '20px',
     };
 
     return (

@@ -8,6 +8,12 @@ import Documents from '../../api/documents/documents';
 
 const Treds = require('../../api/documents/treds.json');
 
+const Default = {
+  httpBAM: '',
+  s3BAM: 's3://hli-processed/processed/341087/isaac_align/164648328_S1.bam',
+  tred: 'HD',
+};
+
 const FormInput = React.createClass({
   propTypes: {
     clickHandler: React.PropTypes.func.isRequired,
@@ -28,16 +34,9 @@ const FormInput = React.createClass({
   getInitialState() {
     return {
       currentId: '',
-      value: '',
+      bam: Default.s3BAM,
+      tred: Default.tred,
     };
-  },
-
-  getValidationState() {
-    const length = this.state.value.length;
-    if (length > 10) return 'success';
-    else if (length > 5) return 'warning';
-    else if (length > 0) return 'error';
-    return null;
   },
 
   handleChange(e) {
@@ -76,19 +75,25 @@ const FormInput = React.createClass({
       <Form>
         <FormGroup
           controlId="formBasicText"
-          validationState={ this.getValidationState() }
         >
           <Panel header={ <strong>BAM file</strong> }>
             <FormControl
               bsSize="sm"
               type="text"
-              value={ this.state.value }
+              ref='bam'
+              value={ this.state.bam }
               placeholder="Enter sample BAM here"
               onChange={ this.handleChange }
             />
             <FormControl.Feedback />
             <HelpBlock>
-                BAM file could be either local, HTTP, or S3 (<a href='#'>Example</a>)
+                BAM file could be either on <Button bsSize='small' bsStyle='link' onClick={ () => {
+                  this.setState({ bam: Default.httpBAM });
+                }}>
+                  HTTP</Button> or <Button bsSize='small'
+                bsStyle='link' onClick={ () => {
+                  this.setState({ bam: Default.s3BAM });
+                }}>S3</Button>
             </HelpBlock>
           </Panel>
         </FormGroup>
