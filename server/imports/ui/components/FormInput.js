@@ -51,7 +51,7 @@ const FormInput = React.createClass({
             />
             <FormControl.Feedback />
             <HelpBlock>
-                BAM file could be either HTTP-accessible or local (<a href='#'>Example</a>)
+                BAM file could be either local, HTTP, or S3 (<a href='#'>Example</a>)
             </HelpBlock>
           </Panel>
         </FormGroup>
