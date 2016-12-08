@@ -73,6 +73,8 @@ def set_argparse():
                                 help="Cleanup the workdir after done")
     p.add_argument('--checkexists', default=False, action="store_true",
                                 help="Do not run if JSON output exists")
+    p.add_argument('--no-output', default=False, action="store_true",
+                                help="Do not write JSON and VCF output")
     set_aws_opts(p)
     return p
 
@@ -130,7 +132,7 @@ def runBam(inputParams):
     integratedCaller = IntegratedCaller(bp18, maxinsert=maxinsert)
     integratedCalls, Q, PP, label = integratedCaller.call(**inputParams.kwargs)
 
-    return BamParserResults(inputParams, bp18.tred, bp18.df,
+    return BamParserResults(inputParams, bp18.tred, bp18.df, bp18.details,
                             Q, PP, label, integratedCalls)
 
 
@@ -198,6 +200,8 @@ def run(arg):
         tredCalls[tred + ".Q"] = tpResult.Q
         tredCalls[tred + ".PP"] = tpResult.PP
         tredCalls[tred + ".label"] = tpResult.label
+        if logger.getEffectiveLevel() == logging.DEBUG:
+            tredCalls[tred + ".details"] = tpResult.details
 
     os.chdir(cwd)
     shutil.rmtree(samplekey)
@@ -391,6 +395,8 @@ if __name__ == '__main__':
     if cpus == 1:  # Serial
         for ta in task_args:
             results = run(ta)
+            if args.no_output:
+                continue
             try:
                 to_vcf(results, ref, treds=treds, store=store)
                 to_json(results, ref, treds=treds, store=store)
@@ -399,18 +405,16 @@ if __name__ == '__main__':
     else:
         p = Pool(processes=cpus)
         for results in p.imap(run, task_args):
+            if args.no_output:
+                continue
             try:
                 to_vcf(results, ref, treds=treds, store=store)
                 to_json(results, ref, treds=treds, store=store)
             except KeyError:
                 continue
 
-    with open("_SUCCESS","w") as fo:
-        fo.write("success")
-
-    if store:
-        push_to_s3(store, "_SUCCESS")
-    print "Elapsed time={}".format(timedelta(seconds=time.time() - start))
+    print >> sys.stderr, "Elapsed time={}"\
+            .format(timedelta(seconds=time.time() - start))
     os.chdir(cwd)
 
     if args.cleanup:

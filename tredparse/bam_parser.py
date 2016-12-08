@@ -58,6 +58,7 @@ class BamParser:
         self.prefix_count = defaultdict(int)
         self.postfix_count = defaultdict(int)
         self.dupReads = 0
+        self.details = []  # Store read sequences, enabled on logging.INFO
 
     def _buildDB(self):
         '''
@@ -152,8 +153,9 @@ class BamParser:
         if countMap is not None:
             countMap[h] += 1
 
-        debugStr = "{}: h={:>3}, seq={}"
-        self.logger.debug(debugStr.format(tag, h, seq))
+        s = "{}: h={:>3}, seq={}".format(tag, h, seq)
+        self.logger.debug(s)
+        self.details.append(s)
 
     def _makePlotFrame(self):
         columns = ['NumReps', 'full', 'prefix', 'postfix']
@@ -198,9 +200,11 @@ class BamParserResults:
     '''
     Encapsulates all results: counts from BamParser and calls from different callers
     '''
-    def __init__(self, inputParams, tred, df, Q, PP, label, integratedCalls):
+    def __init__(self, inputParams, tred, df, details,
+                       Q, PP, label, integratedCalls):
         self.inputParams = inputParams
         self.tred = tred
+        self.details = details
         self.Q = Q
         self.PP = PP
         self.label = label
