@@ -2,7 +2,7 @@ import React from 'react';
 import { Col, Row, Panel } from 'react-bootstrap';
 import AlleleFreq from './AlleleFreq';
 import TredTable from './TredTable';
-import LoadingIFrame from './IFrame';
+import IFrame from './IFrame';
 
 const Treds = require('../../api/documents/treds.json');
 
@@ -22,7 +22,7 @@ const FormOutput = React.createClass({
     console.log(tred);
     return (
       <Row>
-        <LoadingIFrame
+        <IFrame
           url='http://10.6.110.141/pileup/165708667/chr1/10000'
         />
         <Col sm={ 12 }>
