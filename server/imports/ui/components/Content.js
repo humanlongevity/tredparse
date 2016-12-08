@@ -35,7 +35,8 @@ const Content = React.createClass({
 
   handleSubmit(bam) {
     const currentId = Random.id();
-    const cmd = `sleep 1 && echo ${bam} ${this.state.tred}`;
+    // const cmd = `sleep 1 && echo ${bam} ${this.state.tred}`;
+    const cmd = `docker run --rm tanghaibao/tredparse tred.py ${bam} --tred ${this.state.tred}`;
     Meteor.call('shell', { _id: currentId, cmd }, err => {
       this.setState({ currentId });
     });
