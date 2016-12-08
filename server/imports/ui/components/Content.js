@@ -1,18 +1,56 @@
 import React from 'react';
+import { ReactMeteorData } from 'meteor/react-meteor-data';
+import { Meteor } from 'meteor/meteor';
+import { Random } from 'meteor/random';
 import { Col, Row } from 'react-bootstrap';
+import Documents from '../../api/documents/documents';
 import FormInput from './FormInput';
 import FormOutput from './FormOutput';
+import Default from './Default';
+import Loading from './Loading';
 
 const Content = React.createClass({
   getInitialState() {
     return {
-      bam: null,
-      tred: null,
+      currentId: '',
+      bam: Default.s3BAM,
+      tred: Default.tred,
     };
   },
 
-  handleClick(t) {
-    this.setState({ tred: t });
+  mixins: [ReactMeteorData],
+  getMeteorData() {
+    let data = {};
+    const currentId = this.state.currentId;
+    const handle = Meteor.subscribe('documents.view', currentId);
+    if (handle.ready()) {
+      data.post = Documents.findOne({ _id: currentId });
+    }
+    return data;
+  },
+
+  handleClick(tred) {
+    this.setState({ tred });
+  },
+
+  handleSubmit(bam) {
+    const currentId = Random.id();
+    const cmd = `sleep 1 && echo ${bam} ${this.state.tred}`;
+    Meteor.call('shell', { _id: currentId, cmd }, err => {
+      this.setState({ currentId });
+    });
+  },
+
+  getContent() {
+    return (
+      <div>
+        Current session Id: { this.state.currentId }
+        <br />
+        Command: { this.data.post.title }
+        <br />
+        Stdout: { this.data.post.body }
+      </div>
+    );
   },
 
   render() {
@@ -31,21 +69,21 @@ const Content = React.createClass({
       textTransform: 'uppercase',
     };
 
-    const contentStyle = {
-      fontSize: '20px',
-    };
-
     return (
       <div className="container-fluid text-center">
         <Row>
           <div style={ containerStyle }>
             <Col sm={ 12 }>
               <h3 style={ contentHeaderStyle }>Interactive demo</h3>
-              <p style={ contentStyle }>
-                Our STR caller requires BAM file as well as STR locus
-              </p>
+              <FormInput
+                tred={ this.state.tred }
+                changeHandler={ this.handleChange }
+                clickHandler={ this.handleClick }
+                submitHandler={ this.handleSubmit }
+              />
               <p></p>
-              <FormInput clickHandler={ this.handleClick } />
+              { this.data.post ? this.getContent() :
+                ( this.state.currentId ? <Loading /> : '' )}
               <p></p>
               <FormOutput name={ this.state.tred } />
             </Col>

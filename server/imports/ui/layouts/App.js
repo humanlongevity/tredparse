@@ -14,5 +14,4 @@ App.propTypes = {
   children: React.PropTypes.node,
 };
 
-Meteor.subscribe('documents.list');
 export default App;
