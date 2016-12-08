@@ -5,15 +5,15 @@ import { Col, Row } from 'react-bootstrap';
 import Documents from '../../api/documents/documents';
 import FormInput from './FormInput';
 import FormOutput from './FormOutput';
-import Default from './Default';
+import Settings from './Settings';
 import Loading from './Loading';
 
 const Content = React.createClass({
   getInitialState() {
     return {
       currentTitle: '',
-      bam: Default.s3BAM,
-      tred: Default.tred,
+      bam: Settings.s3BAM,
+      tred: Settings.tred,
     };
   },
 

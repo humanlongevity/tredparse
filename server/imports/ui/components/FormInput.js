@@ -1,6 +1,6 @@
 import React from 'react';
 import { ButtonToolbar, Button, FormControl, Form, FormGroup, HelpBlock, Panel } from 'react-bootstrap';
-import Default from './Default';
+import Settings from './Settings';
 
 const Treds = require('../../api/documents/treds.json');
 
@@ -13,7 +13,7 @@ const FormInput = React.createClass({
 
   getInitialState() {
     return {
-      bam: Default.s3BAM,
+      bam: Settings.s3BAM,
     };
   },
 
