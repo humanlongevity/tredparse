@@ -23,6 +23,6 @@ RUN bash /install.sh
 RUN pip install pysam
 
 # Install tredparse
-RUN pip install git+git://github.com/tanghaibao/tredparse.git
 COPY creds /root/.aws
+RUN pip install git+git://github.com/tanghaibao/tredparse.git
 WORKDIR /

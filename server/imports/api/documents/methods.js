@@ -37,9 +37,9 @@ export const Shell = new ValidatedMethod({
   run(document) {
     exec(document.cmd, (err, stdout, stderr) => {
       const output = {
-        _id: document._id,
         title: document.cmd,
         body: stdout.toString(),
+        createdAt: new Date(),
       };
       console.log(output);
       Fiber(() => {

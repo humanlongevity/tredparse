@@ -1,7 +1,6 @@
 import React from 'react';
 import { ReactMeteorData } from 'meteor/react-meteor-data';
 import { Meteor } from 'meteor/meteor';
-import { Random } from 'meteor/random';
 import { Col, Row } from 'react-bootstrap';
 import Documents from '../../api/documents/documents';
 import FormInput from './FormInput';
@@ -12,7 +11,7 @@ import Loading from './Loading';
 const Content = React.createClass({
   getInitialState() {
     return {
-      currentId: '',
+      currentTitle: '',
       bam: Default.s3BAM,
       tred: Default.tred,
     };
@@ -21,10 +20,10 @@ const Content = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
     let data = {};
-    const currentId = this.state.currentId;
-    const handle = Meteor.subscribe('documents.view', currentId);
+    const currentTitle = this.state.currentTitle;
+    const handle = Meteor.subscribe('documents.viewtitle', currentTitle);
     if (handle.ready()) {
-      data.post = Documents.findOne({ _id: currentId });
+      data.post = Documents.findOne({ title: currentTitle });
     }
     return data;
   },
@@ -34,22 +33,20 @@ const Content = React.createClass({
   },
 
   handleSubmit(bam) {
-    const currentId = Random.id();
-    // const cmd = `sleep 1 && echo ${bam} ${this.state.tred}`;
-    const cmd = `docker run --rm tanghaibao/tredparse tred.py ${bam} --tred ${this.state.tred}`;
-    Meteor.call('shell', { _id: currentId, cmd }, err => {
-      this.setState({ currentId });
-    });
+    const cmd = `docker run --rm tanghaibao/tredparse tred.py ${bam} --tred ${this.state.tred} --log DEBUG`;
+    const currentTitle = cmd;
+    Meteor.call('shell', { cmd },
+      () => this.setState({ currentTitle }));
   },
 
   getContent() {
     return (
       <div>
-        Current session Id: { this.state.currentId }
-        <br />
         Command: { this.data.post.title }
         <br />
         Stdout: { this.data.post.body }
+        <br />
+        Time: { this.data.post.createdAt.toString() }
       </div>
     );
   },
@@ -84,7 +81,7 @@ const Content = React.createClass({
               />
               <p></p>
               { this.data.post ? this.getContent() :
-                ( this.state.currentId ? <Loading /> : '' )}
+                ( this.state.currentTitle ? <Loading /> : '' )}
               <p></p>
               <FormOutput name={ this.state.tred } />
             </Col>
