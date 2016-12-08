@@ -9,6 +9,7 @@ const Treds = require('../../api/documents/treds.json');
 const FormOutput = React.createClass({
   propTypes: {
     name: React.PropTypes.string,
+    url: React.PropTypes.string,
   },
 
   render() {
@@ -22,9 +23,9 @@ const FormOutput = React.createClass({
     console.log(tred);
     return (
       <Row>
-        <IFrame
-          url='http://10.6.110.141/pileup/165708667/chr1/10000'
-        />
+        {
+          this.props.url ? <IFrame url={ this.props.url } /> : null
+        }
         <Col sm={ 12 }>
           <Panel header={ `${name} (${tred.title})` } bsStyle="success">
             <Col sm={ 7 }>

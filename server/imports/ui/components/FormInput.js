@@ -47,11 +47,14 @@ const FormInput = React.createClass({
             />
             <FormControl.Feedback />
             <HelpBlock>
-                BAM file could be either on <Button bsSize='small' bsStyle='link' onClick={ () =>
-                  this.setState({ bam: Default.httpBAM })
+                BAM file could be either on <Button bsSize='small' bsStyle='link'
+                disabled
+                onClick={ () =>
+                  this.setState({ bam: Settings.httpBAM })
                 }>HTTP</Button> or <Button bsSize='small'
-                bsStyle='link' onClick={ () =>
-                  this.setState({ bam: Default.s3BAM })
+                bsStyle='link'
+                onClick={ () =>
+                  this.setState({ bam: Settings.s3BAM })
                 }>S3</Button>
             </HelpBlock>
           </Panel>

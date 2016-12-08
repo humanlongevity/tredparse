@@ -8,6 +8,8 @@ import FormOutput from './FormOutput';
 import Settings from './Settings';
 import Loading from './Loading';
 
+const Treds = require('../../api/documents/treds.json');
+
 const Content = React.createClass({
   getInitialState() {
     return {
@@ -51,6 +53,17 @@ const Content = React.createClass({
     );
   },
 
+  buildURL() {
+    const basename = this.state.bam.split(/[\\/]/).pop();
+    const sampleID = basename.split('_')[0];
+    const tr = Treds[this.state.tred];
+    const chrPos = tr.repeat_location.split('-')[0];
+    const [chr, pos] = chrPos.split(':');
+    const url = `http://10.6.110.141/pileup/${sampleID}/${chr}/${pos}`;
+    console.log(url);
+    return url;
+  },
+
   render() {
     const containerStyle = {
       fontFamily: '"Lato", sans-serif',
@@ -80,10 +93,12 @@ const Content = React.createClass({
                 submitHandler={ this.handleSubmit }
               />
               <p></p>
-              { this.data.post ? this.getContent() :
-                ( this.state.currentTitle ? <Loading /> : '' )}
+              {
+                this.data.post ? this.getContent() :
+                ( this.state.currentTitle ? <Loading /> : '' )
+              }
               <p></p>
-              <FormOutput name={ this.state.tred } />
+              <FormOutput name={ this.state.tred } url={ this.buildURL() } />
             </Col>
           </div>
         </Row>
