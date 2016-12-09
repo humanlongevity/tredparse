@@ -1,10 +1,8 @@
 import React from 'react';
 import { Col, Row, Panel } from 'react-bootstrap';
 import AlleleFreq from './AlleleFreq';
-import TredTable from './TredTable';
+import TredTable, { Treds } from './TredTable';
 import IFrame from './IFrame';
-
-const Treds = require('../../api/documents/treds.json');
 
 const FormOutput = React.createClass({
   propTypes: {

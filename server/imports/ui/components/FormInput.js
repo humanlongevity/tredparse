@@ -1,13 +1,11 @@
 import React from 'react';
 import { ButtonToolbar, Button, FormControl, Form, FormGroup, HelpBlock, Panel } from 'react-bootstrap';
 import Settings from './Settings';
-
-const Treds = require('../../api/documents/treds.json');
+import { Treds } from './TredTable';
 
 const FormInput = React.createClass({
   propTypes: {
     clickHandler: React.PropTypes.func.isRequired,
-    submitHandler: React.PropTypes.func.isRequired,
     tred: React.PropTypes.string.isRequired,
   },
 
@@ -22,13 +20,21 @@ const FormInput = React.createClass({
   },
 
   render() {
+    const buttonStyle = {
+      marginBottom: '5px',
+    };
+
     const Buttons = Object.keys(Treds).map((b) => {
       const active = (b === this.props.tred);
       return (
         <Button key={ b }
-          onClick={ this.props.clickHandler.bind(null, b) }
-          active={ active }>
-          { b }
+          onClick={ this.props.clickHandler.bind(null, this.state.bam, b) }
+          active={ active }
+          bsSize='xsmall'
+          style={ buttonStyle }
+        >
+          <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{ b }
+          </div> <div style={{ color: 'grey' }}>{ Treds[b].title }</div>
         </Button>
       );
     });
@@ -38,9 +44,9 @@ const FormInput = React.createClass({
         <FormGroup>
           <Panel header={ <strong>BAM file</strong> }>
             <FormControl
-              bsSize="sm"
               type="text"
               ref='bam'
+              bsSize="large"
               value={ this.state.bam }
               placeholder="Enter sample BAM here"
               onChange={ this.handleChange }
@@ -66,14 +72,6 @@ const FormInput = React.createClass({
             </ButtonToolbar>
           </Panel>
         </FormGroup>
-
-        <Button
-          bsStyle='danger'
-          bsSize='large'
-          onClick={ this.props.submitHandler.bind(null, this.state.bam) }
-        >
-          Call { Treds[this.props.tred].title }
-        </Button>
       </Form>
     );
   },

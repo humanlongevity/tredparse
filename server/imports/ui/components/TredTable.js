@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table } from 'react-bootstrap';
 
-const Treds = require('../../api/documents/treds.json');
+export const Treds = require('../../api/documents/treds.json');
 
 const inheritanceFullNames = {
   AD: 'Autosomal dominant',

@@ -8,8 +8,7 @@ import FormOutput from './FormOutput';
 import Settings from './Settings';
 import Loading from './Loading';
 import TredparseResults from './TredparseResults';
-
-const Treds = require('../../api/documents/treds.json');
+import { Treds } from './TredTable';
 
 const Content = React.createClass({
   getInitialState() {
@@ -31,13 +30,12 @@ const Content = React.createClass({
     return data;
   },
 
-  handleClick(tred) {
+  handleClick(bam, tred) {
     this.setState({ tred });
-  },
 
-  handleSubmit(bam) {
-    const cmd = `docker run --rm tanghaibao/tredparse tred.py ${bam} --tred ${this.state.tred} --log DEBUG`;
+    const cmd = `docker run --rm tanghaibao/tredparse tred.py ${bam} --tred ${tred} --log DEBUG`;
     const currentTitle = cmd;
+    console.log(currentTitle);
     Meteor.call('shell', { cmd },
       () => this.setState({ currentTitle }));
   },
@@ -50,7 +48,6 @@ const Content = React.createClass({
     const [start, end] = pos.split('-');
     const mid = Math.round((+start + +end) / 2);
     const url = `http://10.6.110.141/pileup/${sampleID}/${chr}/${mid}`;
-    console.log(url);
     return url;
   },
 
@@ -91,7 +88,10 @@ const Content = React.createClass({
                   /> : (this.state.currentTitle ? <Loading /> : '')
               }
               <p></p>
-              <FormOutput name={ this.state.tred } url={ this.buildURL() } />
+              {
+                this.state.tred ?
+                <FormOutput name={ this.state.tred } url={ this.buildURL() } /> : null
+              }
             </Col>
           </div>
         </Row>
