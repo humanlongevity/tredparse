@@ -6,9 +6,12 @@ const TredparseResults = React.createClass({
   },
 
   render() {
+    const content = this.props.content;
+    const object = JSON.parse(content);
+    const [name, bam, details] = object;
     return (
       <div>
-        { this.props.content }
+        { JSON.stringify(details) }
       </div>
     );
   },
