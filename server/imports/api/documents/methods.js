@@ -12,6 +12,7 @@ export const upsertDocument = new ValidatedMethod({
     _id: { type: String, optional: true },
     title: { type: String, optional: true },
     body: { type: String, optional: true },
+    stderr: { type: String, optional: true },
   }).validator(),
   run(document) {
     return Documents.upsert({ _id: document._id }, { $set: document });
@@ -36,9 +37,13 @@ export const Shell = new ValidatedMethod({
   }).validator(),
   run(document) {
     exec(document.cmd, (err, stdout, stderr) => {
+      const stdoutText = stdout.toString() ? stdout.toString() : 'error';
+      const stderrText = stderr.toString();
+
       const output = {
         title: document.cmd,
-        body: stdout.toString(),
+        body: stdoutText,
+        stderr: stderrText,
         createdAt: new Date(),
       };
       console.log(output);

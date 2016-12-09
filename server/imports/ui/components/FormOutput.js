@@ -23,9 +23,6 @@ const FormOutput = React.createClass({
     console.log(tred);
     return (
       <Row>
-        {
-          this.props.url ? <IFrame url={ this.props.url } /> : null
-        }
         <Col sm={ 12 }>
           <Panel header={ `${name} (${tred.title})` } bsStyle="success">
             <Col sm={ 7 }>
@@ -36,6 +33,9 @@ const FormOutput = React.createClass({
             </Col>
           </Panel>
         </Col>
+        {
+          this.props.url ? <IFrame url={ this.props.url } /> : null
+        }
       </Row>
     );
   },

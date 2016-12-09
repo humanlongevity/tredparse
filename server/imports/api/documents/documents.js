@@ -26,6 +26,10 @@ Documents.schema = new SimpleSchema({
     type: String,
     label: 'The body of the document.',
   },
+  stderr: {
+    type: String,
+    label: 'The stderr for error capture.',
+  },
   createdAt: {
     type: Date,
     label: 'The creation time of the document',
