@@ -139,7 +139,9 @@ def vcf_to_df(vcffiles, tsvfile, cpus):
 
 
 def json_to_df_worker(jsonfile):
-    samplekey, bam, results = json.load(open(jsonfile))
+    js = json.load(open(jsonfile))
+    samplekey = js['samplekey']
+    results = js['tredCalls']
     # We'll infer sample key from file names for now since the keys are not
     # properly populated in v0.6.4 and v0.6.5
     samplekey = op.basename(jsonfile).split(".")[0]

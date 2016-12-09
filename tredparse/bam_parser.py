@@ -155,7 +155,7 @@ class BamParser:
 
         s = "{}: h={:>3}, seq={}".format(tag, h, seq)
         self.logger.debug(s)
-        self.details.append(s)
+        self.details.append({'tag': tag, 'h': h, 'seq': seq})
 
     def _makePlotFrame(self):
         columns = ['NumReps', 'full', 'prefix', 'postfix']

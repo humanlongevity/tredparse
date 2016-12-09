@@ -205,7 +205,7 @@ def run(arg):
 
     os.chdir(cwd)
     shutil.rmtree(samplekey)
-    return samplekey, bam, tredCalls
+    return {'samplekey': samplekey, 'bam': bam, 'tredCalls': tredCalls}
 
 
 def vcfstanza(sampleid, bam, tredCalls, ref):
@@ -247,7 +247,10 @@ def to_vcf(results, ref, treds=["HD"], store=None):
         tr = repo.get_info(tred)
         registry[tred] = tr
 
-    sampleid, bam, calls = results
+    sampleid = results['samplekey']
+    bam = results['bam']
+    calls = results['tredCalls']
+
     if not calls:
         logger.debug("No calls are found for {} `{}`".format(sampleid, bam))
         return
