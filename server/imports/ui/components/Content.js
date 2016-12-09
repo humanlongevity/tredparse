@@ -7,6 +7,7 @@ import FormInput from './FormInput';
 import FormOutput from './FormOutput';
 import Settings from './Settings';
 import Loading from './Loading';
+import TredparseResults from './TredparseResults';
 
 const Treds = require('../../api/documents/treds.json');
 
@@ -39,18 +40,6 @@ const Content = React.createClass({
     const currentTitle = cmd;
     Meteor.call('shell', { cmd },
       () => this.setState({ currentTitle }));
-  },
-
-  getContent() {
-    return (
-      <div>
-        Command: { this.data.post.title }
-        <br />
-        Stdout: { this.data.post.body }
-        <br />
-        Time: { this.data.post.createdAt.toString() }
-      </div>
-    );
   },
 
   buildURL() {
@@ -94,8 +83,9 @@ const Content = React.createClass({
               />
               <p></p>
               {
-                this.data.post ? this.getContent() :
-                ( this.state.currentTitle ? <Loading /> : '' )
+                this.data.post ?
+                  <TredparseResults content={ this.data.post.body } /> :
+                  (this.state.currentTitle ? <Loading /> : '')
               }
               <p></p>
               <FormOutput name={ this.state.tred } url={ this.buildURL() } />
