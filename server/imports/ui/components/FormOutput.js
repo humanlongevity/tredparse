@@ -24,7 +24,7 @@ const FormOutput = React.createClass({
     return (
       <Row>
         <Col sm={ 12 }>
-          <Panel header={ `${name} (${tred.title})` } bsStyle="success">
+          <Panel header={ `${name} (${tred.title})` } bsStyle="info">
             <Col sm={ 7 }>
               <TredTable name={ name } />
             </Col>

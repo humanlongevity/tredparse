@@ -45,7 +45,6 @@ const FormInput = React.createClass({
               placeholder="Enter sample BAM here"
               onChange={ this.handleChange }
             />
-            <FormControl.Feedback />
             <HelpBlock>
                 BAM file could be either on <Button bsSize='small' bsStyle='link'
                 disabled
@@ -73,7 +72,7 @@ const FormInput = React.createClass({
           bsSize='large'
           onClick={ this.props.submitHandler.bind(null, this.state.bam) }
         >
-          Submit
+          Call { Treds[this.props.tred].title }
         </Button>
       </Form>
     );

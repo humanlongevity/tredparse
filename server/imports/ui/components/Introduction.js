@@ -10,17 +10,17 @@ const Introduction = React.createClass({
     };
 
     const introductionHeaderStyle = {
-      fontSize: '26px',
-      lineHeight: '36px',
+      fontSize: '24px',
+      lineHeight: '30px',
       fontWeight: '300',
       margin: '0 0 10px 0',
       textTransform: 'uppercase',
     };
 
     const buttonStyle = {
-      fontWeight: 600,
+      fontWeight: '300',
       textTransform: 'uppercase',
-      marginBottom: '20px',
+      marginBottom: '10px',
     };
 
     return (

@@ -46,7 +46,6 @@ export const Shell = new ValidatedMethod({
         stderr: stderrText,
         createdAt: new Date(),
       };
-      console.log(output);
       Fiber(() => {
         Documents.upsert({ _id: output._id }, { $set: output });
       }).run();

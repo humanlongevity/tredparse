@@ -46,9 +46,10 @@ const Content = React.createClass({
     const basename = this.state.bam.split(/[\\/]/).pop();
     const sampleID = basename.split('_')[0];
     const tr = Treds[this.state.tred];
-    const chrPos = tr.repeat_location.split('-')[0];
-    const [chr, pos] = chrPos.split(':');
-    const url = `http://10.6.110.141/pileup/${sampleID}/${chr}/${pos}`;
+    const [chr, pos] = tr.repeat_location.split(':');
+    const [start, end] = pos.split('-');
+    const mid = Math.round((+start + +end) / 2);
+    const url = `http://10.6.110.141/pileup/${sampleID}/${chr}/${mid}`;
     console.log(url);
     return url;
   },
@@ -84,8 +85,10 @@ const Content = React.createClass({
               <p></p>
               {
                 this.data.post ?
-                  <TredparseResults content={ this.data.post.body } /> :
-                  (this.state.currentTitle ? <Loading /> : '')
+                  <TredparseResults
+                    content={ this.data.post.body }
+                    tred={ this.state.tred }
+                  /> : (this.state.currentTitle ? <Loading /> : '')
               }
               <p></p>
               <FormOutput name={ this.state.tred } url={ this.buildURL() } />
