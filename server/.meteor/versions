@@ -99,7 +99,7 @@ templating-compiler@1.2.15
 templating-runtime@1.2.15
 templating-tools@1.0.5
 themeteorchef:bert@2.1.1
-tmeasday:check-npm-versions@0.2.0
+tmeasday:check-npm-versions@0.3.1
 tmeasday:test-reporter-helpers@0.2.1
 tracker@1.1.1
 ui@1.0.12

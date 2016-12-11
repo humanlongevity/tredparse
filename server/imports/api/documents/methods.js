@@ -36,6 +36,11 @@ export const Shell = new ValidatedMethod({
     cmd: { type: String, optional: true },
   }).validator(),
   run(document) {
+    // If command already run, then skip
+    if (Documents.find({ title: document.cmd }).count()) {
+      return null;
+    }
+
     exec(document.cmd, (err, stdout, stderr) => {
       const stdoutText = stdout.toString() ? stdout.toString() : 'error';
       const stderrText = stderr.toString();
