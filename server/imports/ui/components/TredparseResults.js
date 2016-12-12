@@ -9,7 +9,8 @@ const seqStyle = {
 };
 
 const matchStyle = {
-  backgroundColor: 'yellow',
+  backgroundColor: 'lightslategrey',
+  color: 'white',
 };
 
 const TredparseResults = React.createClass({
@@ -45,26 +46,25 @@ const TredparseResults = React.createClass({
   formatReads(reads, motif) {
     const repeat = motif.replace('N', '.');
     const regex = new RegExp(`(${repeat}){3,}`);
-    console.log(regex);
 
     return (
-      <div style={ seqStyle }>
-        <Table striped hover>
-          <thead>
-            <tr><td>Size</td><td>Read sequence ({ motif } tract highlighted)</td></tr>
-          </thead>
-          <tbody>
+      <Table striped hover>
+        <thead>
+          <tr><td>Size</td><td>Read sequence ({ motif } tract highlighted)</td></tr>
+        </thead>
+        <tbody>
           { reads.map((b, index) => {
             return (
                    <tr key={ index }>
-                     <td>{ b.h }</td>
-                     <td><Highlight search={ regex } matchStyle={ matchStyle }>{ b.seq }</Highlight></td>
+                     <td><strong>{ b.h }</strong></td>
+                     <td><div style={ seqStyle }>
+                       <Highlight search={ regex } matchStyle={ matchStyle }>{ b.seq }</Highlight>
+                     </div></td>
                    </tr>
             );
           }) }
-          </tbody>
-        </Table>
-      </div>
+        </tbody>
+      </Table>
     );
   },
 
