@@ -27,7 +27,8 @@ const FormOutput = React.createClass({
               <TredTable name={ name } />
             </Col>
             <Col sm={ 5 }>
-              <AlleleFreq text={ tred.allele_frequency } />
+              <div>Allele frequency in HLI samples</div>
+              <AlleleFreq text={ tred.allele_frequency } cutoffRisk={ tred.cutoff_risk }/>
             </Col>
           </Panel>
         </Col>

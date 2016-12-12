@@ -52,7 +52,7 @@ const FormInput = React.createClass({
               onChange={ this.handleChange }
             />
             <HelpBlock>
-                BAM file could be either on <Button bsSize='small' bsStyle='link'
+                BAM file could be on <Button bsSize='small' bsStyle='link'
                 disabled
                 onClick={ () =>
                   this.setState({ bam: Settings.httpBAM })
@@ -60,7 +60,7 @@ const FormInput = React.createClass({
                 bsStyle='link'
                 onClick={ () =>
                   this.setState({ bam: Settings.s3BAM })
-                }>S3</Button>
+                }>S3</Button> on human reference <strong>hg38</strong>
             </HelpBlock>
           </Panel>
         </FormGroup>

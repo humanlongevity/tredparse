@@ -25,8 +25,10 @@ const update = (props) => {
     const g = svg.append('g')
               .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
+    const cutoffRisk = +props.cutoffRisk;
+    const maxSize = Math.max(d3.max(data, d => d[0]), cutoffRisk);
     const x = d3.scaleLinear()
-                .domain([0, d3.max(data, d => d[0])])
+                .domain([0, maxSize])
                 .range([0, width]);
     const y = d3.scaleLinear()
                 .domain([0, d3.max(data, d => d[1])])
@@ -46,12 +48,22 @@ const update = (props) => {
       .call(d3.axisBottom(x));
     g.append('g')
       .call(d3.axisLeft(y));
+
+    const line = svg.append('line')
+                    .attr('x1', x(cutoffRisk) + margin.left)
+                    .attr('y1', margin.top)
+                    .attr('x2', x(cutoffRisk) + margin.left)
+                    .attr('y2', margin.top + height)
+                    .style('stroke-width', 3)
+                    .style('stroke', 'tomato')
+                    .style('fill', 'none');
   };
 };
 
 const AlleleFreq = React.createClass({
   propTypes: {
     text: React.PropTypes.string,
+    cutoffRisk: React.PropTypes.number,
   },
 
   componentDidMount() {
