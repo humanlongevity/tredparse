@@ -63,8 +63,18 @@ number of people affected by over-expanded TREDs.
 The server/client allows `tredparse` to be run as a service, also showing the
 detailed debug information for the detailed computation.
 
+Install `meteor` if you don't have it yet.
+
 ```bash
-cd server
+curl https://install.meteor.com/ | sh
+```
+
+Then build the docker image to run the command, then run the server.
+
+```bash
+cd Dockerfiles
+make build
+cd ../server
 meteor update
 meteor npm install
 meteor

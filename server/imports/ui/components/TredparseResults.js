@@ -1,11 +1,15 @@
 import React from 'react';
+import Highlight from 'react-highlighter';
 import { Accordion, Alert, Table, Panel } from 'react-bootstrap';
+import { Treds } from './TredTable';
 
 const seqStyle = {
   fontFamily: '"Lucida Console", Monaco, monospace',
-  fontSize: '12px',
-  textTransform: 'uppercase',
-  color: 'grey',
+  fontSize: '10px',
+};
+
+const matchStyle = {
+  backgroundColor: 'yellow',
 };
 
 const TredparseResults = React.createClass({
@@ -38,13 +42,25 @@ const TredparseResults = React.createClass({
     );
   },
 
-  formatReads(reads) {
+  formatReads(reads, motif) {
+    const repeat = motif.replace('N', '.');
+    const regex = new RegExp(`(${repeat}){3,}`);
+    console.log(regex);
+
     return (
       <div style={ seqStyle }>
         <Table striped hover>
+          <thead>
+            <tr><td>Size</td><td>Read sequence ({ motif } tract highlighted)</td></tr>
+          </thead>
           <tbody>
           { reads.map((b, index) => {
-            return <tr key={ index }><td>{ b.seq }</td></tr>;
+            return (
+                   <tr key={ index }>
+                     <td>{ b.h }</td>
+                     <td><Highlight search={ regex } matchStyle={ matchStyle }>{ b.seq }</Highlight></td>
+                   </tr>
+            );
           }) }
           </tbody>
         </Table>
@@ -59,6 +75,7 @@ const TredparseResults = React.createClass({
     const object = JSON.parse(content);
     const calls = object.tredCalls;
     const tred = this.props.tred;
+    const tredinfo = Treds[tred];
     const details = calls[`${tred}.details`];
 
     const fullReads = [];
@@ -78,10 +95,10 @@ const TredparseResults = React.createClass({
         { this.getStatement(calls) }
         <Accordion>
           <Panel header={ `Full spanning - ${fullReads.length} reads` } eventKey='1'>
-            { this.formatReads(fullReads) }
+            { this.formatReads(fullReads, tredinfo.repeat) }
           </Panel>
           <Panel header={`Partial spanning - ${partialReads.length} reads`} eventKey='2'>
-            { this.formatReads(partialReads) }
+            { this.formatReads(partialReads, tredinfo.repeat) }
           </Panel>
         </Accordion>
       </div>
