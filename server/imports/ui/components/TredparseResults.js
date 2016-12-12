@@ -1,5 +1,12 @@
 import React from 'react';
-import { Accordion, Alert, Panel } from 'react-bootstrap';
+import { Accordion, Alert, Table, Panel } from 'react-bootstrap';
+
+const seqStyle = {
+  fontFamily: '"Lucida Console", Monaco, monospace',
+  fontSize: '12px',
+  textTransform: 'uppercase',
+  color: 'grey',
+};
 
 const TredparseResults = React.createClass({
   propTypes: {
@@ -31,6 +38,20 @@ const TredparseResults = React.createClass({
     );
   },
 
+  formatReads(reads) {
+    return (
+      <div style={ seqStyle }>
+        <Table striped hover>
+          <tbody>
+          { reads.map((b, index) => {
+            return <tr key={ index }><td>{ b.seq }</td></tr>;
+          }) }
+          </tbody>
+        </Table>
+      </div>
+    );
+  },
+
   render() {
     const content = this.props.content;
     if (!content) return null;
@@ -57,10 +78,10 @@ const TredparseResults = React.createClass({
         { this.getStatement(calls) }
         <Accordion>
           <Panel header={ `Full spanning - ${fullReads.length} reads` } eventKey='1'>
-            { JSON.stringify(fullReads) }
+            { this.formatReads(fullReads) }
           </Panel>
           <Panel header={`Partial spanning - ${partialReads.length} reads`} eventKey='2'>
-            { JSON.stringify(partialReads) }
+            { this.formatReads(partialReads) }
           </Panel>
         </Accordion>
       </div>

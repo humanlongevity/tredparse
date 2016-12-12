@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table } from 'react-bootstrap';
+import { Button, Table } from 'react-bootstrap';
 
 export const Treds = require('../../api/documents/treds.json');
 
@@ -35,7 +35,7 @@ const TredTable = React.createClass({
                 target='_blank'
               >
                 { tred.gene_name }
-              </a> ({ tred.gene_location })
+              </a> ({ tred.gene_location }) { tred.gene_part }
             </td>
           </tr>
           <tr>
@@ -57,6 +57,12 @@ const TredTable = React.createClass({
             <td>
               <div className="text-left">
                 { tred.symptom }
+              </div>
+              <div>
+                { tred.omim_id ? <Button bsStyle='link'
+                  href={ `http://www.omim.org/entry/${tred.omim_id}` }>OMIM</Button> : null }
+                { tred.src != 'omim' ? <Button bsStyle='link'
+                  href={ tred.url }>{ tred.src }</Button> : null}
               </div>
             </td>
           </tr>
