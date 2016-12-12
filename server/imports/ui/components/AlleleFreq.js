@@ -16,9 +16,10 @@ const update = (props) => {
 
   return (me) => {
     me.select('svg').remove();
+    const canvas = { width: 360, height: 280 };
     const svg = me.append('svg')
-                  .attr('width', 320)
-                  .attr('height', 240);
+                  .attr('width', canvas.width)
+                  .attr('height', canvas.height);
     const margin = { top: 10, right: 30, bottom: 30, left: 50 };
     const width = +svg.attr('width') - margin.left - margin.right;
     const height = +svg.attr('height') - margin.top - margin.bottom;
@@ -49,6 +50,11 @@ const update = (props) => {
     g.append('g')
       .call(d3.axisLeft(y));
 
+    const xlabel = svg.append('text')
+                      .attr('text-anchor', 'middle')
+                      .attr('transform', `translate(${margin.left + width / 2}, ${+svg.attr('height')})`)
+                      .text(`Number of ${props.motif}s`);
+
     // Cutoff line
     const linePos = x(cutoffRisk) + margin.left;
     const line = svg.append('line')
@@ -69,17 +75,16 @@ const update = (props) => {
 
     // Comment on the line
     const comment = svg.append('text')
-                       .attr('x', 0)
-                       .attr('y', 0)
                        .attr('text-anchor', 'middle')
                        .attr('transform', `translate(${linePos + 10}, ${margin.top + height / 2}) rotate(-90)`)
-                       .text(`Disease (>=${cutoffRisk}) - ${patients} persons`);
+                       .text(`Disease (>=${cutoffRisk} ${props.motif}s) - ${patients} persons`);
   };
 };
 
 const AlleleFreq = React.createClass({
   propTypes: {
     text: React.PropTypes.string,
+    motif: React.PropTypes.string,
     cutoffRisk: React.PropTypes.number,
   },
 
