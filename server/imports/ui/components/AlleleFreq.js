@@ -49,14 +49,31 @@ const update = (props) => {
     g.append('g')
       .call(d3.axisLeft(y));
 
+    // Cutoff line
+    const linePos = x(cutoffRisk) + margin.left;
     const line = svg.append('line')
-                    .attr('x1', x(cutoffRisk) + margin.left)
+                    .attr('x1', linePos)
                     .attr('y1', margin.top)
-                    .attr('x2', x(cutoffRisk) + margin.left)
+                    .attr('x2', linePos)
                     .attr('y2', margin.top + height)
                     .style('stroke-width', 3)
                     .style('stroke', 'tomato')
                     .style('fill', 'none');
+
+    let patients = 0;
+    data.forEach(d => {
+      if (d[0] >= cutoffRisk) {
+        patients += d[1];
+      }
+    });
+
+    // Comment on the line
+    const comment = svg.append('text')
+                       .attr('x', 0)
+                       .attr('y', 0)
+                       .attr('text-anchor', 'middle')
+                       .attr('transform', `translate(${linePos + 10}, ${margin.top + height / 2}) rotate(-90)`)
+                       .text(`Disease (>=${cutoffRisk}) - ${patients} persons`);
   };
 };
 
