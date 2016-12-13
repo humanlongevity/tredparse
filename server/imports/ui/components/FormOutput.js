@@ -29,9 +29,7 @@ const FormOutput = React.createClass({
             <Col sm={ 5 }>
               <div>Allele frequency in HLI samples</div>
               <AlleleFreq
-                text={ tred.allele_frequency }
-                cutoffRisk={ tred.cutoff_risk }
-                motif={ tred.repeat }
+                tred={ name }
               />
             </Col>
           </Panel>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Treds } from './TredTable';
 import d3 from 'd3';
 
 const getData = (text) => {
@@ -10,7 +11,8 @@ const getData = (text) => {
 };
 
 const update = (props) => {
-  const data = getData(props.text);
+  const tred = Treds[props.tred];
+  const data = getData(tred.allele_frequency);
   const choose = choices => choices[Math.floor(Math.random() * choices.length)];
   const color = choose(d3.schemeCategory20);
 
@@ -26,7 +28,7 @@ const update = (props) => {
     const g = svg.append('g')
               .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-    const cutoffRisk = +props.cutoffRisk;
+    const cutoffRisk = +tred.cutoff_risk;
     const maxSize = Math.max(d3.max(data, d => d[0]), cutoffRisk);
     const x = d3.scaleLinear()
                 .domain([0, maxSize])
@@ -53,7 +55,7 @@ const update = (props) => {
     const xlabel = svg.append('text')
                       .attr('text-anchor', 'middle')
                       .attr('transform', `translate(${margin.left + width / 2}, ${+svg.attr('height')})`)
-                      .text(`Number of ${props.motif}s`);
+                      .text(`Number of ${tred.repeat}s`);
 
     // Cutoff line
     const linePos = x(cutoffRisk) + margin.left;
@@ -67,25 +69,28 @@ const update = (props) => {
                     .style('fill', 'none');
 
     let patients = 0;
+    const expansion = (tred.mutation_nature === 'increase');
     data.forEach(d => {
-      if (d[0] >= cutoffRisk) {
+      if (expansion && d[0] >= cutoffRisk) {
+        patients += d[1];
+      } else if (!expansion && d[0] <= cutoffRisk) {
         patients += d[1];
       }
     });
 
     // Comment on the line
+    const pad = expansion ? 15 : -5;
+    const tag = expansion ? '\u2265': '\u2264';
     const comment = svg.append('text')
                        .attr('text-anchor', 'middle')
-                       .attr('transform', `translate(${linePos + 10}, ${margin.top + height / 2}) rotate(-90)`)
-                       .text(`Disease (\u2265${cutoffRisk} ${props.motif}s) - ${patients} persons`);
+                       .attr('transform', `translate(${linePos + pad}, ${margin.top + height / 2}) rotate(-90)`)
+                       .text(`Disease (${tag}${cutoffRisk} ${tred.repeat}s) - ${patients} alleles`);
   };
 };
 
 const AlleleFreq = React.createClass({
   propTypes: {
-    text: React.PropTypes.string,
-    motif: React.PropTypes.string,
-    cutoffRisk: React.PropTypes.number,
+    tred: React.PropTypes.string,
   },
 
   componentDidMount() {

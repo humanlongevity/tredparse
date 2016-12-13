@@ -38,7 +38,7 @@ const TredparseResults = React.createClass({
         <Alert bsStyle={ status }>
           { tred } alleles: { calls[`${tred}.1`] } / { calls[`${tred}.2`] } { tr.repeat }s
           <br />
-          Disease status: { label } (risk allele &ge; { tr.cutoff_risk })
+          Disease status: { label } - <span style={{ color: 'grey' }}><i>Prob(disease)</i>={ Math.round(calls[`${tred}.PP`], 3) }</span>
         </Alert>
       </div>
     );
