@@ -55,7 +55,7 @@ const update = (props) => {
     const xlabel = svg.append('text')
                       .attr('text-anchor', 'middle')
                       .attr('transform', `translate(${margin.left + width / 2}, ${+svg.attr('height')})`)
-                      .text(`Number of ${tred.repeat}s`);
+                      .text(`Number of ${tred.repeat}s at ${props.tred} locus`);
 
     // Cutoff line
     const linePos = x(cutoffRisk) + margin.left;
