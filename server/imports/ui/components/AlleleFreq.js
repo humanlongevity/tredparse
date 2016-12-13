@@ -77,7 +77,7 @@ const update = (props) => {
     const comment = svg.append('text')
                        .attr('text-anchor', 'middle')
                        .attr('transform', `translate(${linePos + 10}, ${margin.top + height / 2}) rotate(-90)`)
-                       .text(`Disease (>=${cutoffRisk} ${props.motif}s) - ${patients} persons`);
+                       .text(`Disease (\u2265${cutoffRisk} ${props.motif}s) - ${patients} persons`);
   };
 };
 

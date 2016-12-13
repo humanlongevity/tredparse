@@ -21,6 +21,7 @@ const TredparseResults = React.createClass({
 
   getStatement(calls) {
     const tred = this.props.tred;
+    const tr = Treds[tred];
     const label = calls[`${tred}.label`];
     let status;
 
@@ -35,9 +36,9 @@ const TredparseResults = React.createClass({
     return (
       <div style={{ fontSize: '24px' }}>
         <Alert bsStyle={ status }>
-          { tred } alleles: { calls[`${tred}.1`] } / { calls[`${tred}.2`] }
+          { tred } alleles: { calls[`${tred}.1`] } / { calls[`${tred}.2`] } { tr.repeat }s
           <br />
-          Disease status: { label }
+          Disease status: { label } (risk allele &ge; { tr.cutoff_risk })
         </Alert>
       </div>
     );
