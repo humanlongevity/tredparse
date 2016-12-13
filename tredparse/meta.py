@@ -70,6 +70,7 @@ class TRED(object):
         self.inheritance = row["inheritance"]
         self.is_xlinked = self.inheritance[0] == 'X'
         self.is_recessive = self.inheritance[-1] == 'R'
+        self.is_expansion = row["mutation_nature"] == 'increase'
         self.ploidy = 2
 
     def __repr__(self):

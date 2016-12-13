@@ -218,12 +218,21 @@ class IntegratedCaller:
         self.logger.debug("Inheritance: {} Cutoff_risk: {}".\
                             format(tred.inheritance, tred.cutoff_risk))
 
-        if not tred.is_recessive:  # Dominant
-            pathological_liks = [x[0] for x in mls \
-                    if max(x[1]) / self.period >= tred.cutoff_risk]
-        else:                      # Recessive
-            pathological_liks = [x[0] for x in mls \
-                    if min(x[1]) / self.period >= tred.cutoff_risk]
+        if tred.is_expansion:
+            if not tred.is_recessive:  # Dominant
+                pathological_liks = [x[0] for x in mls \
+                        if max(x[1]) / self.period >= tred.cutoff_risk]
+            else:                      # Recessive
+                pathological_liks = [x[0] for x in mls \
+                        if min(x[1]) / self.period >= tred.cutoff_risk]
+        else:
+            if not tred.is_recessive:  # Dominant
+                pathological_liks = [x[0] for x in mls \
+                        if min(x[1]) / self.period <= tred.cutoff_risk]
+            else:                      # Recessive
+                pathological_liks = [x[0] for x in mls \
+                        if max(x[1]) / self.period <= tred.cutoff_risk]
+
         return np.exp(pathological_liks - lik).sum() \
                     / np.exp(all_liks - lik).sum()
 
@@ -246,11 +255,18 @@ class IntegratedCaller:
         a, b = sorted(alleles)
         label = "ok" if a != -1 else "missing"
         cutoff_prerisk, cutoff_risk = tred.cutoff_prerisk, tred.cutoff_risk
-        crit_allele = a if tred.is_recessive else b
-        if cutoff_prerisk <= crit_allele < cutoff_risk:
-            label = "prerisk"
-        elif crit_allele >= cutoff_risk:
-            label = "risk"
+        if tred.is_expansion:
+            crit_allele = a if tred.is_recessive else b
+            if cutoff_prerisk <= crit_allele < cutoff_risk:
+                label = "prerisk"
+            elif crit_allele >= cutoff_risk:
+                label = "risk"
+        else:
+            crit_allele = b if tred.is_recessive else a
+            if cutoff_prerisk <= crit_allele < cutoff_risk:
+                label = "prerisk"
+            elif crit_allele <= cutoff_risk:
+                label = "risk"
         return label
 
     def call(self, **kwargs):
