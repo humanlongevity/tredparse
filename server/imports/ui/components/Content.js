@@ -35,7 +35,6 @@ const Content = React.createClass({
 
     const cmd = `docker run --rm tanghaibao/tredparse tred.py ${bam} --tred ${tred} --log DEBUG`;
     const currentTitle = cmd;
-    console.log(currentTitle);
     Meteor.call('shell', { cmd },
       () => this.setState({ currentTitle }));
   },

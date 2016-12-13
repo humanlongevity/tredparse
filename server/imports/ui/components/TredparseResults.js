@@ -32,13 +32,16 @@ const TredparseResults = React.createClass({
     } else if (label === 'risk') {
       status = 'danger';
     }
+    const inferredGender = calls['inferredGender'];
 
     return (
       <div style={{ fontSize: '24px' }}>
         <Alert bsStyle={ status }>
           { tred } alleles: { calls[`${tred}.1`] } / { calls[`${tred}.2`] } { tr.repeat }s
-          <br />
-          Disease status: { label } - <span style={{ color: 'grey' }}><i>Prob(disease)</i>={ Math.round(calls[`${tred}.PP`], 3) }</span>
+          <div>Disease status: { label } - <span style={{ color: 'grey' }}>
+            <i>Prob(disease)</i>={ Math.round(calls[`${tred}.PP`], 3) }</span>
+          </div>
+          { inferredGender === 'Unknown' ? null : <div>Inferred gender: { inferredGender }</div> }
         </Alert>
       </div>
     );
