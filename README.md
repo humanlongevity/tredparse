@@ -63,7 +63,7 @@ number of people affected by over-expanded TREDs.
 The server/client allows `tredparse` to be run as a service, also showing the
 detailed debug information for the detailed computation.
 
-![](https://www.dropbox.com/s/x98u3zab1tpgyao/screencast.gif)
+![](https://dl.dropbox.com/s/x98u3zab1tpgyao/screencast.gif)
 
 Install `meteor` if you don't have it yet.
 
