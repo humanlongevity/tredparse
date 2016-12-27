@@ -7,7 +7,7 @@
 | Author | Haibao Tang ([tanghaibao](http://github.com/tanghaibao)) |
 || Smriti Ramakrishnan ([smr18](http://github.com/smr18)) |
 | Email | <htang@humanlongevity.com> |
-| License | [BSD](http://creativecommons.org/licenses/BSD/) |
+| License | Restricted |
 
 ## Description
 
@@ -62,6 +62,8 @@ number of people affected by over-expanded TREDs.
 
 The server/client allows `tredparse` to be run as a service, also showing the
 detailed debug information for the detailed computation.
+
+![](https://www.dropbox.com/s/x98u3zab1tpgyao/screencast.gif)
 
 Install `meteor` if you don't have it yet.
 
