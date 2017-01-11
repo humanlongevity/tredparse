@@ -31,7 +31,7 @@ const Content = React.createClass({
   },
 
   handleClick(bam, tred) {
-    this.setState({ tred });
+    this.setState({ bam: bam, tred: tred });
 
     const cmd = `docker run --rm tanghaibao/tredparse tred.py ${bam} --tred ${tred} --log DEBUG`;
     const currentTitle = cmd;

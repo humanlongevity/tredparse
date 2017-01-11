@@ -47,7 +47,8 @@ export const Shell = new ValidatedMethod({
           console.error(`exec error: ${err}`);
       }
 
-      const stdoutText = stdout.toString() ? stdout.toString() : 'error';
+      const stdoutText = stdout.toString() ? stdout.toString()
+                                           : JSON.stringify({ error: err.toString() });
       const stderrText = stderr.toString();
 
       const output = {

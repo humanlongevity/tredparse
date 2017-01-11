@@ -77,6 +77,14 @@ const TredparseResults = React.createClass({
     if (!content) return null;
 
     const object = JSON.parse(content);
+    if (object.error) {
+      return (
+        <Alert bsStyle="danger">
+            Execution error: { object.error }
+        </Alert>
+      );
+    }
+
     const calls = object.tredCalls;
     const tred = this.props.tred;
     const tredinfo = Treds[tred];
