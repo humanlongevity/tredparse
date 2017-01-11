@@ -41,7 +41,12 @@ export const Shell = new ValidatedMethod({
       return null;
     }
 
-    exec(document.cmd, (err, stdout, stderr) => {
+    // maxBuffer increased to 1Mb to avoid maxBuffer exceeded error
+    exec(document.cmd, { maxBuffer: 1024 * 1000 }, (err, stdout, stderr) => {
+      if (err) {
+          console.error(`exec error: ${err}`);
+      }
+
       const stdoutText = stdout.toString() ? stdout.toString() : 'error';
       const stderrText = stderr.toString();
 
