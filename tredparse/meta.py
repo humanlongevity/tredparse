@@ -4,21 +4,16 @@ import pandas as pd
 
 
 REF = "hg38"
-REPO = op.join(op.dirname(__file__), 'data/TREDs.meta.{}.csv')
+REPO = op.join(op.dirname(__file__), 'data/TREDs.meta.csv')
 
 
 class TREDsRepo(dict):
 
     def __init__(self, ref=REF, toy=False):
 
-        assert ref == REF, "Only supporting {} currently!".format(REF)
-        repo = REPO.format(ref)
-        if not op.exists(repo):
-            assert ref == REF, "Ref {} not supported currently!".format(ref)
-
-        df = pd.read_csv(repo, index_col=0)
+        df = pd.read_csv(REPO, index_col=0)
         for name, row in df.iterrows():
-            self[name] = TRED(name, row)
+            self[name] = TRED(name, row, ref=ref)
         self.df = df
 
         if toy:
@@ -52,12 +47,15 @@ class TREDsRepo(dict):
 
 class TRED(object):
 
-    def __init__(self, name, row):
+    def __init__(self, name, row, ref=REF):
 
         self.row = row
         self.name = name
         self.repeat = row["repeat"]
-        repeat_location = row["repeat_location"]
+        repeat_location_field = "repeat_location"
+        if ref != REF:
+            repeat_location_field += "." + ref
+        repeat_location = row[repeat_location_field]
         self.chromosome, repeat_location = repeat_location.split(":")
         repeat_start, repeat_end = repeat_location.split("-")
         self.repeat_start = int(repeat_start)
