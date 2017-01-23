@@ -24,5 +24,7 @@ RUN pip install pysam
 
 # Install tredparse
 COPY creds /root/.aws
-RUN pip install git+git://github.com/tanghaibao/tredparse.git
+#RUN pip install git+git://github.com/tanghaibao/tredparse.git
+ADD tredparse-master.zip /
+RUN pip install tredparse-master.zip
 WORKDIR /

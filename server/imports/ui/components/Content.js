@@ -16,6 +16,7 @@ const Content = React.createClass({
       currentTitle: '',
       bam: Settings.s3BAM,
       tred: Settings.tred,
+      ref: Settings.ref,
     };
   },
 
@@ -30,10 +31,10 @@ const Content = React.createClass({
     return data;
   },
 
-  handleClick(bam, tred) {
-    this.setState({ bam: bam, tred: tred });
+  handleClick(bam, tred, ref) {
+    this.setState({ bam: bam, tred: tred, ref: ref });
 
-    const cmd = `docker run --rm tanghaibao/tredparse tred.py ${bam} --tred ${tred} --log DEBUG`;
+    const cmd = `docker run --rm tanghaibao/tredparse tred.py ${bam} --tred ${tred} --ref ${ref} --log DEBUG`;
     const currentTitle = cmd;
     Meteor.call('shell', { cmd },
       () => this.setState({ currentTitle }));

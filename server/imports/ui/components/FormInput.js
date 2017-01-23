@@ -1,5 +1,5 @@
 import React from 'react';
-import { ButtonToolbar, Button, FormControl, Form, FormGroup, HelpBlock, Panel } from 'react-bootstrap';
+import { ButtonGroup, ButtonToolbar, Button, FormControl, Form, FormGroup, HelpBlock, Panel } from 'react-bootstrap';
 import Settings from './Settings';
 import { Treds } from './TredTable';
 
@@ -12,11 +12,16 @@ const FormInput = React.createClass({
   getInitialState() {
     return {
       bam: Settings.s3BAM,
+      ref: Settings.ref,
     };
   },
 
   handleChange(e) {
     this.setState({ bam: e.target.value });
+  },
+
+  _onOptionChange(ref) {
+    this.setState({ ref: ref });
   },
 
   render() {
@@ -28,7 +33,7 @@ const FormInput = React.createClass({
       const active = (b === this.props.tred);
       return (
         <Button key={ b }
-          onClick={ this.props.clickHandler.bind(null, this.state.bam, b) }
+          onClick={ this.props.clickHandler.bind(null, this.state.bam, b, this.state.ref) }
           active={ active }
           bsSize='xsmall'
           style={ buttonStyle }
@@ -60,7 +65,16 @@ const FormInput = React.createClass({
                 bsStyle='link'
                 onClick={ () =>
                   this.setState({ bam: Settings.s3BAM })
-                }>S3</Button> on human reference <strong>hg38</strong>
+                }>S3</Button> on human reference <ButtonGroup>
+                  <Button onClick={ this._onOptionChange.bind(this, 'hg38') }
+                          active={ this.state.ref === 'hg38' }>
+                    hg38
+                  </Button>
+                  <Button onClick={ this._onOptionChange.bind(this, 'hg19') }
+                          active={ this.state.ref === 'hg19' }>
+                    hg19
+                  </Button>
+                </ButtonGroup>
             </HelpBlock>
           </Panel>
         </FormGroup>
