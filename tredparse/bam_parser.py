@@ -177,7 +177,7 @@ class BamParser:
         return df
 
     def _parse(self):
-        samfile = pysam.AlignmentFile(self.bam, "rb")
+        samfile = read_alignment(self.bam)
         db = self._buildDB()
 
         chr, start, end = self.CHR_STR, self.WINDOW_START, self.WINDOW_END
@@ -222,7 +222,7 @@ class PEextractor:
     Infer distance paired-end reads spanning a certain region.
     """
     def __init__(self, bp):
-        samfile = pysam.AlignmentFile(bp.bam, "rb")
+        samfile = read_alignment(bp.bam)
         chr = bp.CHR_STR
         start = bp.startRepeat
         end = bp.endRepeat
@@ -280,7 +280,7 @@ class BamReadLen:
 
     @property
     def readlen(self, firstN=100):
-        sam = pysam.AlignmentFile(self.bamfile, 'rb')
+        sam = read_alignment(self.bamfile)
         rls = []
         for read in sam.fetch():
             rls.append(read.query_length)
@@ -298,7 +298,7 @@ class BamDepth:
         self.logger = logger
 
     def region_depth(self, chr, start, end):
-        sam = pysam.AlignmentFile(self.bamfile, 'rb')
+        sam = read_alignment(self.bamfile)
         depths = [c.n for c in sam.pileup(chr, start, end)]
         return sum(depths) * 1. / (end - start + 1)
 
@@ -318,6 +318,13 @@ class BamDepth:
         self.logger.debug("Y depths (first {} regions): {}"\
                     .format(N, np.array(depths)))
         return np.median(depths)
+
+
+def read_alignment(samfile):
+    ''' Dispatches BAM/CRAM based on file suffix
+    '''
+    tag = 'rc' if samfile.endswith(".cram") else 'rb'
+    return pysam.AlignmentFile(samfile, tag)
 
 
 def test_fetch(samfile, chr, start, end, logger):

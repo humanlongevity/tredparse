@@ -19,8 +19,9 @@ import logging
 import pysam
 
 from tredparse.utils import DefaultHelpParser, InputParams, \
-            mkdir, ls_s3, push_to_s3
-from tredparse.bam_parser import BamDepth, BamReadLen, BamParser, BamParserResults
+        mkdir, ls_s3, push_to_s3
+from tredparse.bam_parser import BamDepth, BamReadLen, BamParser, \
+        BamParserResults, read_alignment
 from tredparse.models import IntegratedCaller
 from tredparse.meta import TREDsRepo
 from datetime import datetime as dt, timedelta
@@ -104,7 +105,7 @@ def check_bam(bam):
     # Does the file exist?
     logger.debug("Working on `{}`".format(bam))
     try:
-        pysam.AlignmentFile(bam, "rb")
+        read_alignment(bam)
     except (IOError, ValueError) as e:
         logger.error("Cannot retrieve file `{}` ({})".format(bam, e))
         return None
@@ -301,7 +302,7 @@ def to_vcf(results, ref, treds=["HD"], store=None):
 
 def read_csv(csvfile, args):
     # Mode 1: See if this is just a BAM file
-    if csvfile.endswith(".bam"):
+    if csvfile.endswith(".bam") or csvfile.endswith(".cram"):
         bam = csvfile
         if args.workflow_execution_id and args.sample_id:
             samplekey = "_".join((args.workflow_execution_id, args.sample_id))

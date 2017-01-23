@@ -35,7 +35,7 @@ const TredTable = React.createClass({
                 target='_blank'
               >
                 { tred.gene_name }
-              </a> ({ tred.gene_location }) { tred.gene_part }
+              </a> ({ tred.gene_location } on hg38) - { tred.gene_part }
             </td>
           </tr>
           <tr>
