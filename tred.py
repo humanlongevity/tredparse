@@ -58,7 +58,6 @@ def set_argparse():
             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p.add_argument('infile', nargs='?', help="Input path (BAM, list of BAMs, or csv format)")
     p.add_argument('--cpus', help='Number of CPUs to use', type=int, default=cpu_count())
-    p.add_argument('--out', help='Path to output file', default=None)
     p.add_argument('--ref', help='Reference genome version',
                         choices=("hg38", "hg19"), default='hg38')
     p.add_argument('--tred', help='STR disorder, default is to run all',
@@ -66,7 +65,8 @@ def set_argparse():
     p.add_argument('--haploid', help='Treat these chromosomes as haploid', action='append')
     p.add_argument('--maxinsert', default=100, type=int,
                         help="Maximum number of repeats")
-    p.add_argument('--log', help='Print debug logs', default=logging.getLevelName(logging.INFO))
+    p.add_argument('--log', choices=("INFO", "DEBUG"), default="INFO",
+                        help='Print debug logs, DEBUG=verbose')
     p.add_argument('--toy', help=argparse.SUPPRESS, action="store_true")
     p.add_argument('--cleanup', default=False, action="store_true",
                                 help="Cleanup the workdir after done")
