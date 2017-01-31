@@ -216,7 +216,7 @@ class BamParserResults:
         self.Q = caller.Q
         self.PP = caller.PP
         self.label = caller.label
-        self.integratedCalls = caller.alleles
+        self.alleles = caller.alleles
 
 
 class PEextractor:

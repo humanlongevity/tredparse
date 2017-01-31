@@ -45,6 +45,7 @@ INFO = """##INFO=<ID=RPA,Number=1,Type=String,Description="Repeats per allele">
 ##FORMAT=<ID=PR,Number=1,Type=String,Description="Partial reads aligned to locus">
 ##FORMAT=<ID=FDP,Number=1,Type=Integer,Description="Full read Depth">
 ##FORMAT=<ID=PDP,Number=1,Type=Integer,Description="Partial read Depth">
+##FORMAT=<ID=PEDP,Number=1,Type=Integer,Description="Paired-end read Depth">
 ##FORMAT=<ID=Q,Number=1,Type=Float,Description="Likelihood ratio score of allelotype call">
 ##FORMAT=<ID=PP,Number=1,Type=Float,Description="Post. probability of disease">
 ##FORMAT=<ID=LABEL,Number=1,Type=String,Description="Risk assessment">
@@ -151,7 +152,7 @@ def run(arg):
 
     tredCalls = {"inferredGender": gender, "depthY": ydepth}
     if check_bam(bam) is None:
-        return samplekey, bam, tredCalls
+        return {'samplekey': samplekey, 'bam': bam, 'tredCalls': tredCalls}
 
     # Infer gender based on depth on chrY
     if any(repo[tred].is_xlinked for tred in tredNames):
@@ -189,9 +190,9 @@ def run(arg):
             logger.error("Exception on `{}` {} ({})".format(bam, tred, e))
             continue
 
-        res = tpResult.integratedCalls
-        tredCalls[tred + ".1"] = res[0] # .1 is the shorter allele
-        tredCalls[tred + ".2"] = res[1] # .2 is the longer allele
+        alleles = tpResult.alleles
+        tredCalls[tred + ".1"] = alleles[0] # .1 is the shorter allele
+        tredCalls[tred + ".2"] = alleles[1] # .2 is the longer allele
         tredCalls[tred + ".FR"] = counter_s(tpResult.df_full)
         tredCalls[tred + ".PR"] = counter_s(tpResult.df_partial)
         tredCalls[tred + ".FDP"] = tpResult.FDP     # Full depth
@@ -283,11 +284,12 @@ def to_vcf(results, ref, treds=["HD"], store=None):
         fields = "{}:{}:{}:{}:{}:{}:{:.4g}:{:.4g}:{}".format(gt, gb,
                         calls[tred + ".FR"], calls[tred + ".PR"],
                         calls[tred + ".FDP"], calls[tred + ".PDP"],
+                        calls[tred + ".PEDP"],
                         calls[tred + ".Q"], calls[tred + ".PP"],
                         calls[tred + ".label"])
         m = "\t".join(str(x) for x in (
            chr, start, tred, ref_copy * repeat, alt, ".", ".", info,
-           "GT:GB:FR:PR:FDP:PDP:Q:PP:LABEL", fields))
+           "GT:GB:FR:PR:FDP:PDP:PEDP:Q:PP:LABEL", fields))
         contents.append((chr, start, m))
 
     fw = gzip.open(vcffile, "w")
@@ -334,7 +336,14 @@ def read_csv(csvfile, args):
     return contents
 
 
-# temporary script to run on N samples
+def write_vcf_json(results, ref, treds, store):
+    try:
+        to_vcf(results, ref, treds=treds, store=store)
+        to_json(results, ref, treds=treds, store=store)
+    except:
+        print >> sys.stderr, "Error writing: {}".format(results)
+
+
 if __name__ == '__main__':
     p = set_argparse()
     args = p.parse_args()
@@ -407,21 +416,13 @@ if __name__ == '__main__':
             results = run(ta)
             if args.no_output:
                 continue
-            try:
-                to_vcf(results, ref, treds=treds, store=store)
-                to_json(results, ref, treds=treds, store=store)
-            except KeyError:
-                continue
+            write_vcf_json(results, ref, treds, store)
     else:
         p = Pool(processes=cpus)
         for results in p.imap(run, task_args):
             if args.no_output:
                 continue
-            try:
-                to_vcf(results, ref, treds=treds, store=store)
-                to_json(results, ref, treds=treds, store=store)
-            except KeyError:
-                continue
+            write_vcf_json(results, ref, treds, store)
 
     print >> sys.stderr, "Elapsed time={}"\
             .format(timedelta(seconds=time.time() - start))
