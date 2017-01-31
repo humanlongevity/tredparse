@@ -281,7 +281,7 @@ def to_vcf(results, ref, treds=["HD"], store=None):
         else:
             gt = "0/0"
         gb = "{}/{}".format(a, b)
-        fields = "{}:{}:{}:{}:{}:{}:{:.4g}:{:.4g}:{}".format(gt, gb,
+        fields = "{}:{}:{}:{}:{}:{}:{}:{:.4g}:{:.4g}:{}".format(gt, gb,
                         calls[tred + ".FR"], calls[tred + ".PR"],
                         calls[tred + ".FDP"], calls[tred + ".PDP"],
                         calls[tred + ".PEDP"],

@@ -167,7 +167,7 @@ def main():
             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p.add_argument("files", nargs="*")
     p.add_argument('--tsv', default="out.tsv",
-                   help="Path to the tsv file", required=True)
+                   help="Path to the tsv file")
     p.add_argument('--columns', default="1,2,label",
                    help="Columns to extract, use comma to separate")
     p.add_argument('--NA12878', default=False, action="store_true",
