@@ -200,21 +200,23 @@ class BamParserResults:
     '''
     Encapsulates all results: counts from BamParser and calls from different callers
     '''
-    def __init__(self, inputParams, tred, df, details,
-                       Q, PP, label, integratedCalls):
+    def __init__(self, inputParams, tred, df, details, caller):
         self.inputParams = inputParams
         self.tred = tred
         self.details = details
-        self.Q = Q
-        self.PP = PP
-        self.label = label
         self.df_full = dict((k, v) for k, v in \
                                 df["full"].to_dict().items() if v)
         self.df_partial = dict((k, v) for k, v in \
                                 df["partial"].to_dict().items() if v)
         self.FDP = int(sum(self.df_full.values()))
         self.PDP = int(sum(self.df_partial.values()))
-        self.integratedCalls = integratedCalls
+        self.PEDP = caller.PEDP
+        self.PEG = caller.PEG
+        self.PET = caller.PET
+        self.Q = caller.Q
+        self.PP = caller.PP
+        self.label = caller.label
+        self.integratedCalls = caller.alleles
 
 
 class PEextractor:

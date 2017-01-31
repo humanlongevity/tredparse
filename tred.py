@@ -16,7 +16,6 @@ import gzip
 import sys
 import time
 import logging
-import pysam
 
 from tredparse.utils import DefaultHelpParser, InputParams, \
         mkdir, ls_s3, push_to_s3
@@ -130,10 +129,10 @@ def runBam(inputParams):
 
     # find the integrated likelihood calls
     integratedCaller = IntegratedCaller(bp18, maxinsert=maxinsert)
-    integratedCalls, Q, PP, label = integratedCaller.call(**inputParams.kwargs)
+    integratedCaller.call(**inputParams.kwargs)
 
     return BamParserResults(inputParams, bp18.tred, bp18.df, bp18.details,
-                            Q, PP, label, integratedCalls)
+                            integratedCaller)
 
 
 def run(arg):
@@ -195,11 +194,14 @@ def run(arg):
         tredCalls[tred + ".2"] = res[1] # .2 is the longer allele
         tredCalls[tred + ".FR"] = counter_s(tpResult.df_full)
         tredCalls[tred + ".PR"] = counter_s(tpResult.df_partial)
-        tredCalls[tred + ".FDP"] = tpResult.FDP
-        tredCalls[tred + ".PDP"] = tpResult.PDP
-        tredCalls[tred + ".Q"] = tpResult.Q
-        tredCalls[tred + ".PP"] = tpResult.PP
-        tredCalls[tred + ".label"] = tpResult.label
+        tredCalls[tred + ".FDP"] = tpResult.FDP     # Full depth
+        tredCalls[tred + ".PDP"] = tpResult.PDP     # Partial depth
+        tredCalls[tred + ".PEDP"] = tpResult.PEDP   # PE depth
+        tredCalls[tred + ".PEG"] = tpResult.PEG     # PE global estimate
+        tredCalls[tred + ".PET"] = tpResult.PET     # PE target estimate
+        tredCalls[tred + ".Q"] = tpResult.Q         # Quality
+        tredCalls[tred + ".PP"] = tpResult.PP       # Prob(disease)
+        tredCalls[tred + ".label"] = tpResult.label # Disease status
         if logger.getEffectiveLevel() == logging.DEBUG:
             tredCalls[tred + ".details"] = tpResult.details
 

@@ -91,9 +91,12 @@ class IntegratedCaller:
         pe = PEextractor(bamParser)
         self.pemodel = PEMaxLikModel(pe) if (len(pe.global_lens) >= 100 \
                     and len(pe.target_lens) >= 5) else None
+        self.PEDP = len(pe.target_lens)
+        self.PEG = mean_std(pe.global_lens)
+        self.PET = mean_std(pe.target_lens)
         self.logger.debug("Global pairs: {}{}, Target pairs: {}{}, Ref: {}bp".\
-                            format(len(pe.global_lens), mean_std(pe.global_lens),
-                            len(pe.target_lens), mean_std(pe.target_lens), pe.ref))
+                            format(len(pe.global_lens), self.PEG,
+                            len(pe.target_lens), self.PET, pe.ref))
         self.spanning_db = {}
         self.prepostfix_db = {}
 
@@ -283,12 +286,12 @@ class IntegratedCaller:
             alleles = (-1, -1)
             lik = Q = PP = -1
 
-        alleles = sorted([x / self.period for x in alleles])
-        label = self.calc_label(alleles)
+        self.alleles = sorted([x / self.period for x in alleles])
+        self.label = label = self.calc_label(alleles)
+        self.Q = Q
+        self.PP = PP
         self.logger.debug("ML estimate: alleles={} lik={} Q={} PP={} label={}".\
                             format(alleles, lik, Q, PP, label))
-
-        return alleles, Q, PP, label
 
 
 def safe_log(pdf):

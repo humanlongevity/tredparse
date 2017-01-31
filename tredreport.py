@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 """
-Report signficant calls - predisease and disease. When a list of vcf files are
+Report signficant calls - predisease and disease. When VCF or JSON files are
 given, a new tsv file will be written - otherwise will summarize calls based on
 the given tsv file.
 """
@@ -28,8 +28,7 @@ def left_truncate_text(a, maxcol=30):
     return [trim(x) for x in list(a)]
 
 
-def get_tred_summary(df, tred, repo, na12878=False,
-                     nogcnorxlinked=False, reads=False):
+def get_tred_summary(df, tred, repo, na12878=False, reads=False):
     pf1 = tred + ".1"
     pf2 = tred + ".2"
     tr = repo[tred]
@@ -73,10 +72,7 @@ def get_tred_summary(df, tred, repo, na12878=False,
               "cutoff={}".format(cutoff_risk), \
               "n={}".format(n_risk), \
               "loc={}".format(repeat_location)
-        if ('N' in repeat or inheritance[0] == 'X') and nogcnorxlinked:
-            print "GCN or X-linked disease. Patient reporting disabled."
-        else:
-            print pt.to_string(index=False)
+        print pt.to_string(index=False)
         print
 
     # Allele frequency
@@ -93,9 +89,8 @@ def counts_to_af(counts):
                 sorted(counts.items()) if not math.isnan(k)) + "}"
 
 
-def df_to_tsv(df, tsvfile):
+def df_to_tsv(df, tsvfile, allowed_columns=["1", "2", "label"]):
     dd = ["SampleKey"]
-    allowed_columns = ["1", "2", "label"]
     columns = dd + sorted([x for x in df.columns if (x not in dd) and \
                     any([x.endswith("." + z) for z in allowed_columns])])
 
@@ -171,12 +166,12 @@ def main():
     p = DefaultHelpParser(description=__doc__, prog=__file__,
             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p.add_argument("files", nargs="*")
-    p.add_argument('--tsv', help='Path to the tsv file',
-                   default="out.tsv", required=True)
-    p.add_argument('--na12878', default=False, action="store_true",
+    p.add_argument('--tsv', default="out.tsv",
+                   help="Path to the tsv file", required=True)
+    p.add_argument('--columns', default="1,2,label",
+                   help="Columns to extract, use comma to separate")
+    p.add_argument('--NA12878', default=False, action="store_true",
                    help="Include NA12878 in print out cases")
-    p.add_argument('--nogcnorxlinked', default=False, action="store_true",
-                   help="Do not report GCN or X-linked disease")
     p.add_argument('--reads', default=False, action="store_true",
                    help="Append reads information to output to help debug")
     p.add_argument('--cpus', default=cpu_count(),
@@ -185,17 +180,22 @@ def main():
 
     files = args.files
     tsvfile = args.tsv
+    columns = args.columns.split(",")
 
     repo = TREDsRepo()
     alltreds = repo.keys()
     if files:
-        cpus = min(len(files), args.cpus)
+        nfiles = len(files)
+        cpus = min(nfiles, args.cpus)
         jsonformat = files[0].endswith(".json")
+        suffix = "JSON" if jsonformat else "VCF"
+        print >> sys.stderr, "Using {} cpus to parse {} {} files"\
+                .format(cpus, nfiles, suffix)
         if jsonformat:
             df = json_to_df(files, tsvfile, cpus)
         else:
             df = vcf_to_df(files, tsvfile, cpus)
-        df_to_tsv(df, tsvfile)
+        df_to_tsv(df, tsvfile, allowed_columns=columns)
     else:
         df = pd.read_csv(tsvfile, sep="\t")
 
@@ -209,8 +209,7 @@ def main():
         try:
             tr, n_prerisk, n_risk, af = \
                 get_tred_summary(df, tred, repo,
-                                 nogcnorxlinked=args.nogcnorxlinked,
-                                 na12878=args.na12878,
+                                 na12878=args.NA12878,
                                  reads=args.reads)
         except KeyError as e:
             print >> sys.stderr, "{} not found. Skipped ({})".format(tred, e)
