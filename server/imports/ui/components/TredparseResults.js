@@ -94,8 +94,10 @@ const TredparseResults = React.createClass({
     const fullReads = [];
     const partialReads = [];
     const pairedReads = calls[`${tred}.PEDP`];
-    const PEG = calls[`${tred}.PEG`].replace(/[()]/g, "");
-    const PET = calls[`${tred}.PET`].replace(/[()]/g, "");
+    let PEG = calls[`${tred}.PEG`];
+    let PET = calls[`${tred}.PET`];
+    if (PEG) PEG = PEG.replace(/[()]/g, "");
+    if (PET) PET = PET.replace(/[()]/g, "");
 
     if (details) {
       details.forEach((e) => {
