@@ -18,7 +18,6 @@ const FormOutput = React.createClass({
     }
 
     const tred = Treds[name];
-    console.log(tred);
     return (
       <Row>
         <Col sm={ 12 }>

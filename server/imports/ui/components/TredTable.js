@@ -23,6 +23,9 @@ const TredTable = React.createClass({
     }
 
     const tred = Treds[name];
+    //console.log(tred);
+    [start, end] = tred["repeat_location"].split(':')[1].split('-')
+    const repeatcounts = (end - start + 1) / tred["repeat"].length;
 
     return (
       <Table striped condensed hover>
@@ -50,6 +53,9 @@ const TredTable = React.createClass({
                 <strong>({ tred.repeat })x</strong>
               </div>
               { tred.suffix }
+              <div style={{ color: 'grey' }}>
+                x={ repeatcounts } in hg38
+              </div>
             </td>
           </tr>
           <tr>
