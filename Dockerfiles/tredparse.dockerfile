@@ -20,7 +20,7 @@ ADD install.sh /
 RUN bash /install.sh
 
 # Must install pysam after HTSLIB
-RUN pip install pysam
+RUN pip install pysam==0.9.1
 
 # Install tredparse
 COPY creds /root/.aws

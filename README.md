@@ -31,6 +31,10 @@ the most likely genotype.
   tred.py tests/sample.csv
   ```
 
+For accessing BAMs that are located on S3, please refer to
+`Dockerfiles/tredparse.dockerfile` for installation of SAMTOOLS/pysam with S3
+support.
+
 ## Example
 
 Run `tred.py` on sample CSV file and generate TSV file with the
@@ -63,7 +67,7 @@ number of people affected by over-expanded TREDs.
 The server/client allows `tredparse` to be run as a service, also showing the
 detailed debug information for the detailed computation.
 
-![](https://dl.dropbox.com/s/x98u3zab1tpgyao/screencast.gif)
+![](https://dl.dropboxusercontent.com/u/15937715/Data/TREDPARSE/screencast.gif)
 
 Install `meteor` if you don't have it yet.
 
