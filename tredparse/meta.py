@@ -21,6 +21,7 @@ class TREDsRepo(dict):
             tr.name = "toy"
             tr.chromosome = "CHR4"
             tr.repeat_start = 1001
+            tr.repeat_end = 1057
             self[tr.name] = tr
 
     def to_json(self):

@@ -47,7 +47,7 @@ INFO = """##INFO=<ID=RPA,Number=1,Type=String,Description="Repeats per allele">
 ##FORMAT=<ID=PDP,Number=1,Type=Integer,Description="Partial read Depth">
 ##FORMAT=<ID=PEDP,Number=1,Type=Integer,Description="Paired-end read Depth">
 ##FORMAT=<ID=Q,Number=1,Type=Float,Description="Likelihood ratio score of allelotype call">
-##FORMAT=<ID=PP,Number=1,Type=Float,Description="Post. probability of disease">
+##FORMAT=<ID=PP,Number=1,Type=Float,Description="Posterior probability of disease">
 ##FORMAT=<ID=LABEL,Number=1,Type=String,Description="Risk assessment">
 """
 
@@ -88,6 +88,17 @@ def set_aws_opts(p):
     group.add_argument("--input_bam_path", help="Input s3 path, override infile")
     group.add_argument("--output_path", help="Output s3 path")
     group.add_argument("--workdir", default=os.getcwd(), help="Specify work dir")
+
+
+def bam_path(bam):
+    '''
+    Is the file network-based?
+    '''
+    if bam.startswith("s3://") or bam.startswith("http://") or \
+       bam.startswith("ftp://") or bam.startswith("https://"):
+        return bam
+    else:
+        return op.abspath(bam)
 
 
 def check_bam(bam):
@@ -226,7 +237,7 @@ def vcfstanza(sampleid, bam, tredCalls, ref):
     return m
 
 
-def to_json(results, ref, treds=["HD"], store=None):
+def to_json(results, ref, repo, treds=["HD"], store=None):
     sampleid = results['samplekey']
     bam = results['bam']
     calls = results['tredCalls']
@@ -245,9 +256,8 @@ def to_json(results, ref, treds=["HD"], store=None):
         push_to_s3(store, jsonfile)
 
 
-def to_vcf(results, ref, treds=["HD"], store=None):
+def to_vcf(results, ref, repo, treds=["HD"], store=None):
     registry = {}
-    repo = TREDsRepo(ref=ref)
     for tred in treds:
         tr = repo.get_info(tred)
         registry[tred] = tr
@@ -308,6 +318,7 @@ def read_csv(csvfile, args):
     # Mode 1: See if this is just a BAM file
     if csvfile.endswith(".bam") or csvfile.endswith(".cram"):
         bam = csvfile
+        bam = bam_path(bam)
         if args.workflow_execution_id and args.sample_id:
             samplekey = "_".join((args.workflow_execution_id, args.sample_id))
         else:
@@ -322,6 +333,7 @@ def read_csv(csvfile, args):
         fp.seek(0)
         for row in fp:
             bam = row.strip()
+            bam = bam_path(bam)
             samplekey = op.basename(bam).rsplit(".", 1)[0]
             contents.append((samplekey, bam))
         return contents
@@ -331,17 +343,22 @@ def read_csv(csvfile, args):
     for row in fp:
         atoms = row.strip().split(",")
         samplekey, bam = atoms[:2]
+        bam = bam_path(bam)
         if bam.endswith(".bam"):
             contents.append((samplekey, bam))
     return contents
 
 
-def write_vcf_json(results, ref, treds, store):
+def write_vcf_json(results, ref, repo, treds, store):
+    to_vcf(results, ref, repo, treds=treds, store=store)
+    to_json(results, ref, repo, treds=treds, store=store)
+    '''
     try:
         to_vcf(results, ref, treds=treds, store=store)
         to_json(results, ref, treds=treds, store=store)
-    except:
-        print >> sys.stderr, "Error writing: {}".format(results)
+    except Exception as e:
+        print >> sys.stderr, "Error writing: {}\n({})".format(results, e)
+    '''
 
 
 if __name__ == '__main__':
@@ -416,13 +433,13 @@ if __name__ == '__main__':
             results = run(ta)
             if args.no_output:
                 continue
-            write_vcf_json(results, ref, treds, store)
+            write_vcf_json(results, ref, repo, treds, store)
     else:
         p = Pool(processes=cpus)
         for results in p.imap(run, task_args):
             if args.no_output:
                 continue
-            write_vcf_json(results, ref, treds, store)
+            write_vcf_json(results, ref, repo, treds, store)
 
     print >> sys.stderr, "Elapsed time={}"\
             .format(timedelta(seconds=time.time() - start))
