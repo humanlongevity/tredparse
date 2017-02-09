@@ -9,6 +9,7 @@ RUN apt-get install -y vcftools python-pip
 RUN apt-get install -y libblas-dev liblapack-dev libatlas-base-dev gfortran
 RUN apt-get install -y wget autoconf libssl-dev
 
+RUN pip install --upgrade pip
 RUN pip install boto3 awscli
 RUN pip install pyfaidx pyliftover pyvcf
 RUN pip install cython
