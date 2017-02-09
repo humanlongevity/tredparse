@@ -13,6 +13,9 @@ Meteor.startup(() => {
       <Route path="/" component={ App }>
         <IndexRoute name="index" component={ Index } />
       </Route>
+      <Route path="/tred" component={ App }>
+        <IndexRoute name="index" component={ Index } />
+      </Route>
     </Router>,
     document.getElementById('react-root')
   );
