@@ -47,7 +47,7 @@ const Content = React.createClass({
     const [chr, pos] = tr.repeat_location.split(':');
     const [start, end] = pos.split('-');
     const mid = Math.round((+start + +end) / 2);
-    const url = `http://10.6.110.141/pileup/${sampleID}/${chr}/${mid}`;
+    const url = `https://search.hli.io/pileup/${sampleID}/${chr}/${mid}`;
     return url;
   },
 
