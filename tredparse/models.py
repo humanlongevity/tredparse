@@ -287,7 +287,7 @@ class IntegratedCaller:
             lik = Q = PP = -1
 
         self.alleles = sorted([x / self.period for x in alleles])
-        self.label = label = self.calc_label(alleles)
+        self.label = label = self.calc_label(self.alleles)
         self.Q = Q
         self.PP = PP
         self.logger.debug("ML estimate: alleles={} lik={} Q={} PP={} label={}".\
