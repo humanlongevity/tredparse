@@ -1,10 +1,12 @@
 import json
-import os.path as op
 import pandas as pd
+
+from .utils import datafile
 
 
 REF = "hg38"
-REPO = op.join(op.dirname(__file__), 'data/TREDs.meta.csv')
+REPO = datafile("TREDs.meta.csv")
+HLI_BAMS = datafile("HLI_bams.csv.gz")
 
 
 class TREDsRepo(dict):

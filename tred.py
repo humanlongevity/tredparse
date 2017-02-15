@@ -314,7 +314,26 @@ def to_vcf(results, ref, repo, treds=["HD"], store=None):
         push_to_s3(store, vcffile)
 
 
+def get_HLI_bam(samplekey):
+    """
+    From @176449128, retrieve the S3 path of the BAM
+    """
+    import pandas as pd
+    from tredparse.meta import HLI_BAMS
+
+    samplekey = int(samplekey)
+    df = pd.read_csv(HLI_BAMS, index_col=0, dtype=str, header=None,
+                     names=["SampleKey", "BAM"])
+    return df.ix[samplekey]["BAM"]
+
+
 def read_csv(csvfile, args):
+    # Mode 0: See if this is just a HLI id, starting with @
+    if csvfile[0] == '@':
+        samplekey = csvfile[1:]
+        bam = get_HLI_bam(samplekey)
+        return [(samplekey, bam)]
+
     # Mode 1: See if this is just a BAM file
     if csvfile.endswith(".bam") or csvfile.endswith(".cram"):
         bam = csvfile
@@ -350,15 +369,11 @@ def read_csv(csvfile, args):
 
 
 def write_vcf_json(results, ref, repo, treds, store):
-    to_vcf(results, ref, repo, treds=treds, store=store)
-    to_json(results, ref, repo, treds=treds, store=store)
-    '''
     try:
-        to_vcf(results, ref, treds=treds, store=store)
-        to_json(results, ref, treds=treds, store=store)
+        to_vcf(results, ref, repo, treds=treds, store=store)
+        to_json(results, ref, repo, treds=treds, store=store)
     except Exception as e:
         print >> sys.stderr, "Error writing: {}\n({})".format(results, e)
-    '''
 
 
 if __name__ == '__main__':
