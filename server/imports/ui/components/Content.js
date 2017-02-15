@@ -41,8 +41,15 @@ const Content = React.createClass({
   },
 
   buildURL() {
-    const basename = this.state.bam.split(/[\\/]/).pop();
-    const sampleID = basename.split('_')[0];
+    const bam = this.state.bam;
+    let sampleID;
+    if (bam[0] == '@') {
+      sampleID = bam.substring(1);
+    }
+    else {
+      const basename = this.state.bam.split(/[\\/]/).pop();
+      sampleID = basename.split('_')[0];
+    }
     const tr = Treds[this.state.tred];
     const [chr, pos] = tr.repeat_location.split(':');
     const [start, end] = pos.split('-');
