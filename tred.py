@@ -321,7 +321,6 @@ def get_HLI_bam(samplekey):
     import pandas as pd
     from tredparse.meta import HLI_BAMS
 
-    samplekey = int(samplekey)
     df = pd.read_csv(HLI_BAMS, index_col=0, dtype=str, header=None,
                      names=["SampleKey", "BAM"])
     return df.ix[samplekey]["BAM"]
