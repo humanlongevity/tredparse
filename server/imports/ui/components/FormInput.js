@@ -1,7 +1,10 @@
 import React from 'react';
 import { ButtonGroup, ButtonToolbar, Button, FormControl, Form, FormGroup, HelpBlock, Panel } from 'react-bootstrap';
+import { Typeahead } from 'react-bootstrap-typeahead';
 import Settings from './Settings';
 import { Treds } from './TredTable';
+
+const Names = require('../../api/documents/HLI-bams.json');
 
 const FormInput = React.createClass({
   propTypes: {
@@ -17,7 +20,7 @@ const FormInput = React.createClass({
   },
 
   handleChange(e) {
-    this.setState({ bam: e.target.value });
+    this.setState({ bam: e });
   },
 
   _onOptionChange(ref) {
@@ -48,13 +51,13 @@ const FormInput = React.createClass({
       <Form>
         <FormGroup>
           <Panel header={ <strong>BAM file</strong> }>
-            <FormControl
+            <Typeahead
               type="text"
               ref='bam'
               bsSize="large"
-              value={ this.state.bam }
-              placeholder="Enter sample BAM here"
-              onChange={ this.handleChange }
+              placeholder={ this.state.bam }
+              options={ Names }
+              onInputChange={ this.handleChange }
             />
             <HelpBlock>
                 BAM file can be on <Button bsSize='small' bsStyle='link'
