@@ -7,11 +7,14 @@ from utils import datafile
 from scipy.stats import gaussian_kde
 
 
+# Global settings
 MAX_PERIOD = 6
 SMALL_VALUE = exp(-10)
 MODEL_PREFIX = "illumina_v3.pcrfree"
 STEPMODEL = datafile(MODEL_PREFIX + ".stepmodel")
 NOISEMODEL = datafile(MODEL_PREFIX + ".stuttermodel")
+MIN_PARTIAL_READS = 5
+MIN_SPANNING_PAIRS = 5
 
 
 class StepModel:
@@ -90,7 +93,7 @@ class IntegratedCaller:
 
         pe = PEextractor(bamParser)
         self.pemodel = PEMaxLikModel(pe) if (len(pe.global_lens) >= 100 \
-                    and len(pe.target_lens) >= 5) else None
+                    and len(pe.target_lens) >= MIN_SPANNING_PAIRS) else None
         self.PEDP = len(pe.target_lens)
         self.PEG = mean_std(pe.global_lens)
         self.PET = mean_std(pe.target_lens)
@@ -164,6 +167,12 @@ class IntegratedCaller:
         max_partial = max(observations_prepostfix.keys()) \
                         if observations_prepostfix else 0
         period = self.period
+        total_partial = sum(c for k, c in observations_prepostfix.items())
+        if total_partial < MIN_PARTIAL_READS:
+            self.logger.debug("Partial reads: {} < {} (low depth of coverage)".\
+                                format(total_partial, MIN_PARTIAL_READS))
+            return None, None, None, None
+
         # Only run PE mode when partial reads suggest length unseen full
         # The 10 * self.period part is a hack - to avoid PE mode as much as
         # possible: say full - [16], partial - [20], then shall we run PE?
@@ -206,6 +215,20 @@ class IntegratedCaller:
                                             (h1 / self.period, h2 / self.period),
                                             ml1, ml2, ml3, ml)))
                 mls.append((ml, (h1, h2)))
+
+        # Calculate the expectation (disabled for now)
+        '''
+        h1_sum = h2_sum = total_prob = 0
+        for ml, (h1, h2) in mls:
+            mlexp = exp(ml)
+            h1_sum += h1 / self.period * mlexp
+            h2_sum += h2 / self.period * mlexp
+            total_prob += mlexp
+
+        self.logger.debug("h1_mean = {}, h2_mean = {}"\
+                    .format(int(h1_sum / total_prob), int(h2_sum / total_prob)))
+        '''
+
         lik, alleles = max(mls, key=lambda x: (x[0], -x[1][0]))
         all_liks = np.array([x[0] for x in mls])
         Q = self.calc_Q(lik, all_liks)
@@ -274,7 +297,7 @@ class IntegratedCaller:
 
     def call(self, **kwargs):
         '''
-        :return: max likelihood estimate for diploid huntington calls
+        :return: max likelihood estimate for diploid calls
         '''
         df = self.df
         observations_spanning = dict((k * self.period, int(v)) for k, v in \
