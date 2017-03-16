@@ -205,12 +205,17 @@ def main():
 
     reportfile = tsvfile + ".report"
     summary = pd.DataFrame()
+    total_prerisk = total_risk = total_loci = 0
     for tred in alltreds:
         try:
             tr, n_prerisk, n_risk, af = \
                 get_tred_summary(df, tred, repo,
                                  na12878=args.NA12878,
                                  reads=args.reads)
+            total_prerisk += n_prerisk
+            total_risk += n_risk
+            if n_risk:
+                total_loci += 1
         except KeyError as e:
             print >> sys.stderr, "{} not found. Skipped ({})".format(tred, e)
             continue
@@ -230,6 +235,8 @@ def main():
     summary.to_csv(reportfile, sep="\t", index=False, float_format="%d")
     print >> sys.stderr, "Summary report written to `{}` (# samples={})"\
                     .format(reportfile, summary.shape[0])
+    print >> sys.stderr, "Summary: n_prerisk={}, n_risk={}, n_affected_loci={}"\
+                    .format(total_prerisk, total_risk, total_loci)
 
 
 if __name__ == '__main__':
