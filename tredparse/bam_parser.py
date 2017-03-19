@@ -13,7 +13,6 @@ import math
 import sys
 
 import numpy as np
-import pandas as pd
 import pysam
 
 from collections import defaultdict
@@ -69,7 +68,6 @@ class BamParser:
         for tag in ("FULL", "REPT", "HANG"):
             self.counts[tag] = defaultdict(int)
 
-        self.dupReads = 0
         self.details = []  # Store read sequences, enabled on logging.INFO
 
     def _buildDB(self):
@@ -165,9 +163,6 @@ class BamParser:
         chr, start, end = self.chr, self.WINDOW_START, self.WINDOW_END
         if test_fetch(samfile, chr, start, end, self.logger):
             for read in samfile.fetch(chr, start, end):
-                if read.is_duplicate:
-                    self.dupReads += 1
-                    continue
                 self._parseReadSW(chr=chr, pos=read.reference_start,
                            seq=read.query_sequence, db=db)
 

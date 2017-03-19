@@ -171,8 +171,8 @@ class IntegratedCaller:
 
         Note that this is defined only if repeat_length > read_length.
         """
-        d1 = max(h1 - self.readlen, 1)
-        d2 = max(h2 - self.readlen, 1)
+        d1 = max(h1 - self.readlen + 2 * FLANKMATCH, 1)
+        d2 = max(h2 - self.readlen + 2 * FLANKMATCH, 1)
         mu = (d1 + d2) * self.half_depth / self.readlen
         prob = poisson.pmf(n_obs_rept, mu)
         return np.log(max(prob, REALLY_SMALL_VALUE))
