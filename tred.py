@@ -41,10 +41,11 @@ INFO = """##INFO=<ID=RPA,Number=1,Type=String,Description="Repeats per allele">
 ##INFO=<ID=VT,Number=1,Type=String,Description="Variant type">
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
 ##FORMAT=<ID=GA,Number=1,Type=String,Description="Genotype with absolute copy numbers">
-##FORMAT=<ID=FR,Number=1,Type=String,Description="Full reads aligned to locus">
+##FORMAT=<ID=FR,Number=1,Type=String,Description="Full spanning reads aligned to locus">
 ##FORMAT=<ID=PR,Number=1,Type=String,Description="Partial reads aligned to locus">
 ##FORMAT=<ID=FDP,Number=1,Type=Integer,Description="Full read Depth">
 ##FORMAT=<ID=PDP,Number=1,Type=Integer,Description="Partial read Depth">
+##FORMAT=<ID=RDP,Number=1,Type=Integer,Description="Repeat read Depth">
 ##FORMAT=<ID=PEDP,Number=1,Type=Integer,Description="Paired-end read Depth">
 ##FORMAT=<ID=Q,Number=1,Type=Float,Description="Likelihood ratio score of allelotype call">
 ##FORMAT=<ID=PP,Number=1,Type=Float,Description="Posterior probability of disease">
@@ -221,6 +222,7 @@ def run(arg):
         tredCalls[tred + ".PR"] = counter_s(tpResult.counts["PREF"])
         tredCalls[tred + ".FDP"] = tpResult.FDP     # Full depth
         tredCalls[tred + ".PDP"] = tpResult.PDP     # Partial depth
+        tredCalls[tred + ".RDP"] = tpResult.RDP     # Repeat read depth
         tredCalls[tred + ".PEDP"] = tpResult.PEDP   # PE depth
         tredCalls[tred + ".PEG"] = tpResult.PEG     # PE global estimate
         tredCalls[tred + ".PET"] = tpResult.PET     # PE target estimate
@@ -305,15 +307,15 @@ def to_vcf(results, ref, repo, treds=["HD"], store=None):
         else:
             gt = "0/0"
         gb = "{}/{}".format(a, b)
-        fields = "{}:{}:{}:{}:{}:{}:{}:{:.4g}:{:.4g}:{}".format(gt, gb,
+        fields = "{}:{}:{}:{}:{}:{}:{}:{}:{:.4g}:{:.4g}:{}".format(gt, gb,
                         calls[tred + ".FR"], calls[tred + ".PR"],
                         calls[tred + ".FDP"], calls[tred + ".PDP"],
-                        calls[tred + ".PEDP"],
+                        calls[tred + ".RDP"], calls[tred + ".PEDP"],
                         calls[tred + ".Q"], calls[tred + ".PP"],
                         calls[tred + ".label"])
         m = "\t".join(str(x) for x in (
            chr, start, tred, ref_copy * repeat, alt, ".", ".", info,
-           "GT:GB:FR:PR:FDP:PDP:PEDP:Q:PP:LABEL", fields))
+           "GT:GB:FR:PR:FDP:PDP:RDP:PEDP:Q:PP:LABEL", fields))
         contents.append((chr, start, m))
 
     fw = gzip.open(vcffile, "w")

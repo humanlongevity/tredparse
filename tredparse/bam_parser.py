@@ -193,6 +193,7 @@ class BamParserResults:
         self.counts = counts
         self.FDP = sum(counts["FULL"].values())
         self.PDP = sum(counts["PREF"].values())
+        self.RDP = sum(counts["REPT"].values())
         self.PEDP = caller.PEDP
         self.PEG = caller.PEG
         self.PET = caller.PET
