@@ -33,10 +33,6 @@ class BamParser:
     '''
 
     def __init__(self, inputParams):
-        '''
-        :param referenceVersion: hg19 or hg38
-        :param chromosomePrefix: our reference has "chr4". You may need CHR4, pass in CHR
-        '''
         self.inputParams = inputParams
         self.logger = logging.getLogger('BamParser')
         self.logger.setLevel(inputParams.getLogLevel())
@@ -48,7 +44,7 @@ class BamParser:
         # initialize tred-specific things
         self.tred = inputParams.tred
         self.repeatSize = len(self.tred.repeat)
-        self.CHR_STR = self.tred.chromosome
+        self.chr = self.tred.chr
 
         # X-linked TRED
         if self.gender == 'Male' and self.tred.is_xlinked:
@@ -112,7 +108,7 @@ class BamParser:
 
         return min(s1, s2, s3, s4)
 
-    def _parseReadSW(self, chromosome, pos, seq, db, verbose=False):
+    def _parseReadSW(self, chr, pos, seq, db, verbose=False):
         '''
         Use Smith-Waterman matcher to classify reads and count number of
         repeats. This is the preferred method that allows mismatches (sequencing
@@ -191,13 +187,13 @@ class BamParser:
         samfile = read_alignment(self.bam)
         db = self._buildDB()
 
-        chr, start, end = self.CHR_STR, self.WINDOW_START, self.WINDOW_END
+        chr, start, end = self.chr, self.WINDOW_START, self.WINDOW_END
         if test_fetch(samfile, chr, start, end, self.logger):
             for read in samfile.fetch(chr, start, end):
                 if read.is_duplicate:
                     self.dupReads += 1
                     continue
-                self._parseReadSW(chromosome=chr, pos=read.reference_start,
+                self._parseReadSW(chr=chr, pos=read.reference_start,
                            seq=read.query_sequence, db=db)
 
         for tag in ("FULL", "PREF", "POST", "REPT"):
@@ -247,7 +243,7 @@ class PEextractor:
     """
     def __init__(self, bp):
         samfile = read_alignment(bp.bam)
-        chr = bp.CHR_STR
+        chr = bp.chr
         start = bp.startRepeat
         end = bp.endRepeat
         self.ref = bp.referenceLen
@@ -326,10 +322,14 @@ class BamDepth:
         self.logger = logger
         self.ref = ref
 
-    def region_depth(self, chr, start, end):
+    def region_depth(self, chr, start, end, verbose=False):
         sam = read_alignment(self.bamfile)
         depths = [c.n for c in sam.pileup(chr, start, end)]
-        return sum(depths) * 1. / (end - start + 1)
+        depth = sum(depths) * 1. / (end - start + 1)
+        if verbose:
+            self.logger.debug("Depth of region {}:{}-{}: {}"\
+                            .format(chr, start, end, depth))
+        return depth
 
     def get_Y_depth(self, N=5):
         UNIQY = datafile("chrY.{}.unique_ccn.gc".format(self.ref))

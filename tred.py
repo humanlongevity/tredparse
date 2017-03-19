@@ -20,7 +20,7 @@ import logging
 from tredparse.utils import DefaultHelpParser, InputParams, \
         mkdir, ls_s3, push_to_s3
 from tredparse.bam_parser import BamDepth, BamReadLen, BamParser, \
-        BamParserResults, read_alignment
+        BamParserResults, SPAN, read_alignment
 from tredparse.models import IntegratedCaller
 from tredparse.meta import TREDsRepo
 from datetime import datetime as dt, timedelta
@@ -191,9 +191,17 @@ def run(arg):
     tredCalls["readLen"] = READLEN
 
     for tred in tredNames:
+        # Infer local read depth
+        bd = BamDepth(bam, repo.ref, logger)
+        xtred = repo[tred]
+        WINDOW_START = max(0, xtred.repeat_start - SPAN)
+        WINDOW_END = xtred.repeat_end + SPAN
+        depth = bd.region_depth(xtred.chr, WINDOW_START, WINDOW_END,
+                                verbose=True)
+
         ip = InputParams(bam=bam, READLEN=READLEN, flankSize=18, tredName=tred,
                          repo=repo, maxinsert=maxinsert, gender=gender,
-                         log=log)
+                         depth=depth, log=log)
 
         try:
             tpResult = runBam(ip)

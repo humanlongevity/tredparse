@@ -22,7 +22,7 @@ class TREDsRepo(dict):
         if toy:
             tr = self.get("HD")
             tr.name = "toy"
-            tr.chromosome = "CHR4"
+            tr.chr = "CHR4"
             tr.repeat_start = 1001
             tr.repeat_end = 1057
             self[tr.name] = tr
@@ -37,7 +37,7 @@ class TREDsRepo(dict):
         if not haploid:
             return
         for k, v in self.items():
-            if v.chromosome in haploid:
+            if v.chr in haploid:
                 v.ploidy = 1
 
     def get_info(self, tredName):
@@ -46,7 +46,7 @@ class TREDsRepo(dict):
                     format(tr.repeat_end, tr.repeat, tr.ref_copy,
                            tr.cutoff_risk, tr.inheritance,
                            tr.ref_copy * len(tr.repeat))
-        return tr.chromosome, tr.repeat_start, tr.ref_copy, tr.repeat, info
+        return tr.chr, tr.repeat_start, tr.ref_copy, tr.repeat, info
 
 
 class TRED(object):
@@ -60,7 +60,7 @@ class TRED(object):
         if ref != REF:
             repeat_location_field += "." + ref
         repeat_location = row[repeat_location_field]
-        self.chromosome, repeat_location = repeat_location.split(":")
+        self.chr, repeat_location = repeat_location.split(":")
         repeat_start, repeat_end = repeat_location.split("-")
         self.repeat_start = int(repeat_start)
         self.repeat_end = int(repeat_end)
@@ -78,10 +78,10 @@ class TRED(object):
     def __repr__(self):
         return "{} inheritance={} id={}_{}_{}".\
                 format(self.name, self.inheritance,
-                       self.chromosome, self.repeat_start, self.repeat)
+                       self.chr, self.repeat_start, self.repeat)
 
     def __str__(self):
         return ";".join(str(x) for x in \
                 (self.name, self.repeat,
-                 self.chromosome, self.repeat_start, self.repeat_end,
+                 self.chr, self.repeat_start, self.repeat_end,
                  self.prefix, self.suffix))
