@@ -171,8 +171,8 @@ class IntegratedCaller:
 
         Note that this is defined only if repeat_length > read_length.
         """
-        d1 = max(h1 - self.readlen + 2 * FLANKMATCH, 1)
-        d2 = max(h2 - self.readlen + 2 * FLANKMATCH, 1)
+        d1 = max(h1 - self.readlen, 1)
+        d2 = max(h2 - self.readlen, 1)
         mu = (d1 + d2) * self.half_depth / self.readlen
         prob = poisson.pmf(n_obs_rept, mu)
         return np.log(max(prob, REALLY_SMALL_VALUE))
@@ -317,7 +317,7 @@ class IntegratedCaller:
                             counts["FULL"].items())
         obs_partial = dict((k * self.period, v) for k, v in
                             counts["PREF"].items())
-        n_obs_rept = sum(counts["REPT"].values())
+        n_obs_rept = max(counts["REPT"].values()) if counts["REPT"] else 0
         alleles, lik, Q, PP = self.evaluate(obs_spanning, obs_partial, n_obs_rept)
 
         if not alleles:
