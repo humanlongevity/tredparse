@@ -97,7 +97,7 @@ class IntegratedCaller:
         self.PEDP = len(pe.target_lens)
         self.PEG = mean_std(pe.global_lens)
         self.PET = mean_std(pe.target_lens)
-        self.logger.debug("Global pairs: {}{}, Target pairs: {}{}, Ref: {}bp".\
+        self.logger.debug("Global pairs: {} ({}), Target pairs: {} ({}), Ref: {}bp".\
                             format(len(pe.global_lens), self.PEG,
                             len(pe.target_lens), self.PET, pe.ref))
         self.spanning_db = {}
@@ -314,7 +314,7 @@ class IntegratedCaller:
         self.Q = Q
         self.PP = PP
         self.logger.debug("ML estimate: alleles={} lik={} Q={} PP={} label={}".\
-                            format(alleles, lik, Q, PP, label))
+                            format(self.alleles, lik, Q, PP, label))
 
 
 def safe_log(pdf):

@@ -1,9 +1,23 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+"""
+Everything related to extraction of reads in the BAM file - like depth
+computation, computing paired-end distances, classify spanning reads and read
+length extraction. These signals are then pushed into the Maximum Likelihood
+model for the prediction of allele sizes.
+"""
+
+import logging
+import math
+import sys
+
+import numpy as np
 import pandas as pd
 import pysam
-import numpy as np
-import logging
 
 from collections import defaultdict
+from ssw import Aligner
 from utils import datafile
 
 
@@ -57,6 +71,7 @@ class BamParser:
         self.full_count = defaultdict(int)
         self.prefix_count = defaultdict(int)
         self.postfix_count = defaultdict(int)
+        self.rept_count = defaultdict(int)
         self.dupReads = 0
         self.details = []  # Store read sequences, enabled on logging.INFO
 
@@ -65,12 +80,10 @@ class BamParser:
         Build a series of aligners that each uses a reference with varying
         number of repeats - whichever scores the best is the winner.
         '''
-        from ssw import Aligner
-
         ssws = []
-        max_units = (self.READLEN - FLANKMATCH) / len(self.repeat) + 1
+        max_units = int(math.ceil(self.READLEN * 1. / len(self.repeat)))
         # Build a list of ssw
-        for units in xrange(1, max_units):
+        for units in xrange(1, max_units + 1):
             target = self.fullPrefix + self.repeat * units + self.fullSuffix
             ssw = Aligner(ref_seq=target,
                           match=1, mismatch=5, gap_open=7, gap_extend=2,  # Strict
@@ -114,13 +127,13 @@ class BamParser:
             al = ssw.align(seq, min_score=min_score, min_len=min_len)
             if not al:
                 continue
+
             prefix_read = al.ref_begin < fs
             suffix_read = al.ref_end > len(target) - fs - 1
             hang = self.get_hangs(al)
             hang_read = hang > FLANKMATCH
 
             if verbose:
-                import sys
                 print >> sys.stderr, units, target
                 print >> sys.stderr, al
                 print >> sys.stderr, '\n'.join(al.alignment)
@@ -135,20 +148,19 @@ class BamParser:
             elif suffix_read:
                 tag = "POST"
             else:
-                continue
+                tag = "REPT"
             res.append((al.score, units, tag))
 
+        #print >> sys.stderr, res
         if not res:
             return
 
         score, h, tag = max(res, key=lambda x: (x[0], -x[1]))
-        countMap = None
-        if tag == "FULL":
-            countMap = self.full_count
-        elif tag == "PREF":
-            countMap = self.prefix_count
-        elif tag == "POST":
-            countMap = self.postfix_count
+        countMap = {"FULL": self.full_count,
+                    "PREF": self.prefix_count,
+                    "POST": self.postfix_count,
+                    "REPT": self.rept_count
+                   }.get(tag, None)
 
         if countMap is not None:
             countMap[h] += 1
@@ -189,11 +201,22 @@ class BamParser:
                 self._parseReadSW(chromosome=chr, pos=read.reference_start,
                            seq=read.query_sequence, db=db)
 
-        self.logger.debug("full: {}".format(self.full_count))
-        self.logger.debug("prefix: {}".format(self.prefix_count))
-        self.logger.debug("postfix: {}".format(self.postfix_count))
+        for tag in ("FULL", "PREF", "POST", "REPT"):
+            self._counts(tag)
 
         self.df = self._makePlotFrame()
+
+    def _counts(self, tag):
+        countMap = {"FULL": self.full_count,
+                    "PREF": self.prefix_count,
+                    "POST": self.postfix_count,
+                    "REPT": self.rept_count
+                   }.get(tag, None)
+
+        total = sum(v for v in countMap.values())
+        counts = ["{}:{}".format(k, v) for (k, v) in sorted(countMap.items())]
+        counts = " ".join(counts)
+        self.logger.debug("Counts [{}] (total={}) => {}".format(tag, total, counts))
 
 
 class BamParserResults:
