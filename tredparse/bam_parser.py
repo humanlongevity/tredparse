@@ -24,7 +24,6 @@ from utils import datafile
 SPAN = 1000
 FLANKMATCH = 9
 DNAPE_ELONGATE = SPAN * 10  # How far do we look beyond the target for paired-end
-UNIQY = datafile("chrY.hg38.unique_ccn.gc")
 
 
 class BamParser:
@@ -318,9 +317,14 @@ class BamReadLen:
 
 
 class BamDepth:
-    def __init__(self, bamfile, logger):
+    """
+    Computes the average depth for a particular region, both for the inference
+    of the repeat size and inference of gender.
+    """
+    def __init__(self, bamfile, ref, logger):
         self.bamfile = bamfile
         self.logger = logger
+        self.ref = ref
 
     def region_depth(self, chr, start, end):
         sam = read_alignment(self.bamfile)
@@ -328,6 +332,7 @@ class BamDepth:
         return sum(depths) * 1. / (end - start + 1)
 
     def get_Y_depth(self, N=5):
+        UNIQY = datafile("chrY.{}.unique_ccn.gc".format(self.ref))
         fp = open(UNIQY)
         depths = []
         for i, row in enumerate(fp):

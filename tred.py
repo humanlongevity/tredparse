@@ -168,7 +168,7 @@ def run(arg):
     # Infer gender based on depth on chrY
     if any(repo[tred].is_xlinked for tred in tredNames):
         try:
-            bd = BamDepth(bam, logger)
+            bd = BamDepth(bam, repo.ref, logger)
             ydepth = bd.get_Y_depth()
             if ydepth > 1:
                 gender = 'Male'

@@ -13,6 +13,7 @@ class TREDsRepo(dict):
 
     def __init__(self, ref=REF, toy=False):
 
+        self.ref = ref
         df = pd.read_csv(REPO, index_col=0)
         for name, row in df.iterrows():
             self[name] = TRED(name, row, ref=ref)
