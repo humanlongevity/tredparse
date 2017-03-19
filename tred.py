@@ -246,7 +246,8 @@ def to_json(results, ref, repo, treds=["HD"], store=None):
         return
 
     jsonfile = ".".join((sampleid, "json"))
-    js = json.dumps(results)
+    js = json.dumps(results, sort_keys=True,
+                    indent=4, separators=(',', ': '))
     print js
     fw = open(jsonfile, "w")
     print >> fw, js

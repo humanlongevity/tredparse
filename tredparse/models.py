@@ -66,7 +66,7 @@ def mean_std(a):
     if not a:
         return ""
     a = np.array(a)
-    return " ({:.0f}+/-{:.0f}bp)".format(a.mean(), a.std())
+    return "{:.0f}+/-{:.0f}bp".format(a.mean(), a.std())
 
 
 class IntegratedCaller:
