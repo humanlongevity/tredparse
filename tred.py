@@ -64,7 +64,7 @@ def set_argparse():
     p.add_argument('--tred', help='STR disorder, default is to run all',
                         action='append', choices=sorted(TRED_NAMES), default=None)
     p.add_argument('--haploid', help='Treat these chromosomes as haploid', action='append')
-    p.add_argument('--maxinsert', default=100, type=int,
+    p.add_argument('--maxinsert', default=300, type=int,
                         help="Maximum number of repeats")
     p.add_argument('--log', choices=("INFO", "DEBUG"), default="INFO",
                         help='Print debug logs, DEBUG=verbose')
@@ -125,8 +125,7 @@ def check_bam(bam):
 
 
 def counter_s(c):
-    return ";".join(["{}|{}".format(k, int(v)) for k, v in \
-                    sorted(c.items()) if v])
+    return ";".join(["{}|{}".format(k, int(v)) for k, v in sorted(c.items())])
 
 
 def runBam(inputParams):
@@ -136,14 +135,14 @@ def runBam(inputParams):
     :return: BamParserResult
     '''
     maxinsert = inputParams.kwargs["maxinsert"]
-    bp18 = BamParser(inputParams)
-    bp18._parse()
+    bp = BamParser(inputParams)
+    bp.parse()
 
     # find the integrated likelihood calls
-    integratedCaller = IntegratedCaller(bp18, maxinsert=maxinsert)
+    integratedCaller = IntegratedCaller(bp, maxinsert=maxinsert)
     integratedCaller.call(**inputParams.kwargs)
 
-    return BamParserResults(inputParams, bp18.tred, bp18.df, bp18.details,
+    return BamParserResults(inputParams, bp.tred, bp.counts, bp.details,
                             integratedCaller)
 
 
@@ -196,13 +195,19 @@ def run(arg):
         xtred = repo[tred]
         WINDOW_START = max(0, xtred.repeat_start - SPAN)
         WINDOW_END = xtred.repeat_end + SPAN
-        depth = bd.region_depth(xtred.chr, WINDOW_START, WINDOW_END,
-                                verbose=True)
+        try:
+            depth = bd.region_depth(xtred.chr, WINDOW_START, WINDOW_END)
+        except Exception as e:
+            depth = 30
+            logger.error("Exception on `{}` {} ({})i. Set depth={}"\
+                        .format(bam, tred, e, depth))
 
+        logger.debug("Inferred depth at locus {}: {}".format(tred, depth))
         ip = InputParams(bam=bam, READLEN=READLEN, flankSize=18, tredName=tred,
                          repo=repo, maxinsert=maxinsert, gender=gender,
                          depth=depth, log=log)
 
+        #tpResult = runBam(ip)
         try:
             tpResult = runBam(ip)
         except Exception as e:
@@ -212,8 +217,8 @@ def run(arg):
         alleles = tpResult.alleles
         tredCalls[tred + ".1"] = alleles[0] # .1 is the shorter allele
         tredCalls[tred + ".2"] = alleles[1] # .2 is the longer allele
-        tredCalls[tred + ".FR"] = counter_s(tpResult.df_full)
-        tredCalls[tred + ".PR"] = counter_s(tpResult.df_partial)
+        tredCalls[tred + ".FR"] = counter_s(tpResult.counts["FULL"])
+        tredCalls[tred + ".PR"] = counter_s(tpResult.counts["PREF"])
         tredCalls[tred + ".FDP"] = tpResult.FDP     # Full depth
         tredCalls[tred + ".PDP"] = tpResult.PDP     # Partial depth
         tredCalls[tred + ".PEDP"] = tpResult.PEDP   # PE depth

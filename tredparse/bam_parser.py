@@ -28,16 +28,16 @@ DNAPE_ELONGATE = SPAN * 10  # How far do we look beyond the target for paired-en
 
 class BamParser:
     '''
-    Find Huntington repeats from aligned reads bam file
+    Find TRED repeats from aligned reads bam file
     :inputParams: InputParams object
     '''
-
     def __init__(self, inputParams):
         self.inputParams = inputParams
         self.logger = logging.getLogger('BamParser')
         self.logger.setLevel(inputParams.getLogLevel())
         self.bam = inputParams.bam
         self.gender = inputParams.gender
+        self.depth = inputParams.depth
         self.flankSize = inputParams.flankSize
         self.READLEN = inputParams.READLEN
 
@@ -63,10 +63,12 @@ class BamParser:
         self.WINDOW_START = max(0, self.startRepeat - self.READLEN)
         self.WINDOW_END = self.endRepeat + self.READLEN # go a few bases beyond end
 
-        self.full_count = defaultdict(int)
-        self.prefix_count = defaultdict(int)
-        self.postfix_count = defaultdict(int)
-        self.rept_count = defaultdict(int)
+        # Stores all the read counts for each repeat units
+        self.counts = {}
+        self.counts["PREF"] = self.counts["POST"] = defaultdict(int)
+        for tag in ("FULL", "REPT", "HANG"):
+            self.counts[tag] = defaultdict(int)
+
         self.dupReads = 0
         self.details = []  # Store read sequences, enabled on logging.INFO
 
@@ -146,44 +148,17 @@ class BamParser:
                 tag = "REPT"
             res.append((al.score, units, tag))
 
-        #print >> sys.stderr, res
         if not res:
             return
 
         score, h, tag = max(res, key=lambda x: (x[0], -x[1]))
-        countMap = {"FULL": self.full_count,
-                    "PREF": self.prefix_count,
-                    "POST": self.postfix_count,
-                    "REPT": self.rept_count
-                   }.get(tag, None)
-
-        if countMap is not None:
-            countMap[h] += 1
+        self.counts[tag][h] += 1
 
         s = "{}: h={:>3}, seq={}".format(tag, h, seq)
         self.logger.debug(s)
         self.details.append({'tag': tag, 'h': h, 'seq': seq})
 
-    def _makePlotFrame(self):
-        columns = ['NumReps', 'full', 'prefix', 'postfix']
-        numReps = pd.unique(self.full_count.keys() +
-                            self.prefix_count.keys() +
-                            self.postfix_count.keys())
-        rows = []
-        for nr in numReps:
-            rows.append([nr, self.full_count.get(nr),
-                         self.prefix_count.get(nr),
-                         self.postfix_count.get(nr)])
-
-        df = pd.DataFrame(rows, columns=columns)
-        df.replace(to_replace={np.NaN : 0}, inplace=True)
-        df.sort_values(by='NumReps', inplace=True)
-        df.set_index(keys='NumReps', inplace=True)
-        df['partial'] = df['prefix'] + df['postfix']
-
-        return df
-
-    def _parse(self):
+    def parse(self):
         samfile = read_alignment(self.bam)
         db = self._buildDB()
 
@@ -196,18 +171,11 @@ class BamParser:
                 self._parseReadSW(chr=chr, pos=read.reference_start,
                            seq=read.query_sequence, db=db)
 
-        for tag in ("FULL", "PREF", "POST", "REPT"):
-            self._counts(tag)
+        for tag in ("FULL", "PREF", "REPT"):
+            self.show_counts(tag)
 
-        self.df = self._makePlotFrame()
-
-    def _counts(self, tag):
-        countMap = {"FULL": self.full_count,
-                    "PREF": self.prefix_count,
-                    "POST": self.postfix_count,
-                    "REPT": self.rept_count
-                   }.get(tag, None)
-
+    def show_counts(self, tag):
+        countMap = self.counts[tag]
         total = sum(v for v in countMap.values())
         counts = ["{}:{}".format(k, v) for (k, v) in sorted(countMap.items())]
         counts = " ".join(counts)
@@ -218,16 +186,13 @@ class BamParserResults:
     '''
     Encapsulates all results: counts from BamParser and calls from different callers
     '''
-    def __init__(self, inputParams, tred, df, details, caller):
+    def __init__(self, inputParams, tred, counts, details, caller):
         self.inputParams = inputParams
         self.tred = tred
         self.details = details
-        self.df_full = dict((k, v) for k, v in \
-                                df["full"].to_dict().items() if v)
-        self.df_partial = dict((k, v) for k, v in \
-                                df["partial"].to_dict().items() if v)
-        self.FDP = int(sum(self.df_full.values()))
-        self.PDP = int(sum(self.df_partial.values()))
+        self.counts = counts
+        self.FDP = sum(counts["FULL"].values())
+        self.PDP = sum(counts["PREF"].values())
         self.PEDP = caller.PEDP
         self.PEG = caller.PEG
         self.PET = caller.PET

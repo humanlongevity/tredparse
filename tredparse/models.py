@@ -4,12 +4,13 @@ import numpy as np
 from math import exp
 from bam_parser import PEextractor, FLANKMATCH, SPAN
 from utils import datafile
-from scipy.stats import gaussian_kde
+from scipy.stats import gaussian_kde, poisson
 
 
 # Global settings
 MAX_PERIOD = 6
 SMALL_VALUE = exp(-10)
+REALLY_SMALL_VALUE = exp(-100)
 MODEL_PREFIX = "illumina_v3.pcrfree"
 STEPMODEL = datafile(MODEL_PREFIX + ".stepmodel")
 NOISEMODEL = datafile(MODEL_PREFIX + ".stuttermodel")
@@ -85,8 +86,9 @@ class IntegratedCaller:
         self.max_partial = self.t2
         self.score = score
         self.gc = gc
-        self.df = bamParser.df
+        self.counts = bamParser.counts
         self.ploidy = bamParser.ploidy
+        self.half_depth = bamParser.depth / 2
         self.maxinsert = maxinsert
         self.logger = logging.getLogger('IntegratedCaller')
         self.logger.setLevel(bamParser.inputParams.getLogLevel())
@@ -101,7 +103,7 @@ class IntegratedCaller:
                             format(len(pe.global_lens), self.PEG,
                             len(pe.target_lens), self.PET, pe.ref))
         self.spanning_db = {}
-        self.prepostfix_db = {}
+        self.partial_db = {}
 
     def pdf_spanning(self, h):
         if h in self.spanning_db:
@@ -122,16 +124,16 @@ class IntegratedCaller:
         self.spanning_db[h] = a   # Memoized
         return a
 
-    def pdf_prepostfix(self, h):
-        if h in self.prepostfix_db:
-            return self.prepostfix_db[h]
+    def pdf_partial(self, h):
+        if h in self.partial_db:
+            return self.partial_db[h]
         if h > self.max_partial:
             h = self.max_partial
         a = np.zeros(SPAN)
         c = 1. / (h + 1)
         a[:h] = c
         a += c * self.pdf_spanning(h)  # Add stutter to the last bin
-        self.prepostfix_db[h] = a  # Memoized
+        self.partial_db[h] = a  # Memoized
         return a
 
     def get_alpha(self, h1, h2, mode=0):
@@ -144,30 +146,42 @@ class IntegratedCaller:
             s2 = min(h2, self.t1)
         return s1 * 1. / (s1 + s2) if (s1 + s2) else .5
 
-    def evaluate_spanning(self, observations_spanning, h1, h2):
+    def evaluate_spanning(self, obs_spanning, h1, h2):
         pdf1_sp = self.pdf_spanning(h1)
         pdf2_sp = self.pdf_spanning(h2)
         alpha = self.get_alpha(h1, h2, mode=0)
         pdf_sp = alpha * pdf1_sp + (1 - alpha) * pdf2_sp
         ls = safe_log(pdf_sp)
-        return sum(ls[k] * c for k, c in observations_spanning.items())
+        return sum(ls[k] * c for k, c in obs_spanning.items())
 
-    def evaluate_prepostfix(self, observations_prepostfix, h1, h2):
-        pdf1_pp = self.pdf_prepostfix(h1)
-        pdf2_pp = self.pdf_prepostfix(h2)
+    def evaluate_partial(self, obs_partial, h1, h2):
+        pdf1_pp = self.pdf_partial(h1)
+        pdf2_pp = self.pdf_partial(h2)
         alpha = self.get_alpha(h1, h2, mode=1)
         pdf_pp = alpha * pdf1_pp + (1 - alpha) * pdf2_pp
         lp = safe_log(pdf_pp)
-        s = sum(lp[k] * c for k, c in observations_prepostfix.items())
+        s = sum(lp[k] * c for k, c in obs_partial.items())
         return s
 
-    def evaluate(self, observations_spanning, observations_prepostfix):
-        max_full = max(observations_spanning.keys()) \
-                        if observations_spanning else 0
-        max_partial = max(observations_prepostfix.keys()) \
-                        if observations_prepostfix else 0
+    def evaluate_rept(self, n_obs_rept, h1, h2):
+        """
+        We expect to find a total of N REPT reads in this region, where N
+        follows Poisson distribution with mean mu, where:
+        mu = (repeat_length - read_length) * half_depth / read_length
+
+        Note that this is defined only if repeat_length > read_length.
+        """
+        d1 = max(h1 - self.readlen, 0)
+        d2 = max(h2 - self.readlen, 0)
+        mu = (d1 + d2) * self.half_depth / self.readlen
+        prob = poisson.pmf(n_obs_rept, mu)
+        return np.log(max(prob, REALLY_SMALL_VALUE))
+
+    def evaluate(self, obs_spanning, obs_partial, n_obs_rept):
+        max_full = max(obs_spanning.keys()) if obs_spanning else 0
+        max_partial = max(obs_partial.keys()) if obs_partial else 0
         period = self.period
-        total_partial = sum(c for k, c in observations_prepostfix.items())
+        total_partial = sum(c for k, c in obs_partial.items())
         if total_partial < MIN_PARTIAL_READS:
             self.logger.debug("Partial reads: {} < {} (low depth of coverage)".\
                                 format(total_partial, MIN_PARTIAL_READS))
@@ -177,15 +191,15 @@ class IntegratedCaller:
         # The 10 * self.period part is a hack - to avoid PE mode as much as
         # possible: say full - [16], partial - [20], then shall we run PE?
         # I don't want to run PE just because the partial is a stutter
-        reads_above_full = sum(c for k, c in observations_prepostfix.items() \
+        reads_above_full = sum(c for k, c in obs_partial.items() \
                                if k > max_full + period)
         run_pe = (max_partial > max_full + 10 * period) and \
                   reads_above_full > 1 and \
                   self.pemodel is not None
         self.logger.debug("Max full: {}, max partial: {}, reads above full: {}, PE mode: {}"\
                            .format(max_full, max_partial, reads_above_full, run_pe))
-        possible_alleles = set(observations_spanning.keys())
-        if observations_prepostfix:
+        possible_alleles = set(obs_spanning.keys())
+        if obs_partial:
             if max_partial > self.max_partial:
                 self.max_partial = max_partial
             possible_alleles.add(max_partial)
@@ -205,15 +219,14 @@ class IntegratedCaller:
             for h2 in h2_range:
                 if h2 < h1:
                     continue
-                ml1 = self.evaluate_spanning(observations_spanning, h1, h2) \
-                                            if observations_spanning else 0
-                ml2 = self.evaluate_prepostfix(observations_prepostfix, h1, h2) \
-                                            if observations_prepostfix else 0
+                ml1 = self.evaluate_spanning(obs_spanning, h1, h2) if obs_spanning else 0
+                ml2 = self.evaluate_partial(obs_partial, h1, h2) if obs_partial else 0
                 ml3 = self.pemodel.evaluate(h1, h2) if run_pe else 0
-                ml = ml1 + ml2 + ml3
+                ml4 = self.evaluate_rept(n_obs_rept, h1, h2)
+                ml = ml1 + ml2 + ml3 + ml4
                 self.logger.debug(" ".join(str(x) for x in ("*" * 3,
                                             (h1 / self.period, h2 / self.period),
-                                            ml1, ml2, ml3, ml)))
+                                            ml1, ml2, ml3, ml4, ml)))
                 mls.append((ml, (h1, h2)))
 
         # Calculate the expectation (disabled for now)
@@ -259,8 +272,8 @@ class IntegratedCaller:
                 pathological_liks = [x[0] for x in mls \
                         if max(x[1]) / self.period <= tred.cutoff_risk]
 
-        return np.exp(pathological_liks - lik).sum() \
-                    / np.exp(all_liks - lik).sum()
+        return min(1, np.exp(pathological_liks - lik).sum() \
+                    / np.exp(all_liks - lik).sum())
 
     def calc_Q(self, lik, all_liks):
         '''
@@ -269,7 +282,7 @@ class IntegratedCaller:
         Avoid underflow by using this trick:
         http://www.johndcook.com/blog/2012/07/26/avoiding-underflow-in-bayesian-computations/
         '''
-        return 1 / np.exp(all_liks - lik).sum()
+        return min(1, 1 / np.exp(all_liks - lik).sum())
 
     def calc_label(self, alleles):
         '''
@@ -299,12 +312,14 @@ class IntegratedCaller:
         '''
         :return: max likelihood estimate for diploid calls
         '''
-        df = self.df
-        observations_spanning = dict((k * self.period, int(v)) for k, v in \
-                                 df["full"].to_dict().items() if int(v))
-        observations_prepostfix = dict((k * self.period, int(v)) for k, v in \
-                                 df["partial"].to_dict().items() if int(v))
-        alleles, lik, Q, PP = self.evaluate(observations_spanning, observations_prepostfix)
+        counts = self.counts
+        obs_spanning = dict((k * self.period, v) for k, v in
+                            counts["FULL"].items())
+        obs_partial = dict((k * self.period, v) for k, v in
+                            counts["PREF"].items())
+        n_obs_rept = sum(counts["REPT"].values())
+        alleles, lik, Q, PP = self.evaluate(obs_spanning, obs_partial, n_obs_rept)
+
         if not alleles:
             alleles = (-1, -1)
             lik = Q = PP = -1
@@ -318,6 +333,9 @@ class IntegratedCaller:
 
 
 def safe_log(pdf):
+    """
+    Prevents taking the log of zeros.
+    """
     pdf[pdf < SMALL_VALUE] = SMALL_VALUE
     return np.log(pdf)
 
