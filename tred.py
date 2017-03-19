@@ -43,10 +43,11 @@ INFO = """##INFO=<ID=RPA,Number=1,Type=String,Description="Repeats per allele">
 ##FORMAT=<ID=GA,Number=1,Type=String,Description="Genotype with absolute copy numbers">
 ##FORMAT=<ID=FR,Number=1,Type=String,Description="Full spanning reads aligned to locus">
 ##FORMAT=<ID=PR,Number=1,Type=String,Description="Partial reads aligned to locus">
-##FORMAT=<ID=FDP,Number=1,Type=Integer,Description="Full read Depth">
-##FORMAT=<ID=PDP,Number=1,Type=Integer,Description="Partial read Depth">
-##FORMAT=<ID=RDP,Number=1,Type=Integer,Description="Repeat read Depth">
-##FORMAT=<ID=PEDP,Number=1,Type=Integer,Description="Paired-end read Depth">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Mean read depth around locus">
+##FORMAT=<ID=FDP,Number=1,Type=Integer,Description="Full spanning read depth">
+##FORMAT=<ID=PDP,Number=1,Type=Integer,Description="Partial read depth">
+##FORMAT=<ID=RDP,Number=1,Type=Integer,Description="Repeat read depth">
+##FORMAT=<ID=PEDP,Number=1,Type=Integer,Description="Paired-end read depth">
 ##FORMAT=<ID=Q,Number=1,Type=Float,Description="Likelihood ratio score of allelotype call">
 ##FORMAT=<ID=PP,Number=1,Type=Float,Description="Posterior probability of disease">
 ##FORMAT=<ID=LABEL,Number=1,Type=String,Description="Risk assessment">
@@ -220,7 +221,8 @@ def run(arg):
         tredCalls[tred + ".2"] = alleles[1] # .2 is the longer allele
         tredCalls[tred + ".FR"] = counter_s(tpResult.counts["FULL"])
         tredCalls[tred + ".PR"] = counter_s(tpResult.counts["PREF"])
-        tredCalls[tred + ".FDP"] = tpResult.FDP     # Full depth
+        tredCalls[tred + ".DP"] = depth             # Average read depth
+        tredCalls[tred + ".FDP"] = tpResult.FDP     # Full spanning depth
         tredCalls[tred + ".PDP"] = tpResult.PDP     # Partial depth
         tredCalls[tred + ".RDP"] = tpResult.RDP     # Repeat read depth
         tredCalls[tred + ".PEDP"] = tpResult.PEDP   # PE depth
@@ -307,15 +309,16 @@ def to_vcf(results, ref, repo, treds=["HD"], store=None):
         else:
             gt = "0/0"
         gb = "{}/{}".format(a, b)
-        fields = "{}:{}:{}:{}:{}:{}:{}:{}:{:.4g}:{:.4g}:{}".format(gt, gb,
+        fields = "{}:{}:{}:{}:{}:{}:{}:{}:{}:{:.4g}:{:.4g}:{}".format(gt, gb,
                         calls[tred + ".FR"], calls[tred + ".PR"],
+                        calls[tred + ".DP"],
                         calls[tred + ".FDP"], calls[tred + ".PDP"],
                         calls[tred + ".RDP"], calls[tred + ".PEDP"],
                         calls[tred + ".Q"], calls[tred + ".PP"],
                         calls[tred + ".label"])
         m = "\t".join(str(x) for x in (
            chr, start, tred, ref_copy * repeat, alt, ".", ".", info,
-           "GT:GB:FR:PR:FDP:PDP:RDP:PEDP:Q:PP:LABEL", fields))
+           "GT:GB:FR:PR:DP:FDP:PDP:RDP:PEDP:Q:PP:LABEL", fields))
         contents.append((chr, start, m))
 
     fw = gzip.open(vcffile, "w")
