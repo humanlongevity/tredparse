@@ -37,7 +37,6 @@ class BamParser:
         self.bam = inputParams.bam
         self.gender = inputParams.gender
         self.depth = inputParams.depth
-        self.flankSize = inputParams.flankSize
         self.READLEN = inputParams.READLEN
 
         # initialize tred-specific things
@@ -114,7 +113,6 @@ class BamParser:
         repeats. This is the preferred method that allows mismatches (sequencing
         errors or SNPs) inside the read.
         '''
-        fs = self.flankSize - FLANKMATCH
         res = []
         for units, target, ssw in db:
             min_len = min(len(seq), len(target)) / 2
@@ -123,8 +121,8 @@ class BamParser:
             if not al:
                 continue
 
-            prefix_read = al.ref_begin < fs
-            suffix_read = al.ref_end > len(target) - fs - 1
+            prefix_read = al.ref_begin < FLANKMATCH
+            suffix_read = al.ref_end > len(target) - FLANKMATCH - 1
             hang = self.get_hangs(al)
             hang_read = hang > FLANKMATCH
 
@@ -192,7 +190,7 @@ class BamParserResults:
         self.PEDP = caller.PEDP
         self.PEG = caller.PEG
         self.PET = caller.PET
-        self.Q = caller.Q
+        self.CI = caller.CI
         self.PP = caller.PP
         self.label = caller.label
         self.alleles = caller.alleles

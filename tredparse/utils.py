@@ -14,11 +14,10 @@ class InputParams:
     '''
     KWARGS_LOG = 'log'
 
-    def __init__(self, bam, READLEN, flankSize, repo, tredName,
+    def __init__(self, bam, READLEN, repo, tredName,
                        gender="Unknown", depth=30, **kwargs):
         self.bam = bam
         self.READLEN = READLEN
-        self.flankSize = flankSize
         self.tredName = tredName
         self.gender = gender
         self.depth = depth

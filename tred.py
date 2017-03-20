@@ -48,7 +48,7 @@ INFO = """##INFO=<ID=RPA,Number=1,Type=String,Description="Repeats per allele">
 ##FORMAT=<ID=PDP,Number=1,Type=Integer,Description="Partial read depth">
 ##FORMAT=<ID=RDP,Number=1,Type=Integer,Description="Repeat read depth">
 ##FORMAT=<ID=PEDP,Number=1,Type=Integer,Description="Paired-end read depth">
-##FORMAT=<ID=Q,Number=1,Type=Float,Description="Likelihood ratio score of allelotype call">
+##FORMAT=<ID=CI,Number=1,Type=String,Description="95% conf interval of estimates">
 ##FORMAT=<ID=PP,Number=1,Type=Float,Description="Posterior probability of disease">
 ##FORMAT=<ID=LABEL,Number=1,Type=String,Description="Risk assessment">
 """
@@ -201,11 +201,11 @@ def run(arg):
             depth = bd.region_depth(xtred.chr, WINDOW_START, WINDOW_END)
         except Exception as e:
             depth = 30
-            logger.error("Exception on `{}` {} ({})i. Set depth={}"\
+            logger.error("Exception on `{}` {} ({}). Set depth={}"\
                         .format(bam, tred, e, depth))
 
         logger.debug("Inferred depth at locus {}: {}".format(tred, depth))
-        ip = InputParams(bam=bam, READLEN=READLEN, flankSize=18, tredName=tred,
+        ip = InputParams(bam=bam, READLEN=READLEN, tredName=tred,
                          repo=repo, maxinsert=maxinsert, gender=gender,
                          depth=depth, log=log)
 
@@ -228,7 +228,7 @@ def run(arg):
         tredCalls[tred + ".PEDP"] = tpResult.PEDP   # PE depth
         tredCalls[tred + ".PEG"] = tpResult.PEG     # PE global estimate
         tredCalls[tred + ".PET"] = tpResult.PET     # PE target estimate
-        tredCalls[tred + ".Q"] = tpResult.Q         # Quality
+        tredCalls[tred + ".CI"] = tpResult.CI       # Confidence interval
         tredCalls[tred + ".PP"] = tpResult.PP       # Prob(disease)
         tredCalls[tred + ".label"] = tpResult.label # Disease status
         if logger.getEffectiveLevel() == logging.DEBUG:
@@ -309,16 +309,16 @@ def to_vcf(results, ref, repo, treds=["HD"], store=None):
         else:
             gt = "0/0"
         gb = "{}/{}".format(a, b)
-        fields = "{}:{}:{}:{}:{}:{}:{}:{}:{}:{:.4g}:{:.4g}:{}".format(gt, gb,
+        fields = "{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{:.4g}:{}".format(gt, gb,
                         calls[tred + ".FR"], calls[tred + ".PR"],
                         calls[tred + ".DP"],
                         calls[tred + ".FDP"], calls[tred + ".PDP"],
                         calls[tred + ".RDP"], calls[tred + ".PEDP"],
-                        calls[tred + ".Q"], calls[tred + ".PP"],
+                        calls[tred + ".CI"], calls[tred + ".PP"],
                         calls[tred + ".label"])
         m = "\t".join(str(x) for x in (
            chr, start, tred, ref_copy * repeat, alt, ".", ".", info,
-           "GT:GB:FR:PR:DP:FDP:PDP:RDP:PEDP:Q:PP:LABEL", fields))
+           "GT:GB:FR:PR:DP:FDP:PDP:RDP:PEDP:CI:PP:LABEL", fields))
         contents.append((chr, start, m))
 
     fw = gzip.open(vcffile, "w")

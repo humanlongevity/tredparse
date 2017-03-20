@@ -2,6 +2,8 @@ import logging
 import numpy as np
 
 from math import exp
+from collections import defaultdict
+
 from bam_parser import PEextractor, FLANKMATCH, SPAN
 from utils import datafile
 from scipy.stats import gaussian_kde, poisson
@@ -229,24 +231,49 @@ class IntegratedCaller:
                                             ml1, ml2, ml3, ml4, ml)))
                 mls.append((ml, (h1, h2)))
 
-        # Calculate the expectation (disabled for now)
-        '''
-        h1_sum = h2_sum = total_prob = 0
+        # Calculate the confidence interval (CI), we use the CDF of the
+        # marginal probabilities of P(h1) and P(h2)
+        P_h1 = defaultdict(float)
+        P_h2 = defaultdict(float)
         for ml, (h1, h2) in mls:
             mlexp = exp(ml)
-            h1_sum += h1 / self.period * mlexp
-            h2_sum += h2 / self.period * mlexp
-            total_prob += mlexp
+            P_h1[h1] += mlexp
+            P_h2[h2] += mlexp
 
-        self.logger.debug("h1_mean = {}, h2_mean = {}"\
-                    .format(int(h1_sum / total_prob), int(h2_sum / total_prob)))
-        '''
+        h1_lo, h1_hi = self.calc_CI(P_h1)
+        h2_lo, h2_hi = self.calc_CI(P_h2)
+        h1_lo, h1_hi = h1_lo / self.period, h1_hi / self.period
+        h2_lo, h2_hi = h2_lo / self.period, h2_hi / self.period
+
+        self.logger.debug("CI(h1) = {} - {}".format(h1_lo, h1_hi))
+        self.logger.debug("CI(h2) = {} - {}".format(h2_lo, h2_hi))
 
         lik, alleles = max(mls, key=lambda x: (x[0], -x[1][0]))
         all_liks = np.array([x[0] for x in mls])
-        Q = self.calc_Q(lik, all_liks)
         PP = self.calc_PP(lik, all_liks, mls)
-        return alleles, lik, Q, PP
+        return alleles, lik, PP, (h1_lo, h1_hi, h2_lo, h2_hi)
+
+    def calc_CI(self, P):
+        """
+        Returns the confidence interval (CI) given a probability distribution P,
+        where P is a dict. We go through all the key, val pairs in the dict,
+        then report the value at .025 and .975.
+        """
+        cum_sum = 0
+        alpha, beta = .025, .975
+        lo, hi = 0, 0
+        in_range = False
+        total_prob = sum(P.values())
+        for k, v in sorted(P.items()):
+            cum_sum += v
+            if (not in_range) and cum_sum > alpha * total_prob:
+                in_range = True
+                lo = k
+            if cum_sum > beta * total_prob:
+                break
+        hi = k
+
+        return lo, hi
 
     def calc_PP(self, lik, all_liks, mls):
         """
@@ -274,15 +301,6 @@ class IntegratedCaller:
 
         return min(1, np.exp(pathological_liks - lik).sum() \
                     / np.exp(all_liks - lik).sum())
-
-    def calc_Q(self, lik, all_liks):
-        '''
-        :return: posterior probability of the observations
-
-        Avoid underflow by using this trick:
-        http://www.johndcook.com/blog/2012/07/26/avoiding-underflow-in-bayesian-computations/
-        '''
-        return min(1, 1 / np.exp(all_liks - lik).sum())
 
     def calc_label(self, alleles):
         '''
@@ -319,18 +337,18 @@ class IntegratedCaller:
                             counts["PREF"].items())
         #n_obs_rept = sum(counts["REPT"].values())
         n_obs_rept = max(counts["REPT"].values()) if counts["REPT"] else 0
-        alleles, lik, Q, PP = self.evaluate(obs_spanning, obs_partial, n_obs_rept)
+        alleles, lik, PP, CIs = self.evaluate(obs_spanning, obs_partial, n_obs_rept)
 
         if not alleles:
             alleles = (-1, -1)
-            lik = Q = PP = -1
+            lik = PP = -1
 
         self.alleles = sorted([x / self.period for x in alleles])
         self.label = label = self.calc_label(self.alleles)
-        self.Q = Q
+        self.CI = "{}-{}|{}-{}".format(*CIs)
         self.PP = PP
-        self.logger.debug("ML estimate: alleles={} lik={} Q={} PP={} label={}".\
-                            format(self.alleles, lik, Q, PP, label))
+        self.logger.debug("ML estimate: alleles={} lik={} PP={} label={}".\
+                            format(self.alleles, lik, PP, label))
 
 
 def safe_log(pdf):
