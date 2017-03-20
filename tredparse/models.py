@@ -222,6 +222,7 @@ class IntegratedCaller:
                 ml1 = self.evaluate_spanning(obs_spanning, h1, h2) if obs_spanning else 0
                 ml2 = self.evaluate_partial(obs_partial, h1, h2) if obs_partial else 0
                 ml3 = self.pemodel.evaluate(h1, h2) if run_pe else 0
+                ml3 = 0
                 ml4 = self.evaluate_rept(n_obs_rept, h1, h2)
                 ml = ml1 + ml2 + ml3 + ml4
                 self.logger.debug(" ".join(str(x) for x in ("*" * 3,
