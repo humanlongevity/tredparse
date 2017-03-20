@@ -342,14 +342,14 @@ def safe_log(pdf):
 
 class PEMaxLikModel:
 
-    def __init__(self, pe, beta=.1):
+    def __init__(self, pe):
         self.x_grid = np.arange(SPAN)
         # Build KDE from global_lens
         kde = gaussian_kde(pe.global_lens)
-        self.pdf = kde.evaluate(self.x_grid)
+        pdf = kde.evaluate(self.x_grid)
+        pdf[pdf < SMALL_VALUE] = SMALL_VALUE
+        self.pdf = pdf / pdf.sum()
         self.cdf = np.cumsum(self.pdf)
-        self.prior = self.pdf ** beta  # prior: beta=0 is uniform prior
-        self.prior /= self.prior.sum()
         self.target_lens = pe.target_lens
         self.ref = pe.ref
         self.db = {}
@@ -366,8 +366,6 @@ class PEMaxLikModel:
             p[:shift] = SMALL_VALUE
         elif shift < 0:
             p[shift:] = SMALL_VALUE
-        p /= p.sum()
-        p *= self.prior
         p /= p.sum()
         self.db[h] = p
         return p
