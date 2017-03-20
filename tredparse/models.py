@@ -193,9 +193,10 @@ class IntegratedCaller:
         # I don't want to run PE just because the partial is a stutter
         reads_above_full = sum(c for k, c in obs_partial.items() \
                                if k > max_full + period)
-        run_pe = (max_partial > max_full + 10 * period) and \
-                  reads_above_full > 1 and \
-                  self.pemodel is not None
+        #run_pe = (max_partial > max_full + 10 * period) and \
+        #          reads_above_full > 1 and \
+        #          self.pemodel is not None
+        run_pe = True
         self.logger.debug("Max full: {}, max partial: {}, reads above full: {}, PE mode: {}"\
                            .format(max_full, max_partial, reads_above_full, run_pe))
         possible_alleles = set(obs_spanning.keys())
@@ -221,7 +222,7 @@ class IntegratedCaller:
                     continue
                 ml1 = self.evaluate_spanning(obs_spanning, h1, h2) if obs_spanning else 0
                 ml2 = self.evaluate_partial(obs_partial, h1, h2) if obs_partial else 0
-                ml3 = self.pemodel.evaluate(h1, h2) if run_pe else 0
+                #ml3 = self.pemodel.evaluate(h1, h2) if run_pe else 0
                 ml3 = 0
                 ml4 = self.evaluate_rept(n_obs_rept, h1, h2)
                 ml = ml1 + ml2 + ml3 + ml4
@@ -318,6 +319,7 @@ class IntegratedCaller:
                             counts["FULL"].items())
         obs_partial = dict((k * self.period, v) for k, v in
                             counts["PREF"].items())
+        #n_obs_rept = sum(counts["REPT"].values())
         n_obs_rept = max(counts["REPT"].values()) if counts["REPT"] else 0
         alleles, lik, Q, PP = self.evaluate(obs_spanning, obs_partial, n_obs_rept)
 
