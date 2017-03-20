@@ -60,7 +60,7 @@ def get_tred_summary(df, tred, repo, na12878=False, reads=False):
 
     columns = ["SampleKey", calls]
     if reads:
-        columns.extend([tred + ".FR", tred + ".PR"])
+        columns.extend([tred + ".FR", tred + ".PR", tred + ".RDP"])
         # Truncate the display of FR/PR
         risk[tred + ".FR"] = left_truncate_text(risk[tred + ".FR"])
         risk[tred + ".PR"] = left_truncate_text(risk[tred + ".PR"])
