@@ -235,8 +235,9 @@ class IntegratedCaller:
         # marginal probabilities of P(h1) and P(h2)
         P_h1 = defaultdict(float)
         P_h2 = defaultdict(float)
+        max_ml = max(mls)[0]    # Prevent underflow
         for ml, (h1, h2) in mls:
-            mlexp = exp(ml)
+            mlexp = exp(ml - max_ml)
             P_h1[h1] += mlexp
             P_h2[h2] += mlexp
 
@@ -266,6 +267,7 @@ class IntegratedCaller:
         total_prob = sum(P.values())
         for k, v in sorted(P.items()):
             cum_sum += v
+            #self.logger.debug("=> {} {} {} {}".format(k, v, cum_sum, total_prob))
             if (not in_range) and cum_sum > alpha * total_prob:
                 in_range = True
                 lo = k
