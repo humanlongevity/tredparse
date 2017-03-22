@@ -61,6 +61,10 @@ class BamParser:
         self.WINDOW_START = max(0, self.startRepeat - self.READLEN)
         self.WINDOW_END = self.endRepeat + self.READLEN # go a few bases beyond end
 
+        # Compute REPT cutoff
+        self.period = len(self.repeat)
+        self.max_units = int(math.ceil(self.READLEN * 1. / self.period))
+
         # Stores all the read counts for each repeat units
         self.counts = {}
         self.counts["PREF"] = self.counts["POST"] = defaultdict(int)
@@ -75,9 +79,8 @@ class BamParser:
         number of repeats - whichever scores the best is the winner.
         '''
         ssws = []
-        max_units = int(math.ceil(self.READLEN * 1. / len(self.repeat)))
         # Build a list of ssw
-        for units in xrange(1, max_units + 1):
+        for units in xrange(1, self.max_units + 1):
             target = self.fullPrefix + self.repeat * units + self.fullSuffix
             ssw = Aligner(ref_seq=target,
                           match=1, mismatch=5, gap_open=7, gap_extend=2,  # Strict
@@ -140,8 +143,10 @@ class BamParser:
                     tag = "FULL"
             elif suffix_read:
                 tag = "POST"
-            else:
+            elif units >= self.max_units - 3 and units * self.period <= len(seq):
                 tag = "REPT"
+            else:
+                continue
             res.append((al.score, units, tag))
 
         if not res:
@@ -186,7 +191,7 @@ class BamParserResults:
         self.counts = counts
         self.FDP = sum(counts["FULL"].values())
         self.PDP = sum(counts["PREF"].values())
-        self.RDP = sum(counts["REPT"].values())
+        self.RDP = max(counts["REPT"].values()) if counts["REPT"] else 0
         self.PEDP = caller.PEDP
         self.PEG = caller.PEG
         self.PET = caller.PET

@@ -337,7 +337,6 @@ class IntegratedCaller:
                             counts["FULL"].items())
         obs_partial = dict((k * self.period, v) for k, v in
                             counts["PREF"].items())
-        #n_obs_rept = sum(counts["REPT"].values())
         n_obs_rept = max(counts["REPT"].values()) if counts["REPT"] else 0
         alleles, lik, PP, CIs = self.evaluate(obs_spanning, obs_partial, n_obs_rept)
 
