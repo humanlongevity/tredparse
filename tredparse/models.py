@@ -195,8 +195,9 @@ class IntegratedCaller:
         # I don't want to run PE just because the partial is a stutter
         reads_above_full = sum(c for k, c in obs_partial.items() \
                                if k > max_full + period)
-        run_pe = (max_partial > max_full + 10 * period) and \
-                  reads_above_full > 1
+        #run_pe = (max_partial > max_full + 10 * period) and \
+        #          reads_above_full > 1
+        run_pe = reads_above_full > 1
         self.logger.debug("Max full: {}, max partial: {}, reads above full: {}, PE mode: {}"\
                            .format(max_full, max_partial, reads_above_full, run_pe))
         possible_alleles = set(obs_spanning.keys())
