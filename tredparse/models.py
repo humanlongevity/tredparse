@@ -183,11 +183,11 @@ class IntegratedCaller:
         max_full = max(obs_spanning.keys()) if obs_spanning else 0
         max_partial = max(obs_partial.keys()) if obs_partial else 0
         period = self.period
-        total_partial = sum(c for k, c in obs_partial.items())
-        if total_partial < MIN_PARTIAL_READS:
-            self.logger.debug("Partial reads: {} < {} (low depth of coverage)".\
-                                format(total_partial, MIN_PARTIAL_READS))
-            return None, None, None, None
+        #total_partial = sum(c for k, c in obs_partial.items())
+        #if total_partial < MIN_PARTIAL_READS:
+        #    self.logger.debug("Partial reads: {} < {} (low depth of coverage)".\
+        #                        format(total_partial, MIN_PARTIAL_READS))
+        #    return None, None, None, None
 
         # Only run PE mode when partial reads suggest length unseen full
         # The 10 * self.period part is a hack - to avoid PE mode as much as
