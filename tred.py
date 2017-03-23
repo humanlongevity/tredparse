@@ -293,6 +293,8 @@ def to_vcf(results, ref, repo, treds=["HD"], store=None):
     vcffile = ".".join((sampleid, "tred.vcf.gz"))
     contents = []
     for tred in treds:
+        if tred + ".1" not in calls:
+            continue
         a = calls[tred + ".1"]
         b = calls[tred + ".2"]
         chr, start, ref_copy, repeat, info = registry[tred]
@@ -352,7 +354,7 @@ def read_csv(csvfile, args):
     if csvfile[0] == '@':
         samplekey = csvfile[1:]
         bam = get_HLI_bam(samplekey)
-        return [(samplekey, bam)]
+        return [(samplekey, bam, None)]
 
     # Mode 1: See if this is just a BAM file
     if csvfile.endswith(".bam") or csvfile.endswith(".cram"):
@@ -362,7 +364,7 @@ def read_csv(csvfile, args):
             samplekey = "_".join((args.workflow_execution_id, args.sample_id))
         else:
             samplekey = op.basename(bam).rsplit(".", 1)[0]
-        return [(samplekey, bam)]
+        return [(samplekey, bam, None)]
 
     fp = open(csvfile)
     # Mode 2: See if the file contains JUST list of BAM files
@@ -374,7 +376,7 @@ def read_csv(csvfile, args):
             bam = row.strip()
             bam = bam_path(bam)
             samplekey = op.basename(bam).rsplit(".", 1)[0]
-            contents.append((samplekey, bam))
+            contents.append((samplekey, bam, None))
         return contents
 
     # Mode 3: Continue reading, this is a CSV file
@@ -382,9 +384,10 @@ def read_csv(csvfile, args):
     for row in fp:
         atoms = row.strip().split(",")
         samplekey, bam = atoms[:2]
+        tred = atoms[2] if len(atoms) == 3 else None
         bam = bam_path(bam)
         if bam.endswith(".bam"):
-            contents.append((samplekey, bam))
+            contents.append((samplekey, bam, tred))
     return contents
 
 
@@ -393,7 +396,7 @@ def write_vcf_json(results, ref, repo, treds, store):
         to_vcf(results, ref, repo, treds=treds, store=store)
         to_json(results, ref, repo, treds=treds, store=store)
     except Exception as e:
-        print >> sys.stderr, "Error writing: {}\n({})".format(results, e)
+        print >> sys.stderr, "Error writing: {} ({})".format(results, e)
 
 
 if __name__ == '__main__':
@@ -446,13 +449,14 @@ if __name__ == '__main__':
 
     samplekey_index = {}
     # Parallel processing
-    for i, (samplekey, bam) in enumerate(samples):
+    for i, (samplekey, bam, tred) in enumerate(samples):
         jsonfile = ".".join((samplekey, "json"))
         if args.checkexists and op.exists(jsonfile):
             logger.debug("File `{}` exists. Skipped computation."\
                             .format(jsonfile))
             continue
-        task_args.append((samplekey, bam, repo, treds,
+        _treds = [tred] if tred else treds
+        task_args.append((samplekey, bam, repo, _treds,
                           args.maxinsert, args.log))
         samplekey_index[samplekey] = i
 
