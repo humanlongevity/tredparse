@@ -273,7 +273,7 @@ class BamReadLen:
         rmin, rmax = min(rls), max(rls)
         if rmin != rmax:
             self.logger.debug("Read length: min={}bp max={}bp".format(rmin, rmax))
-        return int(np.median(rls))
+        return rmax
 
 
 class BamDepth:

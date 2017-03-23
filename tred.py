@@ -322,7 +322,7 @@ def to_vcf(results, ref, repo, treds=["HD"], store=None):
                         calls[tred + ".label"])
         m = "\t".join(str(x) for x in (
            chr, start, tred, ref_copy * repeat, alt, ".", ".", info,
-           "GT:GB:FR:PR:DP:FDP:PDP:RDP:PEDP:CI:PP:LABEL", fields))
+           "GT:GB:FR:PR:RR:DP:FDP:PDP:RDP:PEDP:CI:PP:LABEL", fields))
         contents.append((chr, start, m))
 
     fw = gzip.open(vcffile, "w")
