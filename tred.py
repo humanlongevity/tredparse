@@ -43,6 +43,7 @@ INFO = """##INFO=<ID=RPA,Number=1,Type=String,Description="Repeats per allele">
 ##FORMAT=<ID=GA,Number=1,Type=String,Description="Genotype with absolute copy numbers">
 ##FORMAT=<ID=FR,Number=1,Type=String,Description="Full spanning reads aligned to locus">
 ##FORMAT=<ID=PR,Number=1,Type=String,Description="Partial reads aligned to locus">
+##FORMAT=<ID=RR,Number=1,Type=String,Description="Repeat-only reads aligned to locus">
 ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Mean read depth around locus">
 ##FORMAT=<ID=FDP,Number=1,Type=Integer,Description="Full spanning read depth">
 ##FORMAT=<ID=PDP,Number=1,Type=Integer,Description="Partial read depth">
@@ -221,6 +222,7 @@ def run(arg):
         tredCalls[tred + ".2"] = alleles[1] # .2 is the longer allele
         tredCalls[tred + ".FR"] = counter_s(tpResult.counts["FULL"])
         tredCalls[tred + ".PR"] = counter_s(tpResult.counts["PREF"])
+        tredCalls[tred + ".RR"] = counter_s(tpResult.counts["REPT"])
         tredCalls[tred + ".DP"] = depth             # Average read depth
         tredCalls[tred + ".FDP"] = tpResult.FDP     # Full spanning depth
         tredCalls[tred + ".PDP"] = tpResult.PDP     # Partial depth
@@ -309,9 +311,9 @@ def to_vcf(results, ref, repo, treds=["HD"], store=None):
         else:
             gt = "0/0"
         gb = "{}/{}".format(a, b)
-        fields = "{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{:.4g}:{}".format(gt, gb,
+        fields = "{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{:.4g}:{}".format(gt, gb,
                         calls[tred + ".FR"], calls[tred + ".PR"],
-                        calls[tred + ".DP"],
+                        calls[tred + ".RR"], calls[tred + ".DP"],
                         calls[tred + ".FDP"], calls[tred + ".PDP"],
                         calls[tred + ".RDP"], calls[tred + ".PEDP"],
                         calls[tred + ".CI"], calls[tred + ".PP"],
