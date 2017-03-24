@@ -96,7 +96,8 @@ class IntegratedCaller:
         self.logger.setLevel(bamParser.inputParams.getLogLevel())
 
         pe = PEextractor(bamParser)
-        self.pemodel = PEMaxLikModel(pe, self.readlen) if (len(pe.global_lens) >= 100 \
+        #print sorted(pe.target_lens)
+        self.pemodel = PEMaxLikModel(pe) if (len(pe.global_lens) >= 100 \
                     and len(pe.target_lens) >= MIN_SPANNING_PAIRS) else None
         self.PEDP = len(pe.target_lens)
         self.PEG = mean_std(pe.global_lens)
@@ -224,8 +225,7 @@ class IntegratedCaller:
                 ml1 = self.evaluate_spanning(obs_spanning, h1, h2) if obs_spanning else 0
                 ml2 = self.evaluate_partial(obs_partial, h1, h2) if obs_partial else 0
                 ml3 = self.pemodel.evaluate(h1, h2) if run_pe else 0
-                #ml4 = self.evaluate_rept(n_obs_rept, h1, h2)
-                ml4 = 0
+                ml4 = self.evaluate_rept(n_obs_rept, h1, h2)
                 ml = ml1 + ml2 + ml3 + ml4
                 self.logger.debug(" ".join(str(x) for x in ("*" * 3,
                                             (h1 / self.period, h2 / self.period),
@@ -363,8 +363,8 @@ def safe_log(pdf):
 
 class PEMaxLikModel:
 
-    def __init__(self, pe, readlen):
-        self.readlen = readlen
+    def __init__(self, pe):
+        self.MINPE = pe.MINPE
         self.x_grid = np.arange(SPAN)
         # Build KDE from global_lens
         kde = gaussian_kde(pe.global_lens)
@@ -389,7 +389,7 @@ class PEMaxLikModel:
         elif shift < 0:
             p[shift:] = SMALL_VALUE
         # Also not likely to get any PE distance below READLEN
-        p[:self.readlen] = SMALL_VALUE
+        p[:self.MINPE] = SMALL_VALUE
         # Normalize to 1
         p /= p.sum()
         self.db[h] = p
@@ -399,8 +399,8 @@ class PEMaxLikModel:
         p1 = self.roll(h1)
         p2 = self.roll(h2)
         # find the mixture rate
-        alpha1 = 1 - self.cdf[h1]
-        alpha2 = 1 - self.cdf[h2]
+        alpha1 = 1 - self.cdf[h1 + 2 * FLANKMATCH + 1]
+        alpha2 = 1 - self.cdf[h2 + 2 * FLANKMATCH + 1]
         alpha = alpha1 / (alpha1 + alpha2)
         pdf = alpha * p1 + (1 - alpha) * p2
         return pdf

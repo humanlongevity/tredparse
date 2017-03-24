@@ -245,6 +245,8 @@ class PEextractor:
             else:
                 self.global_lens.append(tlen)
 
+        self.MINPE = end - start + 2 * (FLANKMATCH + 1)
+
     def get_target_length(self, a, b):
         start, end = a.reference_start, b.reference_end
         if a.query_alignment_start > 0:  # has clips
