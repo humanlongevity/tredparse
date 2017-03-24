@@ -198,7 +198,7 @@ class IntegratedCaller:
                                if k > max_full + period)
         #run_pe = (max_partial > max_full + 10 * period) and \
         #          reads_above_full > 1
-        run_pe = reads_above_full > 1
+        run_pe = reads_above_full > 1 and self.pemodel
         self.logger.debug("Max full: {}, max partial: {}, reads above full: {}, PE mode: {}"\
                            .format(max_full, max_partial, reads_above_full, run_pe))
         possible_alleles = set(obs_spanning.keys())
@@ -215,7 +215,8 @@ class IntegratedCaller:
         # Rule 1: if ever seen a full read, then .1 allele must be chose from it
         # Rule 2: if not in PE mode, then .2 allele can just be chosen from seen
         h1range = base_range if max_full else extended_range
-        h2range = base_range if not run_pe else extended_range
+        #h2range = base_range if not run_pe else extended_range
+        h2range = extended_range
         mls = []
         for h1 in h1range:
             h2_range = [h1] if self.ploidy == 1 else h2range
