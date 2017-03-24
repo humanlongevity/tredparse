@@ -198,7 +198,7 @@ class IntegratedCaller:
                                if k > max_full + period)
         #run_pe = (max_partial > max_full + 10 * period) and \
         #          reads_above_full > 1
-        run_pe = reads_above_full > 1 and self.pemodel
+        run_pe = reads_above_full > 1 and (self.pemodel is not None)
         self.logger.debug("Max full: {}, max partial: {}, reads above full: {}, PE mode: {}"\
                            .format(max_full, max_partial, reads_above_full, run_pe))
         possible_alleles = set(obs_spanning.keys())
@@ -370,9 +370,9 @@ class PEMaxLikModel:
         # Build KDE from global_lens
         kde = gaussian_kde(pe.global_lens)
         pdf = kde.evaluate(self.x_grid)
-        pdf[pdf < SMALL_VALUE] = SMALL_VALUE
+        #pdf[pdf < SMALL_VALUE] = SMALL_VALUE
         self.pdf = pdf / pdf.sum()
-        self.cdf = np.cumsum(self.pdf)
+        #self.cdf = np.cumsum(self.pdf)
         self.target_lens = pe.target_lens
         self.ref = pe.ref
         self.db = {}
