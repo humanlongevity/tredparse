@@ -388,10 +388,10 @@ class PEMaxLikModel:
             p[:shift] = SMALL_VALUE
         elif shift < 0:
             p[shift:] = SMALL_VALUE
-        # Also not likely to get any PE distance below READLEN
+        # Also not likely to get any PE distance below MINPE
         p[:self.MINPE] = SMALL_VALUE
         # Normalize to 1
-        p /= p.sum()
+        #p /= p.sum()
         self.db[h] = p
         return p
 
@@ -399,9 +399,10 @@ class PEMaxLikModel:
         p1 = self.roll(h1)
         p2 = self.roll(h2)
         # find the mixture rate
-        alpha1 = 1 - self.cdf[h1 + 2 * FLANKMATCH + 1]
-        alpha2 = 1 - self.cdf[h2 + 2 * FLANKMATCH + 1]
-        alpha = alpha1 / (alpha1 + alpha2)
+        #alpha1 = 1 - self.cdf[h1 + 2 * FLANKMATCH + 1]
+        #alpha2 = 1 - self.cdf[h2 + 2 * FLANKMATCH + 1]
+        #alpha = alpha1 / (alpha1 + alpha2)
+        alpha = .5
         pdf = alpha * p1 + (1 - alpha) * p2
         return pdf
 

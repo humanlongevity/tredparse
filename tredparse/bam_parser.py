@@ -228,6 +228,8 @@ class PEextractor:
                 cache[x.query_name].append(x)
 
         self.global_lens, self.target_lens = [], []
+        tstart = start - FLANKMATCH
+        tend = end + FLANKMATCH
         for name, reads in cache.iteritems():
             if len(reads) < 2:
                 continue
@@ -239,13 +241,12 @@ class PEextractor:
             if tlen >= SPAN:  # Skip pairs that are too distant
                 continue
             # Get all pairs where read1 is on left flank and read2 is on right flank (spanning pair)
-            if a.reference_start < start - FLANKMATCH and \
-               b.reference_end > end + FLANKMATCH:
+            if a.reference_start < tstart and b.reference_end > tend:
                 self.target_lens.append(tlen)
             else:
                 self.global_lens.append(tlen)
 
-        self.MINPE = end - start + 2 * (FLANKMATCH + 1)
+        self.MINPE = end - start + 2 * FLANKMATCH + 2
 
     def get_target_length(self, a, b):
         start, end = a.reference_start, b.reference_end
