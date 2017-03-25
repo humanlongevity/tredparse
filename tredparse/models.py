@@ -212,7 +212,7 @@ class IntegratedCaller:
         # Rule 1: if ever seen a full read, then .1 allele must be chose from it
         # Rule 2: if not in PE mode, then .2 allele can just be chosen from seen
         h1range = base_range if max_full else extended_range
-        h2range = extended_range
+        h2range = extended_range if (n_obs_rept or run_pe) else base_range
         mls = []
         for h1 in h1range:
             h2_range = [h1] if self.ploidy == 1 else h2range
@@ -221,8 +221,8 @@ class IntegratedCaller:
                     continue
                 ml1 = self.evaluate_spanning(obs_spanning, h1, h2) if obs_spanning else 0
                 ml2 = self.evaluate_partial(obs_partial, h1, h2) if obs_partial else 0
-                ml3 = self.pemodel.evaluate(h1, h2) if run_pe else 0
-                ml4 = self.evaluate_rept(n_obs_rept, h1, h2)
+                ml3 = self.evaluate_rept(n_obs_rept, h1, h2)
+                ml4 = self.pemodel.evaluate(h1, h2) if run_pe else 0
                 ml = ml1 + ml2 + ml3 + ml4
                 self.logger.debug(" ".join(str(x) for x in ("*" * 3,
                                             (h1 / self.period, h2 / self.period),
