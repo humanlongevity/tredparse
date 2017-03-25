@@ -123,6 +123,8 @@ class IntegratedCaller:
         start, end = h - dev, h + dev + 1
         if start < 0:
             start = 0
+        if end > SPAN:
+            end = SPAN
         a[start: end] = p[lp - end + start: lp]
         self.spanning_db[h] = a   # Memoized
         return a
@@ -348,7 +350,7 @@ class IntegratedCaller:
 
         self.alleles = sorted([x / self.period for x in alleles])
         self.label = label = self.calc_label(self.alleles)
-        self.CI = "{}-{}|{}-{}".format(*CIs)
+        self.CI = "{}-{}|{}-{}".format(*CIs) if CIs else ""
         self.PP = PP
         self.logger.debug("ML estimate: alleles={} lik={} PP={} label={}".\
                             format(self.alleles, lik, PP, label))
