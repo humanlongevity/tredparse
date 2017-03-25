@@ -56,14 +56,15 @@ def get_tred_summary(df, tred, repo, na12878=False, reads=False):
     n_prerisk = prerisk.shape[0]
     n_risk = risk.shape[0]
     calls = "Calls"
-    risk[calls] = ["{}/{}".format(a, b) for (a, b) in zip(risk[pf1], risk[pf2])]
+    risk[calls] = ["{}/{}".format(int(a), int(b)) for (a, b) in zip(risk[pf1], risk[pf2])]
 
     columns = ["SampleKey", calls]
     if reads:
-        columns.extend([tred + ".FR", tred + ".PR", tred + ".RDP"])
+        columns.extend([tred + ".FR", tred + ".PR", tred + ".RR", tred + ".PP"])
         # Truncate the display of FR/PR
         risk[tred + ".FR"] = left_truncate_text(risk[tred + ".FR"])
         risk[tred + ".PR"] = left_truncate_text(risk[tred + ".PR"])
+        risk[tred + ".RR"] = left_truncate_text(risk[tred + ".RR"])
 
     pt = risk[columns]
     if (n_risk > 1 and na12878) or (n_risk > 0 and not na12878):

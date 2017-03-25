@@ -16,7 +16,6 @@ REALLY_SMALL_VALUE = exp(-100)
 MODEL_PREFIX = "illumina_v3.pcrfree"
 STEPMODEL = datafile(MODEL_PREFIX + ".stepmodel")
 NOISEMODEL = datafile(MODEL_PREFIX + ".stuttermodel")
-MIN_PARTIAL_READS = 5
 MIN_SPANNING_PAIRS = 5
 
 
@@ -85,6 +84,7 @@ class IntegratedCaller:
         self.period = bamParser.repeatSize
         self.t1 = self.readlen - FLANKMATCH
         self.t2 = self.readlen - 2 * FLANKMATCH
+        self.t3 = self.readlen - 3 * FLANKMATCH
         self.max_partial = self.t2
         self.score = score
         self.gc = gc
@@ -186,11 +186,6 @@ class IntegratedCaller:
         max_full = max(obs_spanning.keys()) if obs_spanning else 0
         max_partial = max(obs_partial.keys()) if obs_partial else 0
         period = self.period
-        #total_partial = sum(c for k, c in obs_partial.items())
-        #if total_partial < MIN_PARTIAL_READS:
-        #    self.logger.debug("Partial reads: {} < {} (low depth of coverage)".\
-        #                        format(total_partial, MIN_PARTIAL_READS))
-        #    return None, None, None, None
 
         # Only run PE mode when partial reads suggest length unseen full
         # The 10 * self.period part is a hack - to avoid PE mode as much as
@@ -198,9 +193,9 @@ class IntegratedCaller:
         # I don't want to run PE just because the partial is a stutter
         reads_above_full = sum(c for k, c in obs_partial.items() \
                                if k > max_full + period)
-        #run_pe = (max_partial > max_full + 10 * period) and \
-        #          reads_above_full > 1
-        run_pe = reads_above_full > 1 and (self.pemodel is not None)
+        run_pe = max_partial >= self.t3 and \
+                 reads_above_full > 1 and \
+                 (self.pemodel is not None)
         self.logger.debug("Max full: {}, max partial: {}, reads above full: {}, PE mode: {}"\
                            .format(max_full, max_partial, reads_above_full, run_pe))
         possible_alleles = set(obs_spanning.keys())
@@ -217,8 +212,7 @@ class IntegratedCaller:
         # Rule 1: if ever seen a full read, then .1 allele must be chose from it
         # Rule 2: if not in PE mode, then .2 allele can just be chosen from seen
         h1range = base_range if max_full else extended_range
-        #h2range = base_range if not run_pe else extended_range
-        h2range = extended_range
+        h2range = base_range if not run_pe else extended_range
         mls = []
         for h1 in h1range:
             h2_range = [h1] if self.ploidy == 1 else h2range
@@ -352,7 +346,7 @@ class IntegratedCaller:
         self.label = label = self.calc_label(self.alleles)
         self.CI = "{}-{}|{}-{}".format(*CIs) if CIs else ""
         self.PP = PP
-        self.logger.debug("ML estimate: alleles={} lik={} PP={} label={}".\
+        self.logger.debug("ML estimate: alleles={} loglikelihood={} PP={} label={}".\
                             format(self.alleles, lik, PP, label))
 
 
