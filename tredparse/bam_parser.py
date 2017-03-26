@@ -143,7 +143,7 @@ class BamParser:
                     tag = "FULL"
             elif suffix_read:
                 tag = "POST"
-            elif units >= self.max_units - 3 and units * self.period <= len(seq):
+            elif units >= self.max_units - 1 and units * self.period <= len(seq):
                 tag = "REPT"
             else:
                 continue
