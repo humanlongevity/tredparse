@@ -2,10 +2,10 @@
 
 [![Travis-CI](https://travis-ci.org/tanghaibao/tredparse.svg?branch=master)](https://travis-ci.org/tanghaibao/tredparse)
 
-|||
+| | |
 |---|---|
 | Author | Haibao Tang ([tanghaibao](http://github.com/tanghaibao)) |
-|| Smriti Ramakrishnan ([smr18](http://github.com/smr18)) |
+| | Smriti Ramakrishnan ([smr18](http://github.com/smr18)) |
 | Email | <htang@humanlongevity.com> |
 | License | Restricted |
 
