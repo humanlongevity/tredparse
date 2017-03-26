@@ -299,6 +299,7 @@ class IntegratedCaller:
                 pathological_liks = [x[0] for x in mls \
                         if max(x[1]) / self.period <= tred.cutoff_risk]
 
+        pathological_liks = np.array(pathological_liks)
         return min(1, np.exp(pathological_liks - lik).sum() \
                     / np.exp(all_liks - lik).sum())
 
