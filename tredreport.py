@@ -39,13 +39,10 @@ def get_tred_summary(df, tred, repo, na12878=False, reads=False):
     repeat_location = row["repeat_location"]
 
     cutoff_prerisk, cutoff_risk = tr.cutoff_prerisk, tr.cutoff_risk
-
-    if tr.is_recessive:  # recessive (AR, XLR)
-        prerisk = df[(df[pf1] >= cutoff_prerisk) & (df[pf1] < cutoff_risk)]
-        risk = df[df[pf1] >= cutoff_risk]
-    else:
-        prerisk = df[(df[pf2] >= cutoff_prerisk) & (df[pf2] < cutoff_risk)]
-        risk = df[df[pf2] >= cutoff_risk]
+    label = tred + ".label"
+    pp = tred + ".PP"
+    prerisk = df[(df[label] == "prerisk") & (df[pp] > .95)]
+    risk = df[(df[label] == "risk") & (df[pp] > .95)]
 
     risk = risk.copy()
     if na12878:
@@ -60,7 +57,7 @@ def get_tred_summary(df, tred, repo, na12878=False, reads=False):
 
     columns = ["SampleKey", calls]
     if reads:
-        columns.extend([tred + ".FR", tred + ".PR", tred + ".RR", tred + ".PP"])
+        columns.extend([tred + ".FR", tred + ".PR", tred + ".RR", pp])
         # Truncate the display of FR/PR
         risk[tred + ".FR"] = left_truncate_text(risk[tred + ".FR"])
         risk[tred + ".PR"] = left_truncate_text(risk[tred + ".PR"])

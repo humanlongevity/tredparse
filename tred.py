@@ -441,7 +441,7 @@ if __name__ == '__main__':
     repo = TREDsRepo(ref=ref, toy=args.toy)
     repo.set_ploidy(args.haploid)
     TRED_NAMES = repo.keys()
-    TRED_NAMES.remove('AR')   # Disable one AR
+    #TRED_NAMES.remove('AR')   # Disable one AR
     treds = args.tred or TRED_NAMES
 
     if args.toy:

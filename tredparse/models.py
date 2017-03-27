@@ -323,7 +323,7 @@ class IntegratedCaller:
             crit_allele = b if tred.is_recessive else a
             if cutoff_prerisk <= crit_allele < cutoff_risk:
                 label = "prerisk"
-            elif crit_allele <= cutoff_risk:
+            elif 0 < crit_allele <= cutoff_risk:
                 label = "risk"
         return label
 

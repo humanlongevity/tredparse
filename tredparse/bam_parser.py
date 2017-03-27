@@ -127,13 +127,14 @@ class BamParser:
             prefix_read = al.ref_begin < FLANKMATCH
             suffix_read = al.ref_end > len(target) - FLANKMATCH - 1
             hang = self.get_hangs(al)
-            hang_read = hang > FLANKMATCH
+            hang_read = hang >= FLANKMATCH
 
             if verbose:
                 print >> sys.stderr, units, target
-                print >> sys.stderr, al
+                print >> sys.stderr, str(al).strip()
                 print >> sys.stderr, '\n'.join(al.alignment)
                 print >> sys.stderr, prefix_read, suffix_read, hang_read, hang
+                print >> sys.stderr
 
             if hang_read:
                 tag = "HANG"
