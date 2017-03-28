@@ -203,7 +203,7 @@ def main():
         print >> sys.stderr, "Dataframe empty - check input files"
         sys.exit(1)
 
-    reportfile = tsvfile + ".report"
+    reportfile = tsvfile + ".report.txt"
     summary = pd.DataFrame()
     total_prerisk = total_risk = total_loci = 0
     for tred in alltreds:
