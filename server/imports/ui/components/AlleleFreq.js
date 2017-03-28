@@ -12,7 +12,7 @@ const getData = (text) => {
 
 const update = (props) => {
   const tred = Treds[props.tred];
-  const data = getData(tred.allele_frequency);
+  const data = getData(tred.allele_freq);
   const choose = choices => choices[Math.floor(Math.random() * choices.length)];
   const color = choose(d3.schemeCategory20);
 
