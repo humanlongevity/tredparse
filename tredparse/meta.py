@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+"""
+Handles the STR database and extractions of various properties of a particular
+STR locus.
+"""
+
 import json
 import pandas as pd
 
@@ -15,8 +23,10 @@ class TREDsRepo(dict):
 
         self.ref = ref
         df = pd.read_csv(REPO, index_col=0)
+        self.names = []
         for name, row in df.iterrows():
             self[name] = TRED(name, row, ref=ref)
+            self.names.append(name)
         self.df = df
 
         if toy:

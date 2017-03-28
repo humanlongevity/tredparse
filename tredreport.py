@@ -28,7 +28,7 @@ def left_truncate_text(a, maxcol=30):
     return [trim(x) for x in list(a)]
 
 
-def get_tred_summary(df, tred, repo, na12878=False, reads=False):
+def get_tred_summary(df, tred, repo, na12878=False, reads=False, minPP=.5):
     pf1 = tred + ".1"
     pf2 = tred + ".2"
     tr = repo[tred]
@@ -41,8 +41,8 @@ def get_tred_summary(df, tred, repo, na12878=False, reads=False):
     cutoff_prerisk, cutoff_risk = tr.cutoff_prerisk, tr.cutoff_risk
     label = tred + ".label"
     pp = tred + ".PP"
-    prerisk = df[(df[label] == "prerisk") & (df[pp] > .95)]
-    risk = df[(df[label] == "risk") & (df[pp] > .95)]
+    prerisk = df[df[label] == "prerisk"]
+    risk = df[(df[label] == "risk") & (df[pp] > minPP)]
 
     risk = risk.copy()
     if na12878:
@@ -172,6 +172,8 @@ def main():
                    help="Include NA12878 in print out cases")
     p.add_argument('--reads', default=False, action="store_true",
                    help="Append reads information to output to help debug")
+    p.add_argument('--minPP', default=.5, type=float,
+                   help="Minimum P(pathological) report cases")
     p.add_argument('--cpus', default=cpu_count(),
                    help='Number of threads')
     args = p.parse_args()
@@ -181,7 +183,7 @@ def main():
     columns = args.columns.split(",")
 
     repo = TREDsRepo()
-    alltreds = repo.keys()
+    alltreds = repo.names
     if files:
         nfiles = len(files)
         cpus = min(nfiles, args.cpus)
@@ -209,7 +211,7 @@ def main():
             tr, n_prerisk, n_risk, af = \
                 get_tred_summary(df, tred, repo,
                                  na12878=args.NA12878,
-                                 reads=args.reads)
+                                 reads=args.reads, minPP=args.minPP)
             total_prerisk += n_prerisk
             total_risk += n_risk
             if n_risk:
@@ -228,8 +230,6 @@ def main():
         d["allele_freq"] = af
         summary = summary.append(d, ignore_index=True)
 
-    summary = summary.reindex_axis(columns + \
-            ["n_prerisk", "n_risk", "allele_freq"], axis='columns')
     summary.to_csv(reportfile, sep="\t", index=False, float_format="%d")
     print >> sys.stderr, "Summary report written to `{}` (# samples={})"\
                     .format(reportfile, summary.shape[0])
