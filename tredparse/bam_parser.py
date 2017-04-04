@@ -179,8 +179,8 @@ class BamParser:
         db = self._buildDB()
 
         chr, start, end = self.chr, WINDOW_START, WINDOW_END
+        n_unmapped = 0
         if test_fetch(samfile, chr, start, end, self.logger):
-            n_unmapped = 0
             for read in samfile.fetch(chr, start, end):
                 if read.is_unmapped:
                     n_unmapped += 1
