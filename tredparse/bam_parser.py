@@ -58,8 +58,9 @@ class BamParser:
         self.fullPrefix, self.fullSuffix = self.tred.prefix, self.tred.suffix
 
         # TODO: limit by chromosome end
-        self.WINDOW_START = max(0, self.startRepeat - self.READLEN)
-        self.WINDOW_END = self.endRepeat + self.READLEN # go a few bases beyond end
+        pad = SPAN / 2
+        self.WINDOW_START = max(0, self.startRepeat - pad)
+        self.WINDOW_END = self.endRepeat + pad
 
         # Compute REPT cutoff
         self.period = len(self.repeat)
@@ -166,8 +167,14 @@ class BamParser:
 
         chr, start, end = self.chr, self.WINDOW_START, self.WINDOW_END
         if test_fetch(samfile, chr, start, end, self.logger):
+            n_unmapped = 0
             for read in samfile.fetch(chr, start, end):
+                if read.is_unmapped:
+                    n_unmapped += 1
                 self._parseReadSW(chr=chr, seq=read.query_sequence, db=db)
+
+        self.logger.debug("A total of {} unmapped reads in {}:{}-{}".\
+                            format(n_unmapped, chr, start, end))
 
         for tag in ("FULL", "PREF", "REPT"):
             self.show_counts(tag)
