@@ -110,7 +110,7 @@ class BamParser:
 
         return min(s1, s2, s3, s4)
 
-    def _parseReadSW(self, chr, pos, seq, db, verbose=False):
+    def _parseReadSW(self, chr, seq, db, verbose=False):
         '''
         Use Smith-Waterman matcher to classify reads and count number of
         repeats. This is the preferred method that allows mismatches (sequencing
@@ -167,8 +167,7 @@ class BamParser:
         chr, start, end = self.chr, self.WINDOW_START, self.WINDOW_END
         if test_fetch(samfile, chr, start, end, self.logger):
             for read in samfile.fetch(chr, start, end):
-                self._parseReadSW(chr=chr, pos=read.reference_start,
-                           seq=read.query_sequence, db=db)
+                self._parseReadSW(chr=chr, seq=read.query_sequence, db=db)
 
         for tag in ("FULL", "PREF", "REPT"):
             self.show_counts(tag)
