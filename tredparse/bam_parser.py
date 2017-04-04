@@ -11,6 +11,7 @@ model for the prediction of allele sizes.
 import logging
 import math
 import sys
+import string
 
 import numpy as np
 import pysam
@@ -23,6 +24,7 @@ from utils import datafile
 SPAN = 1000
 FLANKMATCH = 9
 DNAPE_ELONGATE = SPAN * 10  # How far do we look beyond the target for paired-end
+_complement = string.maketrans('ATCGatcgNnXx', 'TAGCtagcNnXx')
 
 
 class BamParser:
@@ -57,11 +59,6 @@ class BamParser:
         self.referenceLen = self.tred.repeat_end - self.tred.repeat_start + 1
         self.fullPrefix, self.fullSuffix = self.tred.prefix, self.tred.suffix
 
-        # TODO: limit by chromosome end
-        pad = SPAN / 2
-        self.WINDOW_START = max(0, self.startRepeat - pad)
-        self.WINDOW_END = self.endRepeat + pad
-
         # Compute REPT cutoff
         self.period = len(self.repeat)
         self.max_units = int(math.ceil(self.READLEN * 1. / self.period))
@@ -83,11 +80,13 @@ class BamParser:
         # Build a list of ssw
         for units in xrange(1, self.max_units + 1):
             target = self.fullPrefix + self.repeat * units + self.fullSuffix
-            ssw = Aligner(ref_seq=target,
-                          match=1, mismatch=5, gap_open=7, gap_extend=2,  # Strict
-                          #match=1, mismatch=4, gap_open=6, gap_extend=1, # BWA-MEM
-                          report_secondary=False)
-            ssws.append((units, target, ssw))
+            target_rc = rc(target)
+            for seq in (target, target_rc):
+                ssw = Aligner(ref_seq=seq,
+                              match=1, mismatch=5, gap_open=7, gap_extend=2,  # Strict
+                              #match=1, mismatch=4, gap_open=6, gap_extend=1, # BWA-MEM
+                              report_secondary=False)
+                ssws.append((units, seq, ssw))
         return ssws
 
     def get_hangs(self, al):
@@ -161,16 +160,35 @@ class BamParser:
         self.logger.debug(s)
         self.details.append({'tag': tag, 'h': h, 'seq': seq})
 
-    def parse(self):
+    def parse(self, pad=SPAN):
+        """
+        We examine all reads within interval (WINDOW_START, WINDOW_END). We are
+        only interested in two types of reads
+        - Unmapped reads (they are really "half-mapped" reads, with the mate
+          acting as an anchor)
+        - Reads that are aligned close to the repeat region (within distance of
+          a read length)
+        """
+        # TODO: limit by chromosome end
+        WINDOW_START = max(0, self.startRepeat - pad)
+        WINDOW_END = self.endRepeat + pad
+        READ_START = max(0, self.startRepeat - self.READLEN)
+        READ_END = self.endRepeat + self.READLEN
+
         samfile = read_alignment(self.bam)
         db = self._buildDB()
 
-        chr, start, end = self.chr, self.WINDOW_START, self.WINDOW_END
+        chr, start, end = self.chr, WINDOW_START, WINDOW_END
         if test_fetch(samfile, chr, start, end, self.logger):
             n_unmapped = 0
             for read in samfile.fetch(chr, start, end):
                 if read.is_unmapped:
                     n_unmapped += 1
+                else:
+                    if read.reference_start < READ_START:
+                        continue
+                    if read.reference_start > READ_END:
+                        continue
                 self._parseReadSW(chr=chr, seq=read.query_sequence, db=db)
 
         self.logger.debug("A total of {} unmapped reads in {}:{}-{}".\
@@ -338,3 +356,8 @@ def test_fetch(samfile, chr, start, end, logger):
     except ValueError:
         logger.error("No reads extracted for region {}:{}-{}".format(chr, start, end))
         return False
+
+
+def rc(s):
+    cs = s.translate(_complement)
+    return cs[::-1]
