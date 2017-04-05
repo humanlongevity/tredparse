@@ -93,6 +93,7 @@ const TredparseResults = React.createClass({
 
     const fullReads = [];
     const partialReads = [];
+    const reptReads = [];
     const pairedReads = calls[`${tred}.PEDP`];
     let PEG = calls[`${tred}.PEG`];
     let PET = calls[`${tred}.PET`];
@@ -103,8 +104,10 @@ const TredparseResults = React.createClass({
       details.forEach((e) => {
         if (e.tag === 'FULL') {
           fullReads.push(e);
-        } else if (e.tag != 'HANG') {
+        } else if (e.tag == 'PREF') {
           partialReads.push(e);
+        } else if (e.tag == 'REPT') {
+          reptReads.push(e);
         }
       });
     }
@@ -119,7 +122,10 @@ const TredparseResults = React.createClass({
           <Panel header={`Partial spanning - ${partialReads.length} reads`} eventKey='2'>
             { this.formatReads(partialReads, tredinfo.repeat) }
           </Panel>
-          <Panel header={`Spanning read pairs - ${pairedReads} pairs`} eventKey='3'>
+          <Panel header={`Repeat-only - ${reptReads.length} reads`} eventKey='3'>
+            { this.formatReads(reptReads, tredinfo.repeat) }
+          </Panel>
+          <Panel header={`Spanning read pairs - ${pairedReads} pairs`} eventKey='4'>
             { PEG } => { PET }
           </Panel>
         </Accordion>
