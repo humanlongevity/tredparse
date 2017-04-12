@@ -69,6 +69,8 @@ def set_argparse():
     p.add_argument('--haploid', help='Treat these chromosomes as haploid', action='append')
     p.add_argument('--maxinsert', default=300, type=int,
                         help="Maximum number of repeats")
+    p.add_argument('--fullsearch', default=False, action="store_true",
+                        help="Full grid search, could be slow")
     p.add_argument('--log', choices=("INFO", "DEBUG"), default="INFO",
                         help='Print debug logs, DEBUG=verbose')
     p.add_argument('--toy', help=argparse.SUPPRESS, action="store_true")
@@ -138,11 +140,13 @@ def runBam(inputParams):
     :return: BamParserResult
     '''
     maxinsert = inputParams.kwargs["maxinsert"]
+    fullsearch = inputParams.kwargs["fullsearch"]
     bp = BamParser(inputParams)
     bp.parse()
 
     # find the integrated likelihood calls
-    integratedCaller = IntegratedCaller(bp, maxinsert=maxinsert)
+    integratedCaller = IntegratedCaller(bp, maxinsert=maxinsert,
+                                        fullsearch=fullsearch)
     integratedCaller.call(**inputParams.kwargs)
 
     return BamParserResults(inputParams, bp.tred, bp.counts, bp.details,
@@ -156,7 +160,7 @@ def run(arg):
     :param: referenceVersion, hg19 or hg38
     :return: dict of calls
     '''
-    samplekey, bam, repo, tredNames, maxinsert, log = arg
+    samplekey, bam, repo, tredNames, maxinsert, fullsearch, log = arg
     cwd = os.getcwd()
     mkdir(samplekey)
     os.chdir(samplekey)
@@ -207,8 +211,8 @@ def run(arg):
 
         logger.debug("Inferred depth at locus {}: {}".format(tred, depth))
         ip = InputParams(bam=bam, READLEN=READLEN, tredName=tred,
-                         repo=repo, maxinsert=maxinsert, gender=gender,
-                         depth=depth, log=log)
+                         repo=repo, maxinsert=maxinsert, fullsearch=fullsearch,
+                         gender=gender, depth=depth, log=log)
 
         #tpResult = runBam(ip)
         try:
@@ -457,7 +461,7 @@ if __name__ == '__main__':
             continue
         _treds = [tred] if tred else treds
         task_args.append((samplekey, bam, repo, _treds,
-                          args.maxinsert, args.log))
+                          args.maxinsert, args.fullsearch, args.log))
         samplekey_index[samplekey] = i
 
     cpus = min(args.cpus, len(task_args))

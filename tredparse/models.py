@@ -76,7 +76,9 @@ class IntegratedCaller:
     Models the stutter probability and calculates likelihood of a read set with
     full reads and partial reads.
     """
-    def __init__(self, bamParser, score=1.0, gc=.68, maxinsert=100):
+    def __init__(self, bamParser, score=1.0, gc=.68,
+                       maxinsert=300, fullsearch=False):
+
         self.tred = bamParser.tred
         self.stepmodel = StepModel()
         self.noisemodel = NoiseModel()
@@ -92,6 +94,7 @@ class IntegratedCaller:
         self.ploidy = bamParser.ploidy
         self.half_depth = bamParser.depth / 2
         self.maxinsert = maxinsert
+        self.fullsearch = fullsearch
         self.logger = logging.getLogger('IntegratedCaller')
         self.logger.setLevel(bamParser.inputParams.getLogLevel())
 
@@ -206,13 +209,18 @@ class IntegratedCaller:
         if not possible_alleles:
             return None, None, None, None
 
+        # === Grid search for ML estimates ===
+        # Rule 1: if ever seen a full read, then .1 allele must be chose from it
+        # Rule 2: if not in PE mode, then .2 allele can just be chosen from seen
         base_range = sorted(possible_alleles)
         extended_range = base_range + \
                 range(max_partial + period, period * self.maxinsert + 1, period)
-        # Rule 1: if ever seen a full read, then .1 allele must be chose from it
-        # Rule 2: if not in PE mode, then .2 allele can just be chosen from seen
-        h1range = base_range if max_full else extended_range
-        h2range = extended_range if (n_obs_rept or run_pe) else base_range
+        if self.fullsearch:
+            h1range = h2range = range(period, period * self.maxinsert + 1, period)
+        else:
+            h1range = base_range if max_full else extended_range
+            h2range = extended_range if (n_obs_rept or run_pe) else base_range
+
         mls = []
         for h1 in h1range:
             h2_range = [h1] if self.ploidy == 1 else h2range
