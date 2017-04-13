@@ -17,6 +17,7 @@ import sys
 import time
 import logging
 
+from tredparse import __version__
 from tredparse.utils import DefaultHelpParser, InputParams, \
         mkdir, ls_s3, push_to_s3
 from tredparse.bam_parser import BamDepth, BamReadLen, BamParser, \
@@ -58,41 +59,45 @@ INFO = """##INFO=<ID=RPA,Number=1,Type=String,Description="Repeats per allele">
 def set_argparse():
     TRED_NAMES = set(TREDsRepo().keys())
 
-    p = DefaultHelpParser(description=__doc__, prog=__file__,
+    p = DefaultHelpParser(description=__doc__, prog=op.basename(__file__),
             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p.add_argument('infile', nargs='?', help="Input path (BAM, list of BAMs, or csv format)")
-    p.add_argument('--cpus', help='Number of CPUs to use', type=int, default=cpu_count())
     p.add_argument('--ref', help='Reference genome version',
                         choices=("hg38", "hg19"), default='hg38')
     p.add_argument('--tred', help='STR disorder, default is to run all',
                         action='append', choices=sorted(TRED_NAMES), default=None)
     p.add_argument('--haploid', help='Treat these chromosomes as haploid', action='append')
-    p.add_argument('--maxinsert', default=300, type=int,
-                        help="Maximum number of repeats")
-    p.add_argument('--fullsearch', default=False, action="store_true",
-                        help="Full grid search, could be slow")
     p.add_argument('--log', choices=("INFO", "DEBUG"), default="INFO",
                         help='Print debug logs, DEBUG=verbose')
+    p.add_argument('--version', action='version', version="%(prog)s " + __version__)
     p.add_argument('--toy', help=argparse.SUPPRESS, action="store_true")
-    p.add_argument('--cleanup', default=False, action="store_true",
+
+    g = p.add_argument_group("Performance options")
+    g.add_argument('--cpus', help='Number of CPUs to use', type=int, default=cpu_count())
+    g.add_argument('--maxinsert', default=300, type=int,
+                        help="Maximum number of repeats")
+    g.add_argument('--fullsearch', default=False, action="store_true",
+                        help="Full grid search, could be slow")
+
+    g = p.add_argument_group("I/O options")
+    g.add_argument("--workdir", default=os.getcwd(), help="Specify work dir")
+    g.add_argument('--cleanup', default=False, action="store_true",
                                 help="Cleanup the workdir after done")
-    p.add_argument('--checkexists', default=False, action="store_true",
+    g.add_argument('--checkexists', default=False, action="store_true",
                                 help="Do not run if JSON output exists")
-    p.add_argument('--no-output', default=False, action="store_true",
+    g.add_argument('--no-output', default=False, action="store_true",
                                 help="Do not write JSON and VCF output")
     set_aws_opts(p)
     return p
 
 
 def set_aws_opts(p):
-    group = p.add_argument_group("AWS and Docker options")
-    p.add_argument_group(group)
+    g = p.add_argument_group("AWS and Docker options")
     # https://github.com/hlids/infrastructure/wiki/Docker-calling-convention
-    group.add_argument("--sample_id", help="Sample ID")
-    group.add_argument("--workflow_execution_id", help="Workflow execution ID")
-    group.add_argument("--input_bam_path", help="Input s3 path, override infile")
-    group.add_argument("--output_path", help="Output s3 path")
-    group.add_argument("--workdir", default=os.getcwd(), help="Specify work dir")
+    g.add_argument("--sample_id", help="Sample ID")
+    g.add_argument("--workflow_execution_id", help="Workflow execution ID")
+    g.add_argument("--input_bam_path", help="Input s3 path, override infile")
+    g.add_argument("--output_path", help="Output s3 path")
 
 
 def bam_path(bam):

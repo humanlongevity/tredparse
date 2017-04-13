@@ -18,6 +18,7 @@ import pandas as pd
 from collections import Counter
 from multiprocessing import Pool, cpu_count
 
+from tredparse import __version__
 from tredparse.meta import TREDsRepo
 from tredparse.utils import DefaultHelpParser
 
@@ -28,7 +29,7 @@ def left_truncate_text(a, maxcol=30):
     return [trim(x) for x in list(a)]
 
 
-def get_tred_summary(df, tred, repo, na12878=False, reads=False, minPP=.5):
+def get_tred_summary(df, tred, repo, minPP=.5):
     pf1 = tred + ".1"
     pf2 = tred + ".2"
     tr = repo[tred]
@@ -45,26 +46,20 @@ def get_tred_summary(df, tred, repo, na12878=False, reads=False, minPP=.5):
     risk = df[(df[label] == "risk") & (df[pp] > minPP)]
 
     risk = risk.copy()
-    if na12878:
-        na_index = [x for x in df["SampleKey"] if "NA12878" in x]
-        na = df[df["SampleKey"] == na_index[0]]
-        risk = risk.append(na)
-
     n_prerisk = prerisk.shape[0]
     n_risk = risk.shape[0]
     calls = "Calls"
     risk[calls] = ["{}/{}".format(int(a), int(b)) for (a, b) in zip(risk[pf1], risk[pf2])]
 
     columns = ["SampleKey", calls]
-    if reads:
-        columns.extend([tred + ".FR", tred + ".PR", tred + ".RR", pp])
-        # Truncate the display of FR/PR
-        risk[tred + ".FR"] = left_truncate_text(risk[tred + ".FR"])
-        risk[tred + ".PR"] = left_truncate_text(risk[tred + ".PR"])
-        risk[tred + ".RR"] = left_truncate_text(risk[tred + ".RR"])
+    columns.extend([tred + ".FR", tred + ".PR", tred + ".RR", pp])
+    # Truncate the display of FR/PR
+    risk[tred + ".FR"] = left_truncate_text(risk[tred + ".FR"])
+    risk[tred + ".PR"] = left_truncate_text(risk[tred + ".PR"])
+    risk[tred + ".RR"] = left_truncate_text(risk[tred + ".RR"])
 
     pt = risk[columns]
-    if (n_risk > 1 and na12878) or (n_risk > 0 and not na12878):
+    if n_risk:
         print "[{}] - {}".format(tred, title)
         print "rep={}".format(repeat), "inherit={}".format(inheritance),\
               "cutoff={}".format(cutoff_risk), \
@@ -161,21 +156,18 @@ def json_to_df(jsonfiles, tsvfile, cpus):
 
 
 def main():
-    p = DefaultHelpParser(description=__doc__, prog=__file__,
+    p = DefaultHelpParser(description=__doc__, prog=op.basename(__file__),
             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p.add_argument("files", nargs="*")
     p.add_argument('--tsv', default="out.tsv",
                    help="Path to the tsv file")
     p.add_argument('--columns', default="1,2,label",
                    help="Columns to extract, use comma to separate")
-    p.add_argument('--NA12878', default=False, action="store_true",
-                   help="Include NA12878 in print out cases")
-    p.add_argument('--reads', default=False, action="store_true",
-                   help="Append reads information to output to help debug")
     p.add_argument('--minPP', default=.5, type=float,
-                   help="Minimum P(pathological) report cases")
+                   help="Minimum Prob(pathological) to report cases")
     p.add_argument('--cpus', default=cpu_count(),
                    help='Number of threads')
+    p.add_argument('--version', action='version', version="%(prog)s " + __version__)
     args = p.parse_args()
 
     files = args.files
@@ -197,7 +189,10 @@ def main():
             df = vcf_to_df(files, tsvfile, cpus)
         df_to_tsv(df, tsvfile, allowed_columns=columns)
     else:
-        df = pd.read_csv(tsvfile, sep="\t")
+        if op.exists(tsvfile):
+            df = pd.read_csv(tsvfile, sep="\t")
+        else:
+            sys.exit(not p.print_help())
 
     if df.empty:
         print >> sys.stderr, "Dataframe empty - check input files"
@@ -209,9 +204,7 @@ def main():
     for tred in alltreds:
         try:
             tr, n_prerisk, n_risk, af = \
-                get_tred_summary(df, tred, repo,
-                                 na12878=args.NA12878,
-                                 reads=args.reads, minPP=args.minPP)
+                get_tred_summary(df, tred, repo, minPP=args.minPP)
             total_prerisk += n_prerisk
             total_risk += n_risk
             if n_risk:
