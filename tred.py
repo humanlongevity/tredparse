@@ -244,6 +244,9 @@ def run(arg):
         tredCalls[tred + ".label"] = tpResult.label # Disease status
         if logger.getEffectiveLevel() == logging.DEBUG:
             tredCalls[tred + ".details"] = tpResult.details
+            tredCalls[tred + ".P_h1"] = tpResult.P_h1
+            tredCalls[tred + ".P_h2"] = tpResult.P_h2
+            tredCalls[tred + ".P_h1h2"] = tpResult.P_h1h2
 
     os.chdir(cwd)
     shutil.rmtree(samplekey)

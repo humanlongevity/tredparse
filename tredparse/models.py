@@ -241,11 +241,13 @@ class IntegratedCaller:
         # marginal probabilities of P(h1) and P(h2)
         P_h1 = defaultdict(float)
         P_h2 = defaultdict(float)
+        P_h1h2 = {}             # Joint distribution
         max_ml = max(mls)[0]    # Prevent underflow
         for ml, (h1, h2) in mls:
             mlexp = exp(ml - max_ml)
             P_h1[h1] += mlexp
             P_h2[h2] += mlexp
+            P_h1h2[(h1, h2)] = mlexp
 
         h1_lo, h1_hi = self.calc_CI(P_h1)
         h2_lo, h2_hi = self.calc_CI(P_h2)
@@ -255,10 +257,21 @@ class IntegratedCaller:
         self.logger.debug("CI(h1) = {} - {}".format(h1_lo, h1_hi))
         self.logger.debug("CI(h2) = {} - {}".format(h2_lo, h2_hi))
 
+        self.P_h1 = self.sparsify(P_h1)
+        self.P_h2 = self.sparsify(P_h2)
+        self.P_h1h2 = self.sparsify(P_h1h2)
+
         lik, alleles = max(mls, key=lambda x: (x[0], -x[1][0]))
         all_liks = np.array([x[0] for x in mls])
         PP = self.calc_PP(lik, all_liks, mls)
         return alleles, lik, PP, (h1_lo, h1_hi, h2_lo, h2_hi)
+
+    def sparsify(self, P, epsilon=SMALL_VALUE):
+        """
+        Returns the sparsified distribution, anything smaller than epsilon is
+        considered as zero and NOT recorded.
+        """
+        return dict((k, v) for (k, v) in P.items() if v >= SMALL_VALUE)
 
     def calc_CI(self, P):
         """
