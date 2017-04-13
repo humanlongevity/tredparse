@@ -38,6 +38,9 @@ const TredparseResults = React.createClass({
       <div style={{ fontSize: '24px' }}>
         <Alert bsStyle={ status }>
           { tred } alleles: { calls[`${tred}.1`] } / { calls[`${tred}.2`] } { tr.repeat }s
+          <div style={{ color: 'grey' }}>
+            95% Credible Interval: { calls[`${tred}.CI`].replace("|", " / ") } { tr.repeat }s
+          </div>
           <div>Disease status: { label } - <span style={{ color: 'grey' }}>
             <i>Prob(disease)</i>={ Math.round(calls[`${tred}.PP`], 3) }</span>
           </div>
@@ -97,8 +100,8 @@ const TredparseResults = React.createClass({
     const pairedReads = calls[`${tred}.PEDP`];
     let PEG = calls[`${tred}.PEG`];
     let PET = calls[`${tred}.PET`];
-    if (PEG) PEG = PEG.replace(/[()]/g, "");
-    if (PET) PET = PET.replace(/[()]/g, "");
+    if (PEG) PEG = PEG.replace(/[()]/g, "").replace("+/-", " \u00B1 ");
+    if (PET) PET = PET.replace(/[()]/g, "").replace("+/-", " \u00B1 ");
 
     if (details) {
       details.forEach((e) => {
@@ -126,7 +129,7 @@ const TredparseResults = React.createClass({
             { this.formatReads(reptReads, tredinfo.repeat) }
           </Panel>
           <Panel header={`Spanning read pairs - ${pairedReads} pairs`} eventKey='4'>
-            { PEG } => { PET }
+            { PEG } &#x2192; { PET }
           </Panel>
         </Accordion>
       </div>
