@@ -5,7 +5,7 @@ from math import exp
 from collections import defaultdict
 
 from bam_parser import PEextractor, FLANKMATCH, SPAN
-from utils import datafile
+from utils import datafile, listify
 from scipy.stats import gaussian_kde, poisson
 
 
@@ -271,7 +271,15 @@ class IntegratedCaller:
         Returns the sparsified distribution, anything smaller than epsilon is
         considered as zero and NOT recorded.
         """
-        return dict((k, v) for (k, v) in P.items() if v >= SMALL_VALUE)
+        Z = {}
+        total = sum(v for v in P.values())
+        for k, v in P.items():
+            if v < SMALL_VALUE:
+                continue
+            k = [x / self.period for x in listify(k)]
+            k = ",".join(str(x) for x in k)
+            Z[k] = v / total
+        return Z
 
     def calc_CI(self, P):
         """

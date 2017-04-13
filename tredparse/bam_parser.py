@@ -224,6 +224,9 @@ class BamParserResults:
         self.PP = caller.PP
         self.label = caller.label
         self.alleles = caller.alleles
+        self.P_h1 = caller.P_h1
+        self.P_h2 = caller.P_h2
+        self.P_h1h2 = caller.P_h1h2
 
 
 class PEextractor:
