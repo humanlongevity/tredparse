@@ -1,4 +1,4 @@
-# HLI Short Tandem Repeat (STR) caller
+# TREDPARSE: HLI Short Tandem Repeat (STR) caller
 
 [![Travis-CI](https://travis-ci.org/tanghaibao/tredparse.svg?branch=master)](https://travis-ci.org/tanghaibao/tredparse)
 
@@ -23,14 +23,6 @@ the most likely genotype.
   source ~/t/bin/activate
   pip install .
   ```
-
-- Test the installation by running against BAM file, or a list of BAM
-  files:
-
-  ```bash
-  tred.py tests/sample.csv
-  ```
-
 For accessing BAMs that are located on S3, please refer to
 `Dockerfiles/tredparse.dockerfile` for installation of SAMTOOLS/pysam with S3
 support.
@@ -41,26 +33,27 @@ Run `tred.py` on sample CSV file and generate TSV file with the
 genotype:
 
 ```bash
-tred.py nucleus-20160321.csv --workdir work
+tred.py tests/samples.csv --workdir work
 ```
 
 Highlight the potential risk individuals:
 
 ```bash
-tredreport.py work/*.vcf.gz --tsv nucleus-20160321-TREDs.tsv
+tredreport.py work/*.json --tsv work.tsv
 ```
 
-Several risk individuals show up in results:
+The inferred "at-risk" individuals show up in results:
 
 ```bash
-SCA17 disease_cutoff=41 patients=2
-           SampleKey  SCA17.1  SCA17.2  SCA17.PP
-    290983_169083774       41       41         1
-    291038_176635163       41       41         1
+[HD] - Huntington disease
+rep=CAG inherit=AD cutoff=40 n=1 loc=chr4:3074877-3074933
+SampleKey  Calls HD.FR                           HD.PR HD.RR  HD.PP
+176449128  15/41  15|4  ...|1;21|1;24|2;29|1;34|1;41|1          1.0
 ```
 
-A `.report` file will also be generated that contains a summary of
-number of people affected by over-expanded TREDs.
+A `.report.txt` file will also be generated that contains a summary of
+number of people affected by over-expanded TREDs as well as population allele
+frequency.
 
 ## Server demo
 
