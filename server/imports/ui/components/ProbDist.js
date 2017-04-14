@@ -1,18 +1,21 @@
 import React from 'react';
 import d3 from 'd3';
+import { Treds } from './TredTable';
 
 const update = (props) => {
   if (!props.data) return;
+  const tred = Treds[props.tred];
 
   const choose = choices => choices[Math.floor(Math.random() * choices.length)];
   const color = choose(d3.schemeCategory20);
-  const xmax = 100;
 
   return (me) => {
     me.select('svg').remove();
+    const cutoffRisk = tred.cutoff_risk;
+    const maxSize = 2 * cutoffRisk;
 
     let data = [];
-    for (let i = 0; i <= xmax; i++) {
+    for (let i = 0; i <= maxSize; i++) {
         data.push([i, props.data['' + i] || 0]);
     }
 
@@ -27,7 +30,7 @@ const update = (props) => {
               .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
     const x = d3.scaleLinear()
-                .domain([0, xmax])
+                .domain([0, maxSize])
                 .range([0, width]);
     const y = d3.scaleLinear()
                 .domain([0, d3.max(data, d => d[1])])
@@ -47,6 +50,26 @@ const update = (props) => {
         .style('stroke', color)
         .style('fill', 'none');
 
+    // Cutoff line
+    const linePos = x(cutoffRisk) + margin.left;
+    const line = svg.append('line')
+                    .attr('x1', linePos)
+                    .attr('y1', margin.top)
+                    .attr('x2', linePos)
+                    .attr('y2', margin.top + height)
+                    .style('stroke-width', 3)
+                    .style('stroke', 'tomato')
+                    .style('fill', 'none');
+
+    // Comment on the line
+    const expansion = (tred.mutation_nature === 'increase');
+    const pad = expansion ? 15 : -5;
+    const tag = expansion ? '\u2265' : '\u2264';
+    const comment = svg.append('text')
+                       .attr('text-anchor', 'middle')
+                       .attr('transform', `translate(${linePos + pad}, ${margin.top + height / 2}) rotate(-90)`)
+                       .text(`Risk (${tag}${cutoffRisk} ${tred.repeat}s)`)
+                       .style('fill', 'lightslategray');
     g.append('g')
       .attr('transform', `translate(0, ${height})`)
       .call(d3.axisBottom(x));
@@ -64,6 +87,7 @@ const ProbDist = React.createClass({
   propTypes: {
     data: React.PropTypes.object,
     label: React.PropTypes.string,
+    tred: React.PropTypes.string,
   },
 
   componentDidMount() {

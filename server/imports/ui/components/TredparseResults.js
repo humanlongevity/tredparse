@@ -63,6 +63,7 @@ const TredparseResults = React.createClass({
                 <ProbDist
                   data={ P_h1 }
                   label={ `Number of ${tr.repeat}s in h\u2081` }
+                  tred={ tred }
                 />
               </Col>
               <Col sm={ 6 }>
@@ -70,6 +71,7 @@ const TredparseResults = React.createClass({
                 <ProbDist
                   data={ P_h2 }
                   label={ `Number of ${tr.repeat}s in h\u2082` }
+                  tred={ tred }
                 />
               </Col>
             </Col>

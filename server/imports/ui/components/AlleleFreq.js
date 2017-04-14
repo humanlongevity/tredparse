@@ -77,7 +77,8 @@ const update = (props) => {
     const comment = svg.append('text')
                        .attr('text-anchor', 'middle')
                        .attr('transform', `translate(${linePos + pad}, ${margin.top + height / 2}) rotate(-90)`)
-                       .text(`Disease (${tag}${cutoffRisk} ${tred.repeat}s) - ${patients} alleles`);
+                       .text(`Disease (${tag}${cutoffRisk} ${tred.repeat}s) - ${patients} alleles`)
+                       .style('fill', 'lightslategray');
   };
 };
 
