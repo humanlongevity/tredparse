@@ -72,7 +72,7 @@ const update = (props) => {
 
     // Comment on the line
     const pad = expansion ? 15 : -5;
-    const tag = expansion ? '\u2265': '\u2264';
+    const tag = expansion ? '\u2265' : '\u2264';
     const comment = svg.append('text')
                        .attr('text-anchor', 'middle')
                        .attr('transform', `translate(${linePos + pad}, ${margin.top + height / 2}) rotate(-90)`)

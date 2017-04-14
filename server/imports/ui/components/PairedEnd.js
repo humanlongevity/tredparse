@@ -3,6 +3,8 @@ import d3 from 'd3';
 import { getData } from './TredTable';
 
 const update = (props) => {
+  if (!props.data) return;
+
   const choose = choices => choices[Math.floor(Math.random() * choices.length)];
   const color = choose(d3.schemeCategory20);
 
@@ -55,16 +57,21 @@ const PairedEnd = React.createClass({
   },
 
   componentDidMount() {
-    d3.select(this.refs.pairedEnd)
+    if (this.props.data) {
+      d3.select(this.refs.pairedEnd)
       .call(update(this.props));
+    }
   },
 
   shouldComponentUpdate(props) {
-    d3.select(this.refs.pairedEnd)
+    try {
+      d3.select(this.refs.pairedEnd)
       .call(update(props));
-
-    // Always skip React's render step
-    return false;
+    }
+    finally {
+      // Always skip React's render step
+      return false;
+    }
   },
 
   render() {

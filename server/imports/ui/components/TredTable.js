@@ -2,7 +2,10 @@ import React from 'react';
 import { Button, Table } from 'react-bootstrap';
 
 export const Treds = require('../../api/documents/treds.json');
+
 export const getData = (text) => {
+  if (!text) return '';
+
   const data = text.replace(/{|}/g, '')
                     .split(',')
                     .map(d => d.split(':')

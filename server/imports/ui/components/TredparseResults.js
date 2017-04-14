@@ -33,14 +33,16 @@ const TredparseResults = React.createClass({
     } else if (label === 'risk') {
       status = 'danger';
     }
-    const inferredGender = calls['inferredGender'];
+    const inferredGender = calls.inferredGender;
+    let CI = calls[`${tred}.CI`];
+    if (CI) CI = CI.replace('|', ' / ');
 
     return (
       <div style={{ fontSize: '24px' }}>
         <Alert bsStyle={ status }>
           { tred } alleles: { calls[`${tred}.1`] } / { calls[`${tred}.2`] } { tr.repeat }s
           <div style={{ color: 'grey' }}>
-            95% Credible Interval: { calls[`${tred}.CI`].replace("|", " / ") } { tr.repeat }s
+            95% Credible Interval: { CI } { tr.repeat }s
           </div>
           <div>Disease status: { label } - <span style={{ color: 'grey' }}>
             <i>Prob(disease)</i>={ Math.round(calls[`${tred}.PP`], 3) }</span>
