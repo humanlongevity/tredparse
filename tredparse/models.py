@@ -71,6 +71,13 @@ def mean_std(a):
     return "{:.0f}+/-{:.0f}bp".format(a.mean(), a.std())
 
 
+def histogram(a, bins=40):
+    if not a:
+        return ""
+    ar, br = np.histogram(a, bins=bins, range=(0, SPAN))
+    return "{}|".format(SPAN / bins) + ",".join(str(x) for x in ar)
+
+
 class IntegratedCaller:
     """
     Models the stutter probability and calculates likelihood of a read set with
@@ -105,6 +112,8 @@ class IntegratedCaller:
         self.PEDP = len(pe.target_lens)
         self.PEG = mean_std(pe.global_lens)
         self.PET = mean_std(pe.target_lens)
+        self.P_PEG = histogram(pe.global_lens)
+        self.P_PET = histogram(pe.target_lens)
         self.logger.debug("Global pairs: {} ({}), Target pairs: {} ({}), Ref: {}bp".\
                             format(len(pe.global_lens), self.PEG,
                             len(pe.target_lens), self.PET, pe.ref))

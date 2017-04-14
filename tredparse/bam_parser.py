@@ -158,6 +158,9 @@ class BamParser:
 
         s = "{}: h={:>3}, seq={}".format(tag, h, seq)
         self.logger.debug(s)
+
+        if tag == "HANG":
+            continue
         self.details.append({'tag': tag, 'h': h, 'seq': seq})
 
     def parse(self, pad=SPAN):
@@ -227,6 +230,8 @@ class BamParserResults:
         self.P_h1 = caller.P_h1
         self.P_h2 = caller.P_h2
         self.P_h1h2 = caller.P_h1h2
+        self.P_PEG = caller.P_PEG
+        self.P_PET = caller.P_PET
 
 
 class PEextractor:

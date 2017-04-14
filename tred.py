@@ -247,6 +247,8 @@ def run(arg):
             tredCalls[tred + ".P_h1"] = tpResult.P_h1
             tredCalls[tred + ".P_h2"] = tpResult.P_h2
             tredCalls[tred + ".P_h1h2"] = tpResult.P_h1h2
+            tredCalls[tred + ".P_PEG"] = tpResult.P_PEG
+            tredCalls[tred + ".P_PET"] = tpResult.P_PET
 
     os.chdir(cwd)
     shutil.rmtree(samplekey)
