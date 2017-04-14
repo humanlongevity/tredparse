@@ -124,8 +124,6 @@ class IntegratedCaller:
         self.P_h1 =""
         self.P_h2 = ""
         self.P_h1h2 = ""
-        self.P_PEG = ""
-        self.P_PET = ""
 
     def pdf_spanning(self, h):
         if h in self.spanning_db:
