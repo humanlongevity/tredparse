@@ -1,7 +1,7 @@
 import React from 'react';
 import Highlight from 'react-highlighter';
 import PairedEnd from './PairedEnd';
-import { Accordion, Alert, Table, Panel } from 'react-bootstrap';
+import { Accordion, Alert, Table, Col, Row, Panel } from 'react-bootstrap';
 import { Treds } from './TredTable';
 
 const seqStyle = {
@@ -54,6 +54,8 @@ const TredparseResults = React.createClass({
   },
 
   formatReads(reads, motif) {
+    if (!reads.length) return;
+
     const repeat = motif.replace('N', '.');
     const regex = new RegExp(`(${repeat}){3,}`);
 
@@ -134,15 +136,22 @@ const TredparseResults = React.createClass({
             { this.formatReads(reptReads, tredinfo.repeat) }
           </Panel>
           <Panel header={ `Paired end - ${pairedReads} pairs` } eventKey='4'>
-            <div>Global paired end distance ({ PEG }) </div>
-              <PairedEnd
-                data={ P_PEG }
-              />
-            <br />
-              <div>Local paired end distance ({ PET }) </div>
-              <PairedEnd
-                data={ P_PET }
-              />
+            <Row>
+              <Col sm={ 12 }>
+                <Col sm={ 6 }>
+                  <div>Global paired end distance ({ PEG }) </div>
+                  <PairedEnd
+                    data={ P_PEG }
+                  />
+                </Col>
+                <Col sm={ 6 }>
+                  <div>Local paired end distance ({ PET }) </div>
+                  <PairedEnd
+                    data={ P_PET }
+                  />
+                </Col>
+              </Col>
+            </Row>
           </Panel>
         </Accordion>
       </div>
