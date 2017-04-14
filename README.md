@@ -60,7 +60,7 @@ frequency.
 The server/client allows `tredparse` to be run as a service, also showing the
 detailed debug information for the detailed computation.
 
-![](https://www.dropbox.com/pri/get/hli/manuscripts/hli-str/screencast/screencast.gif)
+![](https://dl.dropboxusercontent.com/u/15937715/Data/TREDPARSE/screencast.gif)
 
 Install `meteor` if you don't have it yet.
 
