@@ -60,7 +60,7 @@ frequency.
 The server/client allows `tredparse` to be run as a service, also showing the
 detailed debug information for the detailed computation.
 
-![](https://dl.dropboxusercontent.com/u/15937715/Data/TREDPARSE/screencast.gif)
+![](https://www.dropbox.com/s/qecxn6leb62136p/screencast.gif)
 
 Install `meteor` if you don't have it yet.
 
