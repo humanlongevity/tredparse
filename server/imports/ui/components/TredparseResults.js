@@ -1,5 +1,6 @@
 import React from 'react';
 import Highlight from 'react-highlighter';
+import ProbDist from './ProbDist';
 import PairedEnd from './PairedEnd';
 import { Accordion, Alert, Table, Col, Row, Panel } from 'react-bootstrap';
 import { Treds } from './TredTable';
@@ -37,18 +38,43 @@ const TredparseResults = React.createClass({
     let CI = calls[`${tred}.CI`];
     if (CI) CI = CI.replace('|', ' / ');
 
+    const P_h1 = calls[`${tred}.P_h1`];
+    const P_h2 = calls[`${tred}.P_h2`];
+
     return (
-      <div style={{ fontSize: '24px' }}>
-        <Alert bsStyle={ status }>
-          { tred } alleles: { calls[`${tred}.1`] } / { calls[`${tred}.2`] } { tr.repeat }s
-          <div style={{ color: 'grey' }}>
-            95% Credible Interval: { CI } { tr.repeat }s
-          </div>
-          <div>Disease status: { label } - <span style={{ color: 'grey' }}>
-            <i>Prob(disease)</i>={ Math.round(calls[`${tred}.PP`], 3) }</span>
-          </div>
-          { inferredGender === 'Unknown' ? null : <div>Inferred gender: { inferredGender }</div> }
-        </Alert>
+      <div>
+        <div style={{ fontSize: '24px' }}>
+          <Alert bsStyle={ status }>
+            { tred } alleles: { calls[`${tred}.1`] } / { calls[`${tred}.2`] } { tr.repeat }s
+            <div style={{ color: 'grey' }}>
+              95% Credible Interval: { CI } { tr.repeat }s
+            </div>
+            <div>Disease status: { label } - <span style={{ color: 'grey' }}>
+              <i>Prob(disease)</i>={ Math.round(calls[`${tred}.PP`], 3) }</span>
+            </div>
+            { inferredGender === 'Unknown' ? null : <div>Inferred gender: { inferredGender }</div> }
+          </Alert>
+        </div>
+        <Panel>
+          <Row>
+            <Col sm={ 12 }>
+              <Col sm={ 6 }>
+                <div>Probability density distribution for h<sub>1</sub></div>
+                <ProbDist
+                  data={ P_h1 }
+                  label={ `Number of ${tr.repeat}s in h\u2081` }
+                />
+              </Col>
+              <Col sm={ 6 }>
+                <div>Probability density distribution for h<sub>2</sub></div>
+                <ProbDist
+                  data={ P_h2 }
+                  label={ `Number of ${tr.repeat}s in h\u2082` }
+                />
+              </Col>
+            </Col>
+          </Row>
+        </Panel>
       </div>
     );
   },
@@ -139,13 +165,13 @@ const TredparseResults = React.createClass({
             <Row>
               <Col sm={ 12 }>
                 <Col sm={ 6 }>
-                  <div>Global paired end distance ({ PEG }) </div>
+                  <div>Global paired end distance ({ PEG })</div>
                   <PairedEnd
                     data={ P_PEG }
                   />
                 </Col>
                 <Col sm={ 6 }>
-                  <div>Local paired end distance ({ PET }) </div>
+                  <div>Local paired end distance ({ PET })</div>
                   <PairedEnd
                     data={ P_PET }
                   />

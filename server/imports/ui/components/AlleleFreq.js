@@ -38,6 +38,7 @@ const update = (props) => {
         .attr('y', d => y(d[1]))
         .attr('width', x(0.9))
         .attr('height', d => height - y(d[1]));
+
     g.append('g')
       .attr('transform', `translate(0, ${height})`)
       .call(d3.axisBottom(x));
