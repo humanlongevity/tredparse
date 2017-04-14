@@ -8,8 +8,7 @@ const update = (props) => {
 
   return (me) => {
     me.select('svg').remove();
-    const data = getData('200:30,300:40,400:90,500:10');
-    console.log(data);
+    const data = getData(props.data);
 
     const canvas = { width: 360, height: 180 };
     const svg = me.append('svg')
