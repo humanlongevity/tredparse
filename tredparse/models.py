@@ -120,6 +120,13 @@ class IntegratedCaller:
         self.spanning_db = {}
         self.partial_db = {}
 
+        # Track probability distributions in JSON
+        self.P_h1 =""
+        self.P_h2 = ""
+        self.P_h1h2 = ""
+        self.P_PEG = ""
+        self.P_PET = ""
+
     def pdf_spanning(self, h):
         if h in self.spanning_db:
             return self.spanning_db[h]

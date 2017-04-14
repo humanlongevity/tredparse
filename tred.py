@@ -242,13 +242,15 @@ def run(arg):
         tredCalls[tred + ".CI"] = tpResult.CI       # Confidence interval
         tredCalls[tred + ".PP"] = tpResult.PP       # Prob(disease)
         tredCalls[tred + ".label"] = tpResult.label # Disease status
-        if logger.getEffectiveLevel() == logging.DEBUG:
-            tredCalls[tred + ".details"] = tpResult.details
-            tredCalls[tred + ".P_h1"] = tpResult.P_h1
-            tredCalls[tred + ".P_h2"] = tpResult.P_h2
-            tredCalls[tred + ".P_h1h2"] = tpResult.P_h1h2
-            tredCalls[tred + ".P_PEG"] = tpResult.P_PEG
-            tredCalls[tred + ".P_PET"] = tpResult.P_PET
+
+        # Following output are relatively big array of numbers that mostly
+        # specify probability distribution, only available in JSON output
+        tredCalls[tred + ".details"] = tpResult.details
+        tredCalls[tred + ".P_h1"] = tpResult.P_h1
+        tredCalls[tred + ".P_h2"] = tpResult.P_h2
+        tredCalls[tred + ".P_h1h2"] = tpResult.P_h1h2
+        tredCalls[tred + ".P_PEG"] = tpResult.P_PEG
+        tredCalls[tred + ".P_PET"] = tpResult.P_PET
 
     os.chdir(cwd)
     shutil.rmtree(samplekey)

@@ -51,9 +51,26 @@ SampleKey  Calls HD.FR                           HD.PR HD.RR  HD.PP
 176449128  15/41  15|4  ...|1;21|1;24|2;29|1;34|1;41|1          1.0
 ```
 
+This particular individual appears to have `15/41` call (one allele at `15` CAGs
+and the other at `41` CAGs) at Huntington disease locus (HD). Since the risk cutoff
+is `40`, we have inferred it to be at-risk.
+
 A `.report.txt` file will also be generated that contains a summary of
 number of people affected by over-expanded TREDs as well as population allele
 frequency.
+
+To better understand the uncertainties in the prediction, one call plot the
+likelihood surface based on the model. Using the same example as above at the
+Huntington disease case, we can run a command on the JSON output, with option
+`--tred HD` to specify the locus.
+
+```bash
+tredplot.py likelihood2 176449128.json --tred HD
+```
+
+This generates the following plot:
+
+![](https://dl.dropboxusercontent.com/u/15937715/Data/TREDPARSE/likelihood2.png)
 
 ## Server demo
 

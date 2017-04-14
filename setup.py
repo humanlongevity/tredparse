@@ -27,7 +27,7 @@ setup(
       package_data={name: ["data/*.*"]},
       ext_modules=[Extension("libssw", **libssw_ext)],
       py_modules=["ssw.__init__", "ssw.ssw_wrap"],
-      scripts=["tred.py", "tredreport.py"],
+      scripts=["tred.py", "tredreport.py", "tredplot.py"],
       classifiers=classifiers,
       zip_safe=False,
       url='https://github.com/tanghaibao/tredparse',
