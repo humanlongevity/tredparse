@@ -75,7 +75,7 @@ def histogram(a, bins=40):
     if not a:
         return ""
     ar, br = np.histogram(a, bins=bins, range=(0, SPAN))
-    return "{}|".format(SPAN / bins) + ",".join(str(x) for x in ar)
+    return ",".join(["{}:{}".format(int(b), a) for (a, b) in zip(ar, br)])
 
 
 class IntegratedCaller:

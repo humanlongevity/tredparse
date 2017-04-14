@@ -2,6 +2,13 @@ import React from 'react';
 import { Button, Table } from 'react-bootstrap';
 
 export const Treds = require('../../api/documents/treds.json');
+export const getData = (text) => {
+  const data = text.replace(/{|}/g, '')
+                    .split(',')
+                    .map(d => d.split(':')
+                    .map(d => +d));
+  return data;
+};
 
 const inheritanceFullNames = {
   AD: 'Autosomal dominant',

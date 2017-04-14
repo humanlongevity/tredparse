@@ -1,8 +1,8 @@
 import React from 'react';
 import Highlight from 'react-highlighter';
+import PairedEnd from './PairedEnd';
 import { Accordion, Alert, Table, Panel } from 'react-bootstrap';
 import { Treds } from './TredTable';
-import { PairedEnd } from './PairedEnd';
 
 const seqStyle = {
   fontFamily: '"Lucida Console", Monaco, monospace',
@@ -88,7 +88,6 @@ const TredparseResults = React.createClass({
         </Alert>
       );
     }
-    //console.log(object);
 
     const calls = object.tredCalls;
     const tred = this.props.tred;
@@ -101,8 +100,8 @@ const TredparseResults = React.createClass({
     const pairedReads = calls[`${tred}.PEDP`];
     let PEG = calls[`${tred}.PEG`];
     let PET = calls[`${tred}.PET`];
-    let P_PEG = calls[`${tred}.P_PEG`];
-    console.log(P_PEG);
+    const P_PEG = calls[`${tred}.P_PEG`];
+    const P_PET = calls[`${tred}.P_PET`];
 
     if (PEG) PEG = PEG.replace(/[()]/g, '').replace('+/-', ' \u00B1 ');
     if (PET) PET = PET.replace(/[()]/g, '').replace('+/-', ' \u00B1 ');
@@ -132,12 +131,16 @@ const TredparseResults = React.createClass({
           <Panel header={ `Repeat-only - ${reptReads.length} reads` } eventKey='3'>
             { this.formatReads(reptReads, tredinfo.repeat) }
           </Panel>
-          <Panel header={ `Paired End - ${pairedReads} pairs` } eventKey='4'>
-            <div>Allele frequency in HLI samples</div>
+          <Panel header={ `Paired end - ${pairedReads} pairs` } eventKey='4'>
+            <div>Global paired end distance ({ PEG }) </div>
               <PairedEnd
                 data={ P_PEG }
               />
-            { PEG } &#x2192; { PET }
+            <br />
+              <div>Local paired end distance ({ PET }) </div>
+              <PairedEnd
+                data={ P_PET }
+              />
           </Panel>
         </Accordion>
       </div>

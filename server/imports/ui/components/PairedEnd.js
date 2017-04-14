@@ -1,16 +1,17 @@
 import React from 'react';
 import d3 from 'd3';
-import { Treds, getData } from './TredTable';
+import { getData } from './TredTable';
 
 const update = (props) => {
-  const tred = Treds[props.tred];
-  const data = getData(tred.allele_freq);
   const choose = choices => choices[Math.floor(Math.random() * choices.length)];
   const color = choose(d3.schemeCategory20);
 
   return (me) => {
     me.select('svg').remove();
-    const canvas = { width: 360, height: 280 };
+    const data = getData('200:30,300:40,400:90,500:10');
+    console.log(data);
+
+    const canvas = { width: 360, height: 180 };
     const svg = me.append('svg')
                   .attr('width', canvas.width)
                   .attr('height', canvas.height);
@@ -20,10 +21,8 @@ const update = (props) => {
     const g = svg.append('g')
               .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-    const cutoffRisk = +tred.cutoff_risk;
-    const maxSize = Math.max(d3.max(data, d => d[0]), cutoffRisk);
     const x = d3.scaleLinear()
-                .domain([0, maxSize])
+                .domain([0, 1000])
                 .range([0, width]);
     const y = d3.scaleLinear()
                 .domain([0, d3.max(data, d => d[1])])
@@ -36,7 +35,7 @@ const update = (props) => {
     bar.append('rect')
         .attr('x', d => x(d[0]))
         .attr('y', d => y(d[1]))
-        .attr('width', x(0.9))
+        .attr('width', x(0.9 * 25))
         .attr('height', d => height - y(d[1]));
     g.append('g')
       .attr('transform', `translate(0, ${height})`)
@@ -47,51 +46,22 @@ const update = (props) => {
     const xlabel = svg.append('text')
                       .attr('text-anchor', 'middle')
                       .attr('transform', `translate(${margin.left + width / 2}, ${+svg.attr('height')})`)
-                      .text(`Number of ${tred.repeat}s at ${props.tred} locus`);
-
-    // Cutoff line
-    const linePos = x(cutoffRisk) + margin.left;
-    const line = svg.append('line')
-                    .attr('x1', linePos)
-                    .attr('y1', margin.top)
-                    .attr('x2', linePos)
-                    .attr('y2', margin.top + height)
-                    .style('stroke-width', 3)
-                    .style('stroke', 'tomato')
-                    .style('fill', 'none');
-
-    let patients = 0;
-    const expansion = (tred.mutation_nature === 'increase');
-    data.forEach(d => {
-      if (expansion && d[0] >= cutoffRisk) {
-        patients += d[1];
-      } else if (!expansion && d[0] <= cutoffRisk) {
-        patients += d[1];
-      }
-    });
-
-    // Comment on the line
-    const pad = expansion ? 15 : -5;
-    const tag = expansion ? '\u2265': '\u2264';
-    const comment = svg.append('text')
-                       .attr('text-anchor', 'middle')
-                       .attr('transform', `translate(${linePos + pad}, ${margin.top + height / 2}) rotate(-90)`)
-                       .text(`Disease (${tag}${cutoffRisk} ${tred.repeat}s) - ${patients} alleles`);
+                      .text('Paired-end distance (bp)');
   };
 };
 
-const AlleleFreq = React.createClass({
+const PairedEnd = React.createClass({
   propTypes: {
-    tred: React.PropTypes.string,
+    data: React.PropTypes.string,
   },
 
   componentDidMount() {
-    d3.select(this.refs.alleleFreq)
+    d3.select(this.refs.pairedEnd)
       .call(update(this.props));
   },
 
   shouldComponentUpdate(props) {
-    d3.select(this.refs.alleleFreq)
+    d3.select(this.refs.pairedEnd)
       .call(update(props));
 
     // Always skip React's render step
@@ -100,9 +70,9 @@ const AlleleFreq = React.createClass({
 
   render() {
     return (
-      <div ref='alleleFreq'></div>
+      <div ref='pairedEnd'></div>
     );
   },
 });
 
-module.exports = AlleleFreq;
+module.exports = PairedEnd;
