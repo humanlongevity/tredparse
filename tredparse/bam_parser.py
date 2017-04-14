@@ -160,7 +160,7 @@ class BamParser:
         self.logger.debug(s)
 
         if tag == "HANG":
-            continue
+            return
         self.details.append({'tag': tag, 'h': h, 'seq': seq})
 
     def parse(self, pad=SPAN):

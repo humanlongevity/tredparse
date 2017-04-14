@@ -1,6 +1,6 @@
 import React from 'react';
-import { Treds } from './TredTable';
 import d3 from 'd3';
+import { Treds } from './TredTable';
 
 const getData = (text) => {
   const data = text.replace(/{|}/g, '')

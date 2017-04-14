@@ -2,6 +2,7 @@ import React from 'react';
 import Highlight from 'react-highlighter';
 import { Accordion, Alert, Table, Panel } from 'react-bootstrap';
 import { Treds } from './TredTable';
+import { PairedEnd } from './PairedEnd';
 
 const seqStyle = {
   fontFamily: '"Lucida Console", Monaco, monospace',
@@ -100,16 +101,19 @@ const TredparseResults = React.createClass({
     const pairedReads = calls[`${tred}.PEDP`];
     let PEG = calls[`${tred}.PEG`];
     let PET = calls[`${tred}.PET`];
-    if (PEG) PEG = PEG.replace(/[()]/g, "").replace("+/-", " \u00B1 ");
-    if (PET) PET = PET.replace(/[()]/g, "").replace("+/-", " \u00B1 ");
+    let P_PEG = calls[`${tred}.P_PEG`];
+    console.log(P_PEG);
+
+    if (PEG) PEG = PEG.replace(/[()]/g, '').replace('+/-', ' \u00B1 ');
+    if (PET) PET = PET.replace(/[()]/g, '').replace('+/-', ' \u00B1 ');
 
     if (details) {
       details.forEach((e) => {
         if (e.tag === 'FULL') {
           fullReads.push(e);
-        } else if (e.tag == 'PREF') {
+        } else if (e.tag === 'PREF') {
           partialReads.push(e);
-        } else if (e.tag == 'REPT') {
+        } else if (e.tag === 'REPT') {
           reptReads.push(e);
         }
       });
@@ -122,13 +126,17 @@ const TredparseResults = React.createClass({
           <Panel header={ `Full spanning - ${fullReads.length} reads` } eventKey='1'>
             { this.formatReads(fullReads, tredinfo.repeat) }
           </Panel>
-          <Panel header={`Partial spanning - ${partialReads.length} reads`} eventKey='2'>
+          <Panel header={ `Partial spanning - ${partialReads.length} reads` } eventKey='2'>
             { this.formatReads(partialReads, tredinfo.repeat) }
           </Panel>
-          <Panel header={`Repeat-only - ${reptReads.length} reads`} eventKey='3'>
+          <Panel header={ `Repeat-only - ${reptReads.length} reads` } eventKey='3'>
             { this.formatReads(reptReads, tredinfo.repeat) }
           </Panel>
-          <Panel header={`Spanning read pairs - ${pairedReads} pairs`} eventKey='4'>
+          <Panel header={ `Paired End - ${pairedReads} pairs` } eventKey='4'>
+            <div>Allele frequency in HLI samples</div>
+              <PairedEnd
+                data={ P_PEG }
+              />
             { PEG } &#x2192; { PET }
           </Panel>
         </Accordion>
