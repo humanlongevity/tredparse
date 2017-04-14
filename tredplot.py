@@ -52,8 +52,9 @@ def ax_plot(ax, P_h, h_hat, CI_h, xlabel, ylabel, ticks=True):
     ax.set_ylabel(ylabel)
 
     data = []
-    for k, v in sorted(P_h.items()):
-        data.append((int(k), v))
+    for k in xrange(301):
+        v = P_h.get(str(k), 0)
+        data.append((k, v))
     data.sort()
     x, y = zip(*data)
     x = np.array(x)
