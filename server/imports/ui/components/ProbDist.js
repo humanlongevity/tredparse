@@ -12,7 +12,7 @@ const update = (props) => {
   return (me) => {
     me.select('svg').remove();
     const cutoffRisk = tred.cutoff_risk;
-    const maxSize = 2 * cutoffRisk;
+    const maxSize = Math.max(props.maxsize, cutoffRisk) * 1.1;
 
     let data = [];
     for (let i = 0; i <= maxSize; i++) {
@@ -87,6 +87,7 @@ const ProbDist = React.createClass({
   propTypes: {
     data: React.PropTypes.object,
     label: React.PropTypes.string,
+    maxsize: React.PropTypes.number,
     tred: React.PropTypes.string,
   },
 

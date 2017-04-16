@@ -2,6 +2,7 @@ import React from 'react';
 import Highlight from 'react-highlighter';
 import ProbDist from './ProbDist';
 import PairedEnd from './PairedEnd';
+import d3 from 'd3';
 import { Accordion, Alert, Table, Col, Row, Panel } from 'react-bootstrap';
 import { Treds } from './TredTable';
 
@@ -40,6 +41,7 @@ const TredparseResults = React.createClass({
 
     const P_h1 = calls[`${tred}.P_h1`];
     const P_h2 = calls[`${tred}.P_h2`];
+    const maxsize = d3.max(Object.keys(P_h2), d => +d);
 
     return (
       <div>
@@ -62,6 +64,7 @@ const TredparseResults = React.createClass({
                 <div>Probability density distribution for h<sub>1</sub></div>
                 <ProbDist
                   data={ P_h1 }
+                  maxsize={ maxsize }
                   label={ `Number of ${tr.repeat}s in h\u2081` }
                   tred={ tred }
                 />
@@ -70,6 +73,7 @@ const TredparseResults = React.createClass({
                 <div>Probability density distribution for h<sub>2</sub></div>
                 <ProbDist
                   data={ P_h2 }
+                  maxsize={ maxsize }
                   label={ `Number of ${tr.repeat}s in h\u2082` }
                   tred={ tred }
                 />
