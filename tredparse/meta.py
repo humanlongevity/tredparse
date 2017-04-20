@@ -68,8 +68,10 @@ class TRED(object):
         self.repeat = row["repeat"]
         repeat_location_field = "repeat_location"
         if ref != REF:
-            repeat_location_field += "." + ref
+            repeat_location_field += "." + ref.split("_")[0]
         repeat_location = row[repeat_location_field]
+        if "_nochr" in ref:  # Some reference version do not have chr
+            repeat_location = repeat_location.replace("chr", "")
         self.chr, repeat_location = repeat_location.split(":")
         repeat_start, repeat_end = repeat_location.split("-")
         self.repeat_start = int(repeat_start)

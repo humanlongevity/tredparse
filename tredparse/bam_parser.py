@@ -332,7 +332,7 @@ class BamDepth:
         return depth
 
     def get_Y_depth(self, N=5):
-        UNIQY = datafile("chrY.{}.unique_ccn.gc".format(self.ref))
+        UNIQY = datafile("chrY.{}.unique_ccn.gc".format(self.ref.split('_')[0]))
         fp = open(UNIQY)
         depths = []
         for i, row in enumerate(fp):

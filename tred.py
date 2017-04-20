@@ -63,7 +63,7 @@ def set_argparse():
             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p.add_argument('infile', nargs='?', help="Input path (BAM, list of BAMs, or csv format)")
     p.add_argument('--ref', help='Reference genome version',
-                        choices=("hg38", "hg19"), default='hg38')
+                        choices=("hg38", "hg38_nochr", "hg19", "hg19_nochr"), default='hg38')
     p.add_argument('--tred', help='STR disorder, default is to run all',
                         action='append', choices=sorted(TRED_NAMES), default=None)
     p.add_argument('--haploid', help='Treat these chromosomes as haploid', action='append')
