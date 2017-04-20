@@ -22,6 +22,7 @@ def read_contents(filename="git-ls.txt"):
 def cp_with_mkdir(src, target):
     """ Copy file over, and automatically creating directories, like mkdir -p
     """
+    src = op.abspath(src)
     if not op.exists(op.dirname(target)):
         try:
             os.makedirs(op.dirname(target))
@@ -34,8 +35,12 @@ def cp_with_mkdir(src, target):
         return
 
     # All good - proceed with copying
-    print >> sys.stderr, "Copy {} => {}".format(src, target)
-    shutil.copyfile(src, target)
+    if ".meteor" in target:
+        print >> sys.stderr, "Copy {} => {}".format(src, target)
+        shutil.copyfile(src, target)
+    else:
+        print >> sys.stderr, "Symlink {} => {}".format(src, target)
+        os.symlink(src, target)
 
 
 def main():
