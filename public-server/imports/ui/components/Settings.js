@@ -3,7 +3,7 @@ const Settings = {
   s3BAM: '@176449128',
   tred: '',
   ref: 'hg38',
-  env: 'hli',
+  env: 'public',
 };
 
 module.exports = Settings;

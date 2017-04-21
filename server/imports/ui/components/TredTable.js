@@ -33,8 +33,8 @@ const TredTable = React.createClass({
     }
 
     const tred = Treds[name];
-    [start, end] = tred["repeat_location"].split(':')[1].split('-')
-    const repeatcounts = (end - start + 1) / tred["repeat"].length;
+    const [start, end] = tred.repeat_location.split(':')[1].split('-');
+    const repeatcounts = (end - start + 1) / tred.repeat.length;
 
     return (
       <Table striped condensed hover>

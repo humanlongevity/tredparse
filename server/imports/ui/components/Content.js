@@ -32,7 +32,7 @@ const Content = React.createClass({
   },
 
   handleClick(bam, tred, ref) {
-    this.setState({ bam: bam, tred: tred, ref: ref });
+    this.setState({ bam, tred, ref });
 
     const cmd = `docker run --rm tanghaibao/tredparse tred.py ${bam} --tred ${tred} --ref ${ref}`;
     const currentTitle = cmd;
@@ -41,12 +41,15 @@ const Content = React.createClass({
   },
 
   buildURL() {
+    if (Settings.env === 'public') {
+      return null;
+    }
+
     const bam = this.state.bam;
     let sampleID;
-    if (bam[0] == '@') {
+    if (bam[0] === '@') {
       sampleID = bam.substring(1);
-    }
-    else {
+    } else {
       const basename = this.state.bam.split(/[\\/]/).pop();
       sampleID = basename.split('_')[0];
     }
@@ -79,7 +82,9 @@ const Content = React.createClass({
         <Row>
           <div style={ containerStyle }>
             <Col sm={ 12 }>
-              <h3 style={ contentHeaderStyle }>Interactive demo</h3>
+              <h3 style={ contentHeaderStyle }>Interactive demo (
+                <span style={{ color: 'green', fontWeight: 'bold' }}>{ Settings.env } site</span>)
+              </h3>
               <FormInput
                 tred={ this.state.tred }
                 changeHandler={ this.handleChange }

@@ -24,7 +24,7 @@ const FormInput = React.createClass({
   },
 
   _onOptionChange(ref) {
-    this.setState({ ref: ref });
+    this.setState({ ref });
   },
 
   render() {
