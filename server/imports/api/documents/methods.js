@@ -29,8 +29,8 @@ export const removeDocument = new ValidatedMethod({
   },
 });
 
-export const Shell = new ValidatedMethod({
-  name: 'shell',
+export const HLIDocker = new ValidatedMethod({
+  name: 'docker.hli',
   validate: new SimpleSchema({
     _id: { type: String, optional: true },
     cmd: { type: String, optional: true },
@@ -42,7 +42,44 @@ export const Shell = new ValidatedMethod({
     }
 
     // maxBuffer increased to 1Mb to avoid maxBuffer exceeded error
-    exec(document.cmd, { maxBuffer: 1024 * 1000 }, (err, stdout, stderr) => {
+    const cmd = `docker run --rm tanghaibao/tredparse ${document.cmd}`;
+    exec(cmd, { maxBuffer: 1024 * 1000 }, (err, stdout, stderr) => {
+      if (err) {
+          console.error(`exec error: ${err}`);
+      }
+
+      const stdoutText = stdout.toString() ? stdout.toString()
+                                           : JSON.stringify({ error: err.toString() });
+      const stderrText = stderr.toString();
+
+      const output = {
+        title: document.cmd,
+        body: stdoutText,
+        stderr: stderrText,
+        createdAt: new Date(),
+      };
+      Fiber(() => {
+        Documents.upsert({ _id: output._id }, { $set: output });
+      }).run();
+    });
+  },
+});
+
+export const PublicDocker = new ValidatedMethod({
+  name: 'docker.public',
+  validate: new SimpleSchema({
+    _id: { type: String, optional: true },
+    cmd: { type: String, optional: true },
+  }).validator(),
+  run(document) {
+    // If command already run, then skip
+    if (Documents.find({ title: document.cmd }).count()) {
+      return null;
+    }
+
+    // maxBuffer increased to 1Mb to avoid maxBuffer exceeded error
+    const cmd = `docker run --rm tanghaibao/tredparse ${document.cmd}`;
+    exec(cmd, { maxBuffer: 1024 * 1000 }, (err, stdout, stderr) => {
       if (err) {
           console.error(`exec error: ${err}`);
       }

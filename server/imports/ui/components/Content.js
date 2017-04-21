@@ -34,9 +34,10 @@ const Content = React.createClass({
   handleClick(bam, tred, ref) {
     this.setState({ bam, tred, ref });
 
-    const cmd = `docker run --rm tanghaibao/tredparse tred.py ${bam} --tred ${tred} --ref ${ref}`;
+    const cmd = `tred.py ${bam} --tred ${tred} --ref ${ref}`;
     const currentTitle = cmd;
-    Meteor.call('shell', { cmd },
+    const method = `docker.${Settings.env}`;
+    Meteor.call(method, { cmd },
       () => this.setState({ currentTitle }));
   },
 
