@@ -23,6 +23,14 @@ const FormInput = React.createClass({
     this.setState({ bam: e });
   },
 
+  bamLink(text, bam) {
+    return (
+      <Button bsSize='large' bsStyle='link'
+              onClick={ () => this.setState({ bam })
+      }>{ text }</Button>
+    );
+  },
+
   _onOptionChange(ref) {
     this.setState({ ref });
   },
@@ -60,12 +68,8 @@ const FormInput = React.createClass({
               onInputChange={ this.handleChange }
             />
             <HelpBlock>
-                BAM file can be on <Button bsSize='small' bsStyle='link'
-                onClick={ () => this.setState({ bam: Settings.ftpBAM })
-                }>FTP</Button> or <Button bsSize='small' bsStyle='link'
-                onClick={ () =>
-                  this.setState({ bam: Settings.s3BAM })
-                }>S3</Button> on human reference <ButtonGroup>
+                BAM file can be on { this.bamLink('FTP', Settings.ftpBAM) } or {
+                                     this.bamLink('S3', Settings.s3BAM) } on human reference <ButtonGroup>
                   <Button onClick={ this._onOptionChange.bind(this, 'hg38') }
                           active={ this.state.ref === 'hg38' }>
                     hg38
@@ -75,6 +79,13 @@ const FormInput = React.createClass({
                     hg19
                   </Button>
                 </ButtonGroup>
+            </HelpBlock>
+            <HelpBlock>
+              <span style={{ fontWeight: 'bold' }}>Examples</span>:
+                { this.bamLink('HD case', Settings.examples[0]) }
+                { this.bamLink('DM1 case', Settings.examples[1]) }
+                { this.bamLink('SCA17 case', Settings.examples[2]) }
+                { this.bamLink('AR case', Settings.examples[3]) }
             </HelpBlock>
           </Panel>
         </FormGroup>

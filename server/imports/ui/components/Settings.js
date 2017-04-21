@@ -4,6 +4,12 @@ const Settings = {
   tred: '',
   ref: 'hg38',
   env: 'hli',
+  examples: [
+    '@176449128',
+    '@187499847',
+    '@170500320',
+    '@176444255',
+  ],
 };
 
 module.exports = Settings;

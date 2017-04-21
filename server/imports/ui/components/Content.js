@@ -50,6 +50,9 @@ const Content = React.createClass({
     let sampleID;
     if (bam[0] === '@') {
       sampleID = bam.substring(1);
+      if (bam === '@JCV') {
+        sampleID = '176444255';
+      }
     } else {
       const basename = this.state.bam.split(/[\\/]/).pop();
       sampleID = basename.split('_')[0];
