@@ -78,13 +78,15 @@ const Content = React.createClass({
       textTransform: 'uppercase',
     };
 
+    const color = (Settings.env === 'public') ? 'green' : 'lightslategray';
+
     return (
       <div className="container-fluid text-center">
         <Row>
           <div style={ containerStyle }>
             <Col sm={ 12 }>
-              <h3 style={ contentHeaderStyle }>Interactive demo (
-                <span style={{ color: 'green', fontWeight: 'bold' }}>{ Settings.env } site</span>)
+              <h3 style={ contentHeaderStyle }>Interactive STR server (
+                <span style={{ color, fontWeight: 'bold' }}>{ Settings.env }</span>)
               </h3>
               <FormInput
                 tred={ this.state.tred }
