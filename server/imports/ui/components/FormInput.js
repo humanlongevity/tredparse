@@ -4,7 +4,7 @@ import { Typeahead } from 'react-bootstrap-typeahead';
 import Settings from './Settings';
 import { Treds } from './TredTable';
 
-const Names = require('../../api/documents/HLI-bams.json');
+const Names = (Settings.env === 'public') ? [] : require('../../api/documents/HLI-bams.json');
 
 const FormInput = React.createClass({
   propTypes: {
@@ -55,8 +55,6 @@ const FormInput = React.createClass({
       );
     });
 
-    const Options = (Settings.env === 'public') ? [] : Names;
-
     return (
       <Form>
         <FormGroup>
@@ -66,7 +64,7 @@ const FormInput = React.createClass({
               ref='bam'
               bsSize="large"
               placeholder={ this.state.bam }
-              options={ Options }
+              options={ Names }
               onInputChange={ this.handleChange }
             />
             <HelpBlock>
