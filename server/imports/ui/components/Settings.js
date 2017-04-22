@@ -4,6 +4,7 @@ const Settings = {
   tred: '',
   ref: 'hg38',
   env: 'hli',
+  names: require('../../api/documents/HLI-bams.json'),
   examples: [
     '@176449128',
     '@187499847',

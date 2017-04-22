@@ -4,6 +4,12 @@ const Settings = {
   tred: '',
   ref: 'hg38',
   env: 'public',
+  names: [
+    't001_HD.bam',
+    't002_DM1.bam',
+    't003_SCA17.bam',
+    't004_AR.bam',
+  ],
   examples: [
     't001_HD.bam',
     't002_DM1.bam',
