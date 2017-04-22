@@ -10,6 +10,18 @@ import Loading from './Loading';
 import TredparseResults from './TredparseResults';
 import { Treds } from './TredTable';
 
+
+const sanitize = (s) => {
+  return s.replace(/[\s,;]/gi, '');
+};
+
+const getCmd = (bam, tred, ref) => {
+  const b = sanitize(bam);
+  const t = sanitize(tred);
+  const r = sanitize(ref);
+  return `tred.py ${b} --tred ${t} --ref ${r}`;
+};
+
 const Content = React.createClass({
   getInitialState() {
     return {
@@ -34,10 +46,9 @@ const Content = React.createClass({
   handleClick(bam, tred, ref) {
     this.setState({ bam, tred, ref });
 
-    const cmd = `tred.py ${bam} --tred ${tred} --ref ${ref}`;
-    const currentTitle = cmd;
+    const currentTitle = getCmd(bam, tred, ref);
     const method = `docker.${Settings.env}`;
-    Meteor.call(method, { cmd },
+    Meteor.call(method, { bam, tred, ref },
       () => this.setState({ currentTitle }));
   },
 
