@@ -55,6 +55,8 @@ const FormInput = React.createClass({
       );
     });
 
+    const Options = (Settings.env === 'public') ? [] : Names;
+
     return (
       <Form>
         <FormGroup>
@@ -64,7 +66,7 @@ const FormInput = React.createClass({
               ref='bam'
               bsSize="large"
               placeholder={ this.state.bam }
-              options={ Names }
+              options={ Options }
               onInputChange={ this.handleChange }
             />
             <HelpBlock>

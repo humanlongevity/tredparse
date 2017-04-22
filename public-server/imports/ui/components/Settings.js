@@ -5,10 +5,10 @@ const Settings = {
   ref: 'hg38',
   env: 'public',
   examples: [
-    '@176449128',
-    '@187499847',
-    '@170500320',
-    '@176444255',
+    't001_HD.bam',
+    't002_DM1.bam',
+    't003_SCA17.bam',
+    't004_AR.bam',
   ],
 };
 

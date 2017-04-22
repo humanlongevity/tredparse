@@ -28,5 +28,6 @@ ADD tredparse-master.zip /
 ADD t001_HD.bam t001_HD.bam.bai /
 ADD t002_DM1.bam t002_DM1.bam.bai /
 ADD t003_SCA17.bam t003_SCA17.bam.bai /
+ADD t004_AR.bam t004_AR.bam.bai /
 RUN pip install tredparse-master.zip
 WORKDIR /
