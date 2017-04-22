@@ -12,6 +12,8 @@ test: build testrun
 
 build:
 	docker build -f $(BASENAME).dockerfile -t $(NS)/$(BASENAME):$(TAG) ./
+build-public:
+	docker build -f $(BASENAME)-public.dockerfile -t $(NS)/$(BASENAME)-public:$(TAG) ./
 push:
 	docker push $(NS)/$(BASENAME):$(TAG)
 testrun:
