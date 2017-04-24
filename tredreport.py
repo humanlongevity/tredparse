@@ -44,12 +44,19 @@ def get_tred_summary(df, tred, repo, minPP=.5):
     pp = tred + ".PP"
     prerisk = df[df[label] == "prerisk"]
     risk = df[(df[label] == "risk") & (df[pp] > minPP)]
+    if tr.is_expansion:
+        carrier = df[(df[label] != "risk") & (df[pf2] >= cutoff_risk)]
+    else:
+        carrier = df[(df[label] != "risk") & (df[pf2] <= cutoff_risk) \
+                        & (df[pf2] > 0)]
 
     risk = risk.copy()
     n_prerisk = prerisk.shape[0]
     n_risk = risk.shape[0]
+    n_carrier = carrier.shape[0]
     calls = "Calls"
-    risk[calls] = ["{}/{}".format(int(a), int(b)) for (a, b) in zip(risk[pf1], risk[pf2])]
+    risk[calls] = ["{}/{}".format(int(a), int(b)) for (a, b) in
+                                  zip(risk[pf1], risk[pf2])]
 
     columns = ["SampleKey", calls]
     columns.extend([tred + ".FR", tred + ".PR", tred + ".RR", pp])
@@ -63,7 +70,8 @@ def get_tred_summary(df, tred, repo, minPP=.5):
         print "[{}] - {}".format(tred, title)
         print "rep={}".format(repeat), "inherit={}".format(inheritance),\
               "cutoff={}".format(cutoff_risk), \
-              "n={}".format(n_risk), \
+              "n_risk={}".format(n_risk), \
+              "n_carrier={}".format(n_carrier), \
               "loc={}".format(repeat_location)
         print pt.to_string(index=False)
         print
@@ -74,7 +82,7 @@ def get_tred_summary(df, tred, repo, minPP=.5):
     cnt.update(df[pf2])
     del cnt[-1]
 
-    return tr, n_prerisk, n_risk, counts_to_af(cnt)
+    return tr, n_prerisk, n_risk, n_carrier, counts_to_af(cnt)
 
 
 def counts_to_af(counts):
@@ -200,13 +208,14 @@ def main():
 
     reportfile = tsvfile + ".report.txt"
     summary = pd.DataFrame()
-    total_prerisk = total_risk = total_loci = 0
+    total_prerisk = total_risk = total_carrier = total_loci = 0
     for tred in alltreds:
         try:
-            tr, n_prerisk, n_risk, af = \
+            tr, n_prerisk, n_risk, n_carrier, af = \
                 get_tred_summary(df, tred, repo, minPP=args.minPP)
             total_prerisk += n_prerisk
             total_risk += n_risk
+            total_carrier += n_carrier
             if n_risk:
                 total_loci += 1
         except KeyError as e:
@@ -220,14 +229,15 @@ def main():
         d["abbreviation"] = tred
         d["n_prerisk"] = n_prerisk
         d["n_risk"] = n_risk
+        d["n_carrier"] = n_carrier
         d["allele_freq"] = af
         summary = summary.append(d, ignore_index=True)
 
     summary.to_csv(reportfile, sep="\t", index=False, float_format="%d")
     print >> sys.stderr, "Summary report written to `{}` (# samples={})"\
                     .format(reportfile, summary.shape[0])
-    print >> sys.stderr, "Summary: n_prerisk={}, n_risk={}, n_affected_loci={}"\
-                    .format(total_prerisk, total_risk, total_loci)
+    print >> sys.stderr, "Summary: n_prerisk={}, n_risk={}, n_carrier={}, n_affected_loci={}"\
+                    .format(total_prerisk, total_risk, total_carrier, total_loci)
 
 
 if __name__ == '__main__':
