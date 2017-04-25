@@ -1,3 +1,3 @@
-SampleKey,BAM
-164648328,s3://hli-processed/processed/341087/isaac_align/164648328_S1.bam
-176449128,s3://hli-processed/processed/179258/isis_alignment_and_variant_calling/176449128/Data/Intensities/BaseCalls/Alignment/176449128_S1.bam
+#SampleKey,BAM,TRED
+t001,tests/t001.bam,HD
+t002,tests/t002.bam,DM1
