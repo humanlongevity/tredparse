@@ -2,6 +2,11 @@
 # -*- coding: UTF-8 -*-
 
 """
+Copyright (c) 2015-2017 Human Longevity Inc.
+
+Author: Haibao Tang <htang@humanlongevity.com>
+License: Non-Commercial Use Only. For details, see `LICENSE` file
+
 Everything related to extraction of reads in the BAM file - like depth
 computation, computing paired-end distances, classify spanning reads and read
 length extraction. These signals are then pushed into the Maximum Likelihood

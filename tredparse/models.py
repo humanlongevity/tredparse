@@ -1,3 +1,23 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+"""
+Copyright (c) 2015-2017 Human Longevity Inc.
+
+Author: Haibao Tang <htang@humanlongevity.com>
+License: Non-Commercial Use Only. For details, see `LICENSE` file
+
+This file contains the statistical models applied in the STR caller. Four
+submodels are available:
+
+    - Spanning read
+    - Partial read
+    - Repeat-only read
+    - Paired-end distances
+
+Please see Supplemental methods for mathematical details.
+"""
+
 import logging
 import numpy as np
 

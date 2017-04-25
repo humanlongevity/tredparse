@@ -1,3 +1,16 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+"""
+Copyright (c) 2015-2017 Human Longevity Inc.
+
+Author: Haibao Tang <htang@humanlongevity.com>
+License: Non-Commercial Use Only. For details, see `LICENSE` file
+
+This file contains simple utility routines related to running pipelines and file
+path operations.
+"""
+
 import argparse
 import os
 import os.path as op

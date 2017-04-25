@@ -2,7 +2,13 @@
 # -*- coding: UTF-8 -*-
 
 """
-From jcvi.apps.base
+Copyright (c) 2015-2017 Human Longevity Inc.
+
+Author: Haibao Tang <htang@humanlongevity.com>
+License: Non-Commercial Use Only. For details, see `LICENSE` file
+
+This file contains utility subroutines, initially from `jcvi` Python libraries.
+Mostly related to plotting and used by `tredplot.py`.
 """
 
 import errno
