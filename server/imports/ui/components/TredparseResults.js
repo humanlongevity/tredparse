@@ -36,6 +36,7 @@ const TredparseResults = React.createClass({
       status = 'danger';
     }
     const inferredGender = calls.inferredGender;
+    const depthY = calls.depthY.toFixed(3);
     let CI = calls[`${tred}.CI`];
     if (CI) CI = CI.replace('|', ' / ');
 
@@ -54,7 +55,7 @@ const TredparseResults = React.createClass({
             <div>Disease status: { label } - <span style={{ color: 'grey' }}>
               <i>Prob(disease)</i>={ Math.round(calls[`${tred}.PP`], 3) }</span>
             </div>
-            { inferredGender === 'Unknown' ? null : <div>Inferred gender: { inferredGender }</div> }
+            { inferredGender === 'Unknown' ? null : <div>Inferred gender: { inferredGender } (chrY depth: { depthY }) </div> }
           </Alert>
         </div>
         <Panel>
@@ -146,7 +147,7 @@ const TredparseResults = React.createClass({
       details.forEach((e) => {
         if (e.tag === 'FULL') {
           fullReads.push(e);
-        } else if (e.tag === 'PREF') {
+        } else if (e.tag === 'PREF' || e.tag === 'POST') {
           partialReads.push(e);
         } else if (e.tag === 'REPT') {
           reptReads.push(e);
