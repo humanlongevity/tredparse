@@ -7,7 +7,7 @@
 | Author | Haibao Tang ([tanghaibao](http://github.com/tanghaibao)) |
 | | Smriti Ramakrishnan ([smr18](http://github.com/smr18)) |
 | Email | <htang@humanlongevity.com> |
-| License | HLI-LA (Non-Commercial Use Only) |
+| License | See included LICENSE |
 
 ## Description
 
