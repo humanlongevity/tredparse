@@ -1,6 +1,6 @@
 # TREDPARSE: HLI Short Tandem Repeat (STR) caller
 
-[![Travis-CI](https://travis-ci.org/tanghaibao/tredparse.svg?branch=master)](https://travis-ci.org/tanghaibao/tredparse)
+[![Travis-CI](https://travis-ci.org/humanlongevity/tredparse.svg?branch=master)](https://travis-ci.org/humanlongevity/tredparse)
 
 | | |
 |---|---|
