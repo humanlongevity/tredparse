@@ -71,10 +71,10 @@ def get_tred_summary(df, tred, repo, minPP=.5, detailsfw=None):
     risk[tred + ".RR"] = left_truncate_text(risk[tred + ".RR"])
 
     if detailsfw:
-        columns = ["SampleKey", calls]
-        columns.extend([tred + ".FDP", tred + ".PDP",
+        details_columns = ["SampleKey", calls]
+        details_columns.extend([tred + ".FDP", tred + ".PDP",
                         tred + ".RDP", tred + ".PEDP"])
-        for idx, row in risk[columns].iterrows():
+        for idx, row in risk[details_columns].iterrows():
             if tred == "AR":
                 break
             samplekey, calls, fdp, pdp, rdp, pedp = row
@@ -82,6 +82,7 @@ def get_tred_summary(df, tred, repo, minPP=.5, detailsfw=None):
             pdp = int(pdp)
             rdp = int(rdp)
             pedp = int(pedp)
+            calls = calls.replace("/", "|")  # EXCEL may show calls as dates
             atoms = [tred, samplekey, calls, fdp, pdp, rdp, pedp]
             print >> detailsfw, "\t".join(str(x) for x in atoms)
 
@@ -195,14 +196,12 @@ def main():
                    help="Minimum Prob(pathological) to report cases")
     p.add_argument('--cpus', default=cpu_count(),
                    help='Number of threads')
-    p.add_argument('--details', help='Write read count csv for each case')
     p.add_argument('--version', action='version', version="%(prog)s " + __version__)
     args = p.parse_args()
 
     files = args.files
     tsvfile = args.tsv
     columns = args.columns.split(",")
-    details = args.details
 
     repo = TREDsRepo()
     alltreds = repo.names
@@ -231,12 +230,12 @@ def main():
     reportfile = tsvfile + ".report.txt"
     summary = pd.DataFrame()
     total_prerisk = total_risk = total_carrier = total_loci = 0
-    detailsfw = None
-    if details:
-        detailsfw = open(details, "w")
-        header = "Locus,SampleKey,Calls,Full reads,Partial reads,"\
-                 "Repeat-only reads,Read pairs"
-        print >> detailsfw, "\t".join(header.split(','))
+
+    details = tsvfile + ".details.txt"
+    detailsfw = open(details, "w")
+    header = "Locus,SampleKey,Calls,Full reads,Partial reads,"\
+             "Repeat-only reads,Read pairs"
+    print >> detailsfw, "\t".join(header.split(','))
 
     for tred in alltreds:
         try:
@@ -263,10 +262,9 @@ def main():
         d["allele_freq"] = af
         summary = summary.append(d, ignore_index=True)
 
-    if detailsfw:
-        print >> sys.stderr, "Read count details saved to `{}`"\
-                            .format(detailsfw.name)
-        detailsfw.close()
+    print >> sys.stderr, "Read count details saved to `{}`"\
+                        .format(detailsfw.name)
+    detailsfw.close()
 
     summary.to_csv(reportfile, sep="\t", index=False, float_format="%d")
     print >> sys.stderr, "Summary report written to `{}` (# samples={})"\
