@@ -45,6 +45,7 @@ class BamParser:
         self.gender = inputParams.gender
         self.depth = inputParams.depth
         self.READLEN = inputParams.READLEN
+        self.clip = inputParams.clip
 
         # initialize tred-specific things
         self.tred = inputParams.tred
@@ -69,11 +70,12 @@ class BamParser:
         self.max_units = int(math.ceil(self.READLEN * 1. / self.period))
 
         # Stores all the read counts for each repeat units
-        self.counts = {}
-        self.counts["PREF"] = self.counts["POST"] = defaultdict(int)
+        counts = {}
+        counts["PREF"] = counts["POST"] = defaultdict(int)
         for tag in ("FULL", "REPT", "HANG"):
-            self.counts[tag] = defaultdict(int)
+            counts[tag] = defaultdict(int)
 
+        self.counts = counts
         self.details = []  # Store read sequences, enabled on logging.INFO
 
     def _buildDB(self):
@@ -141,6 +143,12 @@ class BamParser:
                 print >> sys.stderr, prefix_read, suffix_read, hang_read, hang
                 print >> sys.stderr
 
+            # Please note that while self.max_units is a global max,
+            # max_units is a local max (based on current read)
+            # This is useful in case one wants to process split reads
+            max_units = int(math.ceil(len(seq) * 1. / self.period)) \
+                            if self.clip else self.max_units
+
             if hang_read:
                 tag = "HANG"
             elif prefix_read:
@@ -149,7 +157,7 @@ class BamParser:
                     tag = "FULL"
             elif suffix_read:
                 tag = "POST"
-            elif units >= self.max_units - 1 and units * self.period <= len(seq):
+            elif units >= max_units - 1 and units * self.period <= len(seq):
                 tag = "REPT"
             else:
                 continue
@@ -205,6 +213,12 @@ class BamParser:
         for tag in ("FULL", "PREF", "REPT"):
             self.show_counts(tag)
 
+        # We need to make a decision here how to treat the REPT reads
+        # Choices are: sum() or max(); max() is the default and sum() is used if
+        # user wants to include clipped reads
+        aggregate = sum if self.inputParams.clip else max
+        self.rept = aggregate(self.counts["REPT"].values()) if self.counts["REPT"] else 0
+
     def show_counts(self, tag):
         countMap = self.counts[tag]
         total = sum(v for v in countMap.values())
@@ -217,14 +231,14 @@ class BamParserResults:
     '''
     Encapsulates all results: counts from BamParser and calls from different callers
     '''
-    def __init__(self, inputParams, tred, counts, details, caller):
+    def __init__(self, inputParams, bamParser, caller):
         self.inputParams = inputParams
-        self.tred = tred
-        self.details = details
-        self.counts = counts
-        self.FDP = sum(counts["FULL"].values())
-        self.PDP = sum(counts["PREF"].values())
-        self.RDP = max(counts["REPT"].values()) if counts["REPT"] else 0
+        self.tred = bamParser.tred
+        self.counts = bamParser.counts
+        self.details = bamParser.details
+        self.FDP = sum(bamParser.counts["FULL"].values())
+        self.PDP = sum(bamParser.counts["PREF"].values())
+        self.RDP = bamParser.rept
         self.PEDP = caller.PEDP
         self.PEG = caller.PEG
         self.PET = caller.PET

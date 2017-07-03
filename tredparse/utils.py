@@ -28,14 +28,16 @@ class InputParams:
     KWARGS_LOG = 'log'
 
     def __init__(self, bam, READLEN, repo, tredName,
-                       gender="Unknown", depth=30, **kwargs):
+                       gender="Unknown", depth=30,
+                       clip=False, **kwargs):
         self.bam = bam
         self.READLEN = READLEN
         self.tredName = tredName
         self.gender = gender
         self.depth = depth
-        self.kwargs = kwargs
         self.tred = repo.get(tredName)
+        self.clip = clip
+        self.kwargs = kwargs
 
     def getLogLevel(self, defaultLevel='INFO'):
         '''

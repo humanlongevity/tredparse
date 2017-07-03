@@ -72,6 +72,8 @@ def set_argparse():
     p.add_argument('--tred', help='STR disorder, default is to run all',
                         action='append', choices=sorted(TRED_NAMES), default=None)
     p.add_argument('--haploid', help='Treat these chromosomes as haploid', action='append')
+    p.add_argument('--useclippedreads', default=False, action="store_true",
+                        help='Include clipped reads in inference')
     p.add_argument('--log', choices=("INFO", "DEBUG"), default="INFO",
                         help='Print debug logs, DEBUG=verbose')
     p.add_argument('--version', action='version', version="%(prog)s " + __version__)
@@ -159,8 +161,7 @@ def runBam(inputParams):
                                         fullsearch=fullsearch)
     integratedCaller.call(**inputParams.kwargs)
 
-    return BamParserResults(inputParams, bp.tred, bp.counts, bp.details,
-                            integratedCaller)
+    return BamParserResults(inputParams, bp, integratedCaller)
 
 
 def run(arg):
@@ -170,7 +171,7 @@ def run(arg):
     :param: referenceVersion, hg19 or hg38
     :return: dict of calls
     '''
-    samplekey, bam, repo, tredNames, maxinsert, fullsearch, log = arg
+    samplekey, bam, repo, tredNames, maxinsert, fullsearch, clip, log = arg
     cwd = os.getcwd()
     mkdir(samplekey)
     os.chdir(samplekey)
@@ -222,7 +223,7 @@ def run(arg):
         logger.debug("Inferred depth at locus {}: {}".format(tred, depth))
         ip = InputParams(bam=bam, READLEN=READLEN, tredName=tred,
                          repo=repo, maxinsert=maxinsert, fullsearch=fullsearch,
-                         gender=gender, depth=depth, log=log)
+                         gender=gender, depth=depth, clip=clip, log=log)
 
         #tpResult = runBam(ip)
         try:
@@ -478,7 +479,8 @@ if __name__ == '__main__':
             continue
         _treds = [tred] if tred else treds
         task_args.append((samplekey, bam, repo, _treds,
-                          args.maxinsert, args.fullsearch, args.log))
+                          args.maxinsert, args.fullsearch, args.useclippedreads,
+                          args.log))
         samplekey_index[samplekey] = i
 
     cpus = min(args.cpus, len(task_args))

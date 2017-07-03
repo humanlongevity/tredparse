@@ -118,6 +118,7 @@ class IntegratedCaller:
         self.score = score
         self.gc = gc
         self.counts = bamParser.counts
+        self.rept = bamParser.rept
         self.ploidy = bamParser.ploidy
         self.half_depth = bamParser.depth / 2
         self.maxinsert = maxinsert
@@ -399,7 +400,7 @@ class IntegratedCaller:
                             counts["FULL"].items())
         obs_partial = dict((k * self.period, v) for k, v in
                             counts["PREF"].items())
-        n_obs_rept = max(counts["REPT"].values()) if counts["REPT"] else 0
+        n_obs_rept = self.rept
         alleles, lik, PP, CIs = self.evaluate(obs_spanning, obs_partial, n_obs_rept)
 
         if not alleles:
