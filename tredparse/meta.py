@@ -19,6 +19,7 @@ from .utils import datafile
 
 REF = "hg38"
 REPO = datafile("TREDs.meta.csv")
+ALTS = datafile("TREDs.alts.csv")
 HLI_BAMS = datafile("HLI_bams.csv.gz")
 
 
@@ -26,11 +27,13 @@ class TREDsRepo(dict):
 
     def __init__(self, ref=REF, toy=False):
 
+        # Parse ALTS first
+        alts = self.get_alts()
         self.ref = ref
         df = pd.read_csv(REPO, index_col=0)
         self.names = []
         for name, row in df.iterrows():
-            self[name] = TRED(name, row, ref=ref)
+            self[name] = TRED(name, row, ref=ref, alt=alts.get(name, []))
             self.names.append(name)
         self.df = df
 
@@ -63,13 +66,26 @@ class TREDsRepo(dict):
                            tr.ref_copy * len(tr.repeat))
         return tr.chr, tr.repeat_start, tr.ref_copy, tr.repeat, info
 
+    def get_alts(self):
+        """
+        Read in the alternative regions.
+        """
+        alts = {}
+        fp = open(ALTS)
+        for row in fp:
+            name, _alts = row.strip().split(',')
+            alts[name] = [get_region(x) for x in _alts.split("|")]
+        fp.close()
+        return alts
+
 
 class TRED(object):
 
-    def __init__(self, name, row, ref=REF):
+    def __init__(self, name, row, ref=REF, alt=[]):
 
         self.row = row
         self.name = name
+        self.alt = alt
         self.repeat = row["repeat"]
         repeat_location_field = "repeat_location"
         if ref != REF:
@@ -77,8 +93,7 @@ class TRED(object):
         repeat_location = row[repeat_location_field]
         if "_nochr" in ref:  # Some reference version do not have chr
             repeat_location = repeat_location.replace("chr", "")
-        self.chr, repeat_location = repeat_location.split(":")
-        repeat_start, repeat_end = repeat_location.split("-")
+        self.chr, repeat_start, repeat_end = get_region(repeat_location)
         self.repeat_start = int(repeat_start)
         self.repeat_end = int(repeat_end)
         self.ref_copy = (self.repeat_end - self.repeat_start + 1) / len(self.repeat)
@@ -102,3 +117,13 @@ class TRED(object):
                 (self.name, self.repeat,
                  self.chr, self.repeat_start, self.repeat_end,
                  self.prefix, self.suffix))
+
+
+def get_region(location):
+    """
+    Return tuples of (chr, start, end) given a region string.
+    """
+    chr, location = location.split(":")
+    start, end = location.split("-")
+    start, end = int(start), int(end)
+    return chr, start, end

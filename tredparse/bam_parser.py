@@ -61,6 +61,7 @@ class BamParser:
                         .format(str(self.tred), self.ploidy))
 
         self.repeat = self.tred.repeat
+        self.alt = self.tred.alt
         self.startRepeat, self.endRepeat = self.tred.repeat_start, self.tred.repeat_end
         self.referenceLen = self.tred.repeat_end - self.tred.repeat_start + 1
         self.fullPrefix, self.fullSuffix = self.tred.prefix, self.tred.suffix
@@ -197,6 +198,7 @@ class BamParser:
         chr, start, end = self.chr, WINDOW_START, WINDOW_END
         n_unmapped = 0
         if test_fetch(samfile, chr, start, end, self.logger):
+            # This is the official STR region, grab all reads
             for read in samfile.fetch(chr, start, end):
                 if read.is_unmapped:
                     n_unmapped += 1
@@ -206,6 +208,19 @@ class BamParser:
                     if read.reference_start > READ_END:
                         continue
                 self._parseReadSW(chr=chr, seq=read.query_sequence, db=db)
+            # Let's process the ALTs too
+            for c, s, e in self.alt:
+                for read in samfile.fetch(c, s, e):
+                    # Check if the mate read is in the official STR region
+                    rname = samfile.getrname(read.next_reference_id)
+                    rstart = read.next_reference_start
+                    if rname != chr:
+                        continue
+                    if rstart < WINDOW_START:
+                        continue
+                    if rstart > WINDOW_END:
+                        continue
+                    self._parseReadSW(chr=chr, seq=read.query_sequence, db=db)
 
         self.logger.debug("A total of {} unmapped reads in {}:{}-{}".\
                             format(n_unmapped, chr, start, end))
