@@ -215,7 +215,10 @@ class BamParser:
                 try:
                     for read in samfile.fetch(c, s, e):
                         # Check if the mate read is in the official STR region
-                        rname = samfile.getrname(read.next_reference_id)
+                        rid = read.next_reference_id
+                        if rid == -1:
+                            continue
+                        rname = samfile.getrname(rid)
                         rstart = read.next_reference_start
                         if rname != chr:
                             continue
@@ -224,9 +227,9 @@ class BamParser:
                         if rstart > WINDOW_END:
                             continue
                         self._parseReadSW(chr=chr, seq=read.query_sequence, db=db)
-                except:
-                    self.logger.debug("Fetch failed for region {}:{}-{}".\
-                            format(c, s, e))
+                except Exception as ex:
+                    self.logger.debug("Fetch failed for region {}:{}-{} ({})".\
+                            format(c, s, e, ex))
                     continue
 
         self.logger.debug("A total of {} unmapped reads in {}:{}-{}".\
