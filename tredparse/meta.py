@@ -74,7 +74,9 @@ class TREDsRepo(dict):
         fp = open(ALTS)
         for row in fp:
             name, _alts = row.strip().split(',')
-            alts[name] = [get_region(x) for x in _alts.split("|")]
+            regions = [get_region(x) for x in _alts.split("|")] \
+                            if _alts else []
+            alts[name] = regions
         fp.close()
         return alts
 
