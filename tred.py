@@ -62,7 +62,7 @@ INFO = """##INFO=<ID=RPA,Number=1,Type=String,Description="Repeats per allele">
 
 
 def set_argparse():
-    TRED_NAMES = set(TREDsRepo().keys())
+    TRED_NAMES = TREDsRepo().names
 
     p = DefaultHelpParser(description=__doc__, prog=op.basename(__file__),
             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -461,7 +461,7 @@ if __name__ == '__main__':
     ref = args.ref
     repo = TREDsRepo(ref=ref)
     repo.set_ploidy(args.haploid)
-    TRED_NAMES = repo.keys()
+    TRED_NAMES = repo.names
     #TRED_NAMES.remove('AR')   # Disable one AR
     treds = args.tred or TRED_NAMES
 

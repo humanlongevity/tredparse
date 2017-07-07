@@ -28,7 +28,7 @@ class TREDsRepo(dict):
     def __init__(self, ref=REF):
 
         # Parse ALTS first
-        alts = self.get_alts()
+        alts = self.get_alts(ref)
         self.ref = ref
         df = pd.read_csv(REPO, index_col=0)
         self.names = []
@@ -58,18 +58,20 @@ class TREDsRepo(dict):
                            tr.ref_copy * len(tr.repeat))
         return tr.chr, tr.repeat_start, tr.ref_copy, tr.repeat, info
 
-    def get_alts(self):
+    def get_alts(self, ref):
         """
         Read in the alternative regions.
         """
         alts = {}
-        fp = open(ALTS)
-        for row in fp:
-            name, _alts = row.strip().split(',')
-            regions = [get_region(x) for x in _alts.split("|")] \
-                            if _alts else []
+        df = pd.read_csv(ALTS, index_col=0)
+        for name, row in df.iterrows():
+            alts_field = "alts"
+            if ref != REF:
+                alts_field += "." + ref.split("_")[0]
+            _alts = row[alts_field]
+            regions = [] if pd.isnull(_alts) else \
+                          [get_region(x) for x in _alts.split("|")]
             alts[name] = regions
-        fp.close()
         return alts
 
 

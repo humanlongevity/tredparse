@@ -210,17 +210,24 @@ class BamParser:
                 self._parseReadSW(chr=chr, seq=read.query_sequence, db=db)
             # Let's process the ALTs too
             for c, s, e in self.alt:
-                for read in samfile.fetch(c, s, e):
-                    # Check if the mate read is in the official STR region
-                    rname = samfile.getrname(read.next_reference_id)
-                    rstart = read.next_reference_start
-                    if rname != chr:
-                        continue
-                    if rstart < WINDOW_START:
-                        continue
-                    if rstart > WINDOW_END:
-                        continue
-                    self._parseReadSW(chr=chr, seq=read.query_sequence, db=db)
+                if self.clip:
+                    continue
+                try:
+                    for read in samfile.fetch(c, s, e):
+                        # Check if the mate read is in the official STR region
+                        rname = samfile.getrname(read.next_reference_id)
+                        rstart = read.next_reference_start
+                        if rname != chr:
+                            continue
+                        if rstart < WINDOW_START:
+                            continue
+                        if rstart > WINDOW_END:
+                            continue
+                        self._parseReadSW(chr=chr, seq=read.query_sequence, db=db)
+                except:
+                    self.logger.debug("Fetch failed for region {}:{}-{}".\
+                            format(c, s, e))
+                    continue
 
         self.logger.debug("A total of {} unmapped reads in {}:{}-{}".\
                             format(n_unmapped, chr, start, end))
