@@ -77,7 +77,6 @@ def set_argparse():
     p.add_argument('--log', choices=("INFO", "DEBUG"), default="INFO",
                         help='Print debug logs, DEBUG=verbose')
     p.add_argument('--version', action='version', version="%(prog)s " + __version__)
-    p.add_argument('--toy', help=argparse.SUPPRESS, action="store_true")
 
     g = p.add_argument_group("Performance options")
     g.add_argument('--cpus', help='Number of CPUs to use', type=int, default=cpu_count())
@@ -460,14 +459,11 @@ if __name__ == '__main__':
     os.chdir(workdir)
 
     ref = args.ref
-    repo = TREDsRepo(ref=ref, toy=args.toy)
+    repo = TREDsRepo(ref=ref)
     repo.set_ploidy(args.haploid)
     TRED_NAMES = repo.keys()
     #TRED_NAMES.remove('AR')   # Disable one AR
     treds = args.tred or TRED_NAMES
-
-    if args.toy:
-        treds = ["toy"]
 
     samplekey_index = {}
     # Parallel processing
