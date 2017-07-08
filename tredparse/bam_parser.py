@@ -46,6 +46,7 @@ class BamParser:
         self.depth = inputParams.depth
         self.READLEN = inputParams.READLEN
         self.clip = inputParams.clip
+        self.alts = inputParams.alts
 
         # initialize tred-specific things
         self.tred = inputParams.tred
@@ -208,29 +209,32 @@ class BamParser:
                     if read.reference_start > READ_END:
                         continue
                 self._parseReadSW(chr=chr, seq=read.query_sequence, db=db)
-            # Let's process the ALTs too
-            for c, s, e in self.alt:
-                if self.clip:
-                    continue
-                try:
-                    for read in samfile.fetch(c, s, e):
-                        # Check if the mate read is in the official STR region
-                        rid = read.next_reference_id
-                        if rid == -1:
-                            continue
-                        rname = samfile.getrname(rid)
-                        rstart = read.next_reference_start
-                        if rname != chr:
-                            continue
-                        if rstart < WINDOW_START:
-                            continue
-                        if rstart > WINDOW_END:
-                            continue
-                        self._parseReadSW(chr=chr, seq=read.query_sequence, db=db)
-                except Exception as ex:
-                    self.logger.debug("Fetch failed for region {}:{}-{} ({})".\
-                            format(c, s, e, ex))
-                    continue
+
+            # Let's process the ALTs
+            if self.alts:
+                self.logger.debug("Process extra regions for mismapped reads")
+                for c, s, e in self.alt:
+                    if self.clip:
+                        continue
+                    try:
+                        for read in samfile.fetch(c, s, e):
+                            # Check if the mate read is in the official STR region
+                            rid = read.next_reference_id
+                            if rid == -1:
+                                continue
+                            rname = samfile.getrname(rid)
+                            rstart = read.next_reference_start
+                            if rname != chr:
+                                continue
+                            if rstart < WINDOW_START:
+                                continue
+                            if rstart > WINDOW_END:
+                                continue
+                            self._parseReadSW(chr=chr, seq=read.query_sequence, db=db)
+                    except Exception as ex:
+                        self.logger.debug("Fetch failed for region {}:{}-{} ({})".\
+                                format(c, s, e, ex))
+                        continue
 
         self.logger.debug("A total of {} unmapped reads in {}:{}-{}".\
                             format(n_unmapped, chr, start, end))
