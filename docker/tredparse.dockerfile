@@ -24,6 +24,5 @@ RUN bash /install.sh
 RUN pip install pysam==0.9.1
 
 # Install tredparse
-COPY creds /root/.aws
 RUN pip install git+git://github.com/humanlongevity/tredparse.git
 WORKDIR /
