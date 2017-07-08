@@ -28,13 +28,13 @@ For accessing BAMs that are located on S3, please refer to
 `docker/tredparse.dockerfile` for installation of SAMTOOLS/pysam with S3
 support.
 
-You can just build and use a docker image:
+Or, you can simply build and use the docker image:
 
 ```bash
 cd docker
 make build
-docker run -v `pwd`:`pwd` -w `pwd` tanghaibao/tredparse tred.py \
-    --tred HD test.bam
+docker run -v `pwd`:`pwd` -w `pwd` tanghaibao/tredparse \
+    tred.py --tred HD test.bam
 ```
 
 ## Example
@@ -126,7 +126,6 @@ Then build the docker image to run the command, then run the server.
 cd docker
 make build
 cd ../server
-meteor update
 meteor npm install
 meteor
 ```
