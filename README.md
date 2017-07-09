@@ -16,12 +16,11 @@ the most likely genotype.
 
 ## Installation
 
- Make sure your Python version &gt;= 2.7 (tested in ubuntu):
+Make sure your Python version &gt;= 2.7 (tested in ubuntu, Python 3 not yet
+supported):
 
 ```bash
-virtualenv ~/t
-source ~/t/bin/activate
-pip install .
+pip install --user -U git+git://github.com/humanlongevity/tredparse.git
 ```
 
 For accessing BAMs that are located on S3, please refer to
