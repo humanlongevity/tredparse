@@ -166,6 +166,14 @@ def runBam(inputParams):
     return BamParserResults(inputParams, bp, integratedCaller)
 
 
+def cleanup(cwd, samplekey):
+    """
+    Change back to the parent folder and remove the samplekey folder after done
+    """
+    os.chdir(cwd)
+    shutil.rmtree(samplekey)
+
+
 def run(arg):
     '''
     Run Tred Caller on a list of treds
@@ -182,6 +190,7 @@ def run(arg):
 
     tredCalls = {"inferredGender": gender, "depthY": ydepth}
     if check_bam(bam) is None:
+        cleanup(cwd, samplekey)
         return {'samplekey': samplekey, 'bam': bam, 'tredCalls': tredCalls}
 
     # Infer gender based on depth on chrY
@@ -261,8 +270,7 @@ def run(arg):
         tredCalls[tred + ".P_PEG"] = tpResult.P_PEG
         tredCalls[tred + ".P_PET"] = tpResult.P_PET
 
-    os.chdir(cwd)
-    shutil.rmtree(samplekey)
+    cleanup(cwd, samplekey)
     return {'samplekey': samplekey, 'bam': bam, 'tredCalls': tredCalls}
 
 
