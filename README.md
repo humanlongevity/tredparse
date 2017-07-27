@@ -30,9 +30,8 @@ support.
 Or, you can simply build and use the docker image:
 
 ```bash
-cd docker
-make build
-docker run -v `pwd`:`pwd` -w `pwd` tanghaibao/tredparse \
+docker pull humanlongevity/tredparse
+docker run -v `pwd`:`pwd` -w `pwd` humanlongevity/tredparse \
     tred.py --tred HD test.bam
 ```
 
