@@ -111,8 +111,10 @@ def counts_to_af(counts):
                 sorted(counts.items()) if not math.isnan(k)) + "}"
 
 
-def df_to_tsv(df, tsvfile, allowed_columns=["1", "2", "label"]):
+def df_to_tsv(df, tsvfile, allowed_columns=["1", "2", "label"], jsonformat=True):
     dd = ["SampleKey"]
+    if jsonformat:
+        dd += ["inferredGender"]
     columns = dd + sorted([x for x in df.columns if (x not in dd) and \
                     any([x.endswith("." + z) for z in allowed_columns])])
 
@@ -216,7 +218,7 @@ def main():
             df = json_to_df(files, tsvfile, cpus)
         else:
             df = vcf_to_df(files, tsvfile, cpus)
-        df_to_tsv(df, tsvfile, allowed_columns=columns)
+        df_to_tsv(df, tsvfile, allowed_columns=columns, jsonformat=jsonformat)
     else:
         if op.exists(tsvfile):
             df = pd.read_csv(tsvfile, sep="\t")
