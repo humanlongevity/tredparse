@@ -234,7 +234,7 @@ def diagram(args):
     Plot the predictive power of various evidences.
     """
     p = OptionParser(diagram.__doc__)
-    opts, args, iopts = p.set_image_options(args, figsize="8x4")
+    opts, args, iopts = p.set_image_options(args, figsize="8x4", format="png")
 
     if len(args) != 0:
         sys.exit(not p.print_help())
@@ -249,7 +249,7 @@ def diagram(args):
     yp = yy - yinterval - height
     canvas = .95
     xstart = .025
-    convert = lambda x: xstart + x * canvas / 1200
+    convert = lambda x: xstart + x * canvas / 600
     # Symbols
     root.text(.5, .9, r"$L$: Read length, $F$: Flank size, $V$: Pair distance", ha="center")
     root.text(.5, .85, r"ex. $L=150bp, F=9bp, V=500bp$", ha="center")
@@ -270,7 +270,6 @@ def diagram(args):
                   (150 - 9,         150 - 9, 1, r"$L - F$"),
                       (150,      150 + ppad, 2, r"$L$"),
                   (500 - 9,         500 - 9, 3, r"$V - F$"),
-             (500 * 2 - 18,    500 * 2 - 18, 2, r"$2(V - F)$"),
                 )
     for event, pos, i, label in keyevents:
         _event = convert(event)
@@ -288,7 +287,7 @@ def diagram(args):
     CLOSED, OPEN = range(2)
     ranges = ((0,       150 - 18, CLOSED, "Spanning reads"),
               (9,        150 - 9, OPEN,   "Partial reads"),
-              (150, 500 * 2 - 18, CLOSED, "Repeat reads"),
+              (150,      500 - 9, CLOSED, "Repeat reads"),
               (0,        500 - 9, CLOSED, "Paired-end reads"),
              )
     for start, end, starttag, label in ranges:
