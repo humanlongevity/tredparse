@@ -60,30 +60,32 @@ def get_tred_summary(df, tred, repo, minPP=.5, detailsfw=None):
     n_risk = risk.shape[0]
     n_carrier = carrier.shape[0]
     calls = "Calls"
-    risk[calls] = ["{}/{}".format(int(a), int(b)) for (a, b) in
+    risk[calls] = ["{}|{}".format(int(a), int(b)) for (a, b) in
                                   zip(risk[pf1], risk[pf2])]
 
-    columns = ["SampleKey", calls]
-    columns.extend([tred + ".FR", tred + ".PR", tred + ".RR", pp])
+    core = ["SampleKey", "inferredGender", calls]
+    columns = core + [tred + ".FR", tred + ".PR", tred + ".RR", pp]
     # Truncate the display of FR/PR
     risk[tred + ".FR"] = left_truncate_text(risk[tred + ".FR"])
     risk[tred + ".PR"] = left_truncate_text(risk[tred + ".PR"])
     risk[tred + ".RR"] = left_truncate_text(risk[tred + ".RR"])
 
     if detailsfw:
-        details_columns = ["SampleKey", calls]
+        details_columns = core[:]
         details_columns.extend([tred + ".FDP", tred + ".PDP",
                         tred + ".RDP", tred + ".PEDP"])
         for idx, row in risk[details_columns].iterrows():
             if tred == "AR":
                 break
-            samplekey, calls, fdp, pdp, rdp, pedp = row
+
+            samplekey, sex, calls, fdp, pdp, rdp, pedp = row
+            if tr.is_xlinked and sex == "Male":
+                calls = calls.split("|")[0] + "|."
             fdp = int(fdp)
             pdp = int(pdp)
             rdp = int(rdp)
             pedp = int(pedp)
-            calls = calls.replace("/", "|")  # EXCEL may show calls as dates
-            atoms = [tred, samplekey, calls, fdp, pdp, rdp, pedp]
+            atoms = [tred, tr.inheritance, samplekey, sex, calls, fdp, pdp, rdp, pedp]
             print >> detailsfw, "\t".join(str(x) for x in atoms)
 
     pt = risk[columns]
@@ -235,8 +237,8 @@ def main():
 
     details = tsvfile + ".details.txt"
     detailsfw = open(details, "w")
-    header = "Locus,SampleKey,Calls,Full reads,Partial reads,"\
-             "Repeat-only reads,Read pairs"
+    header = "Locus,Inheritance,SampleKey,Sex,Calls,FullReads,PartialReads,"\
+             "RepeatReads,PairedReads"
     print >> detailsfw, "\t".join(header.split(','))
 
     for tred in alltreds:

@@ -74,14 +74,14 @@ The inferred "at-risk" individuals show up in results:
 
 ```bash
 [DM1] - Myotonic dystrophy 1
-rep=CAG inherit=AD cutoff=50 n=1 loc=chr19:45770205-45770264
-SampleKey Calls DM1.FR                          DM1.PR     DM1.RR  DM1.PP
-    t002  5/62   5|24  ...|1;39|1;40|1;42|1;43|1;46|2  49|3;50|8     1.0
+rep=CAG inherit=AD cutoff=50 n_risk=1 n_carrier=0 loc=chr19:45770205-45770264
+SampleKey inferredGender Calls DM1.FR                          DM1.PR     DM1.RR  DM1.PP
+     t002        Unknown  5|62   5|24  ...|1;39|1;40|1;42|1;43|1;46|2  49|3;50|8       1
 
 [HD] - Huntington disease
-rep=CAG inherit=AD cutoff=40 n=1 loc=chr4:3074877-3074933
-SampleKey  Calls HD.FR                           HD.PR HD.RR  HD.PP
-    t001  15/41  15|4  ...|1;21|1;24|2;29|1;34|1;41|1          1.0
+rep=CAG inherit=AD cutoff=40 n_risk=1 n_carrier=0 loc=chr4:3074877-3074933
+SampleKey inferredGender  Calls HD.FR                           HD.PR HD.RR  HD.PP
+     t001        Unknown  15|41  15|4  ...|1;21|1;24|2;29|1;34|1;41|1            1
 ```
 
 One particular individual `t001` appears to have `15/41` call (one allele at `15` CAGs
