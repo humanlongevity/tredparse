@@ -97,15 +97,15 @@ def get_tred_summary(df, tred, repo, minPP=.5, casesfw=None, detailsfw=None):
 
     # Allele frequency
     cnt = Counter()
-    cnt.update(df[pf1])
-    cnt.update(df[pf2])
+    cnt.update(df[tred + ".1_"])
+    cnt.update(df[tred + ".2_"])
     del cnt[-1]
 
     return tr, n_prerisk, n_risk, n_carrier, counts_to_af(cnt)
 
 
 def counts_to_af(counts):
-    return "{" + ",".join("{}:{}".format(int(k), v) for k, v in \
+    return "{" + ",".join("{}:{}".format(k, v) for k, v in \
                 sorted(counts.items()) if not (k == '.' or math.isnan(k))) + "}"
 
 
