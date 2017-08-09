@@ -34,7 +34,7 @@ def left_truncate_text(a, maxcol=30):
     return [trim(x) for x in list(a)]
 
 
-def get_tred_summary(df, tred, repo, minPP=.5, detailsfw=None):
+def get_tred_summary(df, tred, repo, minPP=.5, casesfw=None, detailsfw=None):
     pf1 = tred + ".1"
     pf2 = tred + ".2"
     tr = repo[tred]
@@ -59,9 +59,7 @@ def get_tred_summary(df, tred, repo, minPP=.5, detailsfw=None):
     n_prerisk = prerisk.shape[0]
     n_risk = risk.shape[0]
     n_carrier = carrier.shape[0]
-    calls = "Calls"
-    risk[calls] = ["{}|{}".format(int(a), int(b)) for (a, b) in
-                                  zip(risk[pf1], risk[pf2])]
+    calls = tred + ".calls"
 
     core = ["SampleKey", "inferredGender", calls]
     columns = core + [tred + ".FR", tred + ".PR", tred + ".RR", pp]
@@ -79,8 +77,6 @@ def get_tred_summary(df, tred, repo, minPP=.5, detailsfw=None):
                 break
 
             samplekey, sex, calls, fdp, pdp, rdp, pedp = row
-            if tr.is_xlinked and sex == "Male":
-                calls = calls.split("|")[0] + "|."
             fdp = int(fdp)
             pdp = int(pdp)
             rdp = int(rdp)
@@ -90,14 +86,14 @@ def get_tred_summary(df, tred, repo, minPP=.5, detailsfw=None):
 
     pt = risk[columns]
     if n_risk:
-        print "[{}] - {}".format(tred, title)
-        print "rep={}".format(repeat), "inherit={}".format(inheritance),\
+        print >> casesfw, "[{}] - {}".format(tred, title)
+        print >> casesfw, "rep={}".format(repeat), "inherit={}".format(inheritance),\
               "cutoff={}".format(cutoff_risk), \
               "n_risk={}".format(n_risk), \
               "n_carrier={}".format(n_carrier), \
               "loc={}".format(repeat_location)
-        print pt.to_string(index=False)
-        print
+        print >> casesfw, pt.to_string(index=False)
+        print >> casesfw
 
     # Allele frequency
     cnt = Counter()
@@ -110,21 +106,40 @@ def get_tred_summary(df, tred, repo, minPP=.5, detailsfw=None):
 
 def counts_to_af(counts):
     return "{" + ",".join("{}:{}".format(int(k), v) for k, v in \
-                sorted(counts.items()) if not math.isnan(k)) + "}"
+                sorted(counts.items()) if not (k == '.' or math.isnan(k))) + "}"
 
 
-def df_to_tsv(df, tsvfile, allowed_columns=["1", "2", "label"], jsonformat=True):
+def df_to_tsv(df, tsvfile, extra_columns=[], jsonformat=True,
+              ref="hg38"):
+
+    df = df.fillna(-1)
     dd = ["SampleKey"]
     if jsonformat:
         dd += ["inferredGender"]
-    columns = dd + sorted([x for x in df.columns if (x not in dd) and \
-                    any([x.endswith("." + z) for z in allowed_columns])])
 
-    df = df.reindex_axis(columns, axis='columns')
-    df.sort_values("SampleKey")
-    df.to_csv(tsvfile, sep='\t', index=False)
+    repo = TREDsRepo(ref)
+    for tred in repo.names:
+        tr = repo[tred]
+        if tred + ".1" not in df.columns:
+            continue
+        df[tred + ".1_"] = df[tred + ".1"].astype("int")
+        df[tred + ".2_"] = df[tred + ".2"].astype("int")
+        if jsonformat and tr.is_xlinked:
+            df.loc[(df["inferredGender"] == "Male"), tred + ".2_"] = "."
+        df[tred + ".calls"] = ["{}|{}".format(a, b) for (a, b) in
+                                      zip(df[tred + ".1_"], df[tred + ".2_"])]
+
+    all_columns = ["calls", "label"] + extra_columns
+    columns = dd + sorted([x for x in df.columns if (x not in dd) and \
+                    any(x.endswith("." + z) for z in all_columns)])
+
+    tf = df.reindex_axis(columns, axis='columns')
+    tf.sort_values("SampleKey")
+    tf.to_csv(tsvfile, sep='\t', index=False)
     print >> sys.stderr, "TSV output written to `{}` (# samples={})"\
-                .format(tsvfile, df.shape[0])
+                .format(tsvfile, tf.shape[0])
+
+    return df
 
 
 def vcf_to_df_worker(vcffile):
@@ -192,9 +207,11 @@ def main():
     p = DefaultHelpParser(description=__doc__, prog=op.basename(__file__),
             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p.add_argument("files", nargs="*")
+    p.add_argument('--ref', help='Reference genome version',
+                        choices=("hg38", "hg38_nochr", "hg19", "hg19_nochr"), default='hg38')
     p.add_argument('--tsv', default="out.tsv",
                    help="Path to the tsv file")
-    p.add_argument('--columns', default="1,2,label",
+    p.add_argument('--columns',
                    help="Columns to extract, use comma to separate")
     p.add_argument('--minPP', default=.5, type=float,
                    help="Minimum Prob(pathological) to report cases")
@@ -204,10 +221,11 @@ def main():
     args = p.parse_args()
 
     files = args.files
+    ref = args.ref
     tsvfile = args.tsv
-    columns = args.columns.split(",")
+    columns = args.columns.split(",") if args.columns else []
 
-    repo = TREDsRepo()
+    repo = TREDsRepo(ref)
     alltreds = repo.names
     if files:
         nfiles = len(files)
@@ -220,7 +238,8 @@ def main():
             df = json_to_df(files, tsvfile, cpus)
         else:
             df = vcf_to_df(files, tsvfile, cpus)
-        df_to_tsv(df, tsvfile, allowed_columns=columns, jsonformat=jsonformat)
+        df = df_to_tsv(df, tsvfile, extra_columns=columns, jsonformat=jsonformat,
+                  ref=ref)
     else:
         if op.exists(tsvfile):
             df = pd.read_csv(tsvfile, sep="\t")
@@ -235,6 +254,9 @@ def main():
     summary = pd.DataFrame()
     total_prerisk = total_risk = total_carrier = total_loci = 0
 
+    # Outlier cases and associated read count details
+    cases = tsvfile + ".cases.txt"
+    casesfw = open(cases, "w")
     details = tsvfile + ".details.txt"
     detailsfw = open(details, "w")
     header = "Locus,Inheritance,SampleKey,Sex,Calls,FullReads,PartialReads,"\
@@ -242,18 +264,16 @@ def main():
     print >> detailsfw, "\t".join(header.split(','))
 
     for tred in alltreds:
-        try:
-            tr, n_prerisk, n_risk, n_carrier, af = \
-                get_tred_summary(df, tred, repo, minPP=args.minPP,
-                                 detailsfw=detailsfw)
-            total_prerisk += n_prerisk
-            total_risk += n_risk
-            total_carrier += n_carrier
-            if n_risk:
-                total_loci += 1
-        except KeyError as e:
-            print >> sys.stderr, "{} not found. Skipped ({})".format(tred, e)
+        if tred + ".label" not in df.columns:
             continue
+        tr, n_prerisk, n_risk, n_carrier, af = \
+            get_tred_summary(df, tred, repo, minPP=args.minPP,
+                             casesfw=casesfw, detailsfw=detailsfw)
+        total_prerisk += n_prerisk
+        total_risk += n_risk
+        total_carrier += n_carrier
+        if n_risk:
+            total_loci += 1
 
         tr = tr.row
         columns = ["abbreviation", "title", "motif", "inheritance",
@@ -266,6 +286,8 @@ def main():
         d["allele_freq"] = af
         summary = summary.append(d, ignore_index=True)
 
+    print >> sys.stderr, "Outlier cases saved to `{}`".format(casesfw.name)
+    casesfw.close()
     print >> sys.stderr, "Read count details saved to `{}`"\
                         .format(detailsfw.name)
     detailsfw.close()
