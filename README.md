@@ -98,7 +98,7 @@ Huntington disease case, we can run a command on the JSON output, with option
 `--tred HD` to specify the locus.
 
 ```bash
-tredplot.py likelihood2 work/t001.json --tred HD
+tredplot.py likelihood work/t001.json --tred HD
 ```
 
 This generates the following plot:

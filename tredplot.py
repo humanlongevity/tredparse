@@ -32,8 +32,8 @@ def main():
 
     actions = (
         # Plotting
-        ('likelihood2', 'plot likelihood surface and marginals'),
-        ('likelihood3', 'plot likelihood surface and marginals for two settings'),
+        ('likelihood', 'plot likelihood surface and marginals'),
+        ('likelihood2', 'plot likelihood surface and marginals for two settings'),
         # Diagram
         ('diagram', 'plot the predictive power of various evidences'),
             )
@@ -118,16 +118,16 @@ def ax_imshow(ax, P_h1h2, cmap, label, h1_hat, h2_hat, samplekey,
     ax.set_title(title)
 
 
-def likelihood2(args):
+def likelihood(args):
     """
-    %prog likelihood2 100_20.json
+    %prog likelihood 100_20.json
 
     Plot the likelihood surface and marginal distributions.
     """
     from matplotlib import gridspec
 
-    p = OptionParser(likelihood2.__doc__)
-    p.add_option("--tred", default="toy",
+    p = OptionParser(likelihood.__doc__)
+    p.add_option("--tred", default="HD",
                  help="TRED name to extract")
     opts, args, iopts = p.set_image_options(args, figsize="10x5",
                                 style="white", cmap="coolwarm")
@@ -150,11 +150,11 @@ def likelihood2(args):
     root = fig.add_axes([0, 0, 1, 1])
     normalize_axes(root)
 
-    image_name = "likelihood2.{}.".format(pf) + iopts.format
+    image_name = "likelihood.{}.".format(pf) + iopts.format
     savefig(image_name, dpi=iopts.dpi, iopts=iopts)
 
 
-def likelihood3(args):
+def likelihood2(args):
     """
     %prog likelihood2 200_20.json 200_100.json
 
@@ -162,8 +162,8 @@ def likelihood3(args):
     """
     from matplotlib import gridspec
 
-    p = OptionParser(likelihood3.__doc__)
-    p.add_option("--tred", default="toy",
+    p = OptionParser(likelihood2.__doc__)
+    p.add_option("--tred", default="HD",
                  help="TRED name to extract")
     opts, args, iopts = p.set_image_options(args, figsize="10x10",
                                 style="white", cmap="coolwarm")
@@ -189,7 +189,7 @@ def likelihood3(args):
     panel_labels(root, ((pad, 1 - pad, "A"), (pad, 4. / 9, "B")))
     normalize_axes(root)
 
-    image_name = "likelihood3." + iopts.format
+    image_name = "likelihood2." + iopts.format
     savefig(image_name, dpi=iopts.dpi, iopts=iopts)
 
 
@@ -201,14 +201,15 @@ def plot_panel(jsonfile, ax1, ax2, ax3, cmap, tred='toy'):
         return
 
     data = np.zeros((301, 301))
+    data = mask_upper_triangle(data)
     for k, v in P_h1h2.items():
         a, b = k.split(",")
         a, b = int(a), int(b)
+        if a < b:
+            a, b = b, a
         data[a, b] = v
-        data[b, a] = v
 
     label = "Probability density"
-    data = mask_upper_triangle(data)
     h1_hat, h2_hat = calls[tred + ".1"], calls[tred + ".2"]
     pf = op.basename(jsonfile).split(".")[0]
     ax_imshow(ax1, data, cmap, label, h1_hat, h2_hat, pf,
