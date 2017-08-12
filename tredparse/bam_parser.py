@@ -47,6 +47,7 @@ class BamParser:
         self.READLEN = inputParams.READLEN
         self.clip = inputParams.clip
         self.alts = inputParams.alts
+        self.repeatpairs = inputParams.repeatpairs
 
         # initialize tred-specific things
         self.tred = inputParams.tred
@@ -119,13 +120,15 @@ class BamParser:
 
         return min(s1, s2, s3, s4)
 
-    def _parseReadSW(self, chr, seq, db, verbose=False):
+    def _parseReadSW(self, chr, read, db, verbose=False):
         '''
         Use Smith-Waterman matcher to classify reads and count number of
         repeats. This is the preferred method that allows mismatches (sequencing
         errors or SNPs) inside the read.
         '''
         res = []
+        seq = read.query_sequence
+        rid = read.query_name
         for units, target, ssw in db:
             min_len = min(len(seq), len(target)) / 2
             min_score = max(min_len, 30)
@@ -169,14 +172,14 @@ class BamParser:
             return
 
         score, h, tag = max(res, key=lambda x: (x[0], -x[1]))
-        self.counts[tag][h] += 1
+        self.counts["HANG"][h] += 1
 
         s = "{}: h={:>3}, seq={}".format(tag, h, seq)
         self.logger.debug(s)
 
         if tag == "HANG":
             return
-        self.details.append({'tag': tag, 'h': h, 'seq': seq})
+        self.details.append({'tag': tag, 'h': h, 'id': rid, 'seq': seq})
 
     def parse(self, pad=SPAN):
         """
@@ -208,7 +211,7 @@ class BamParser:
                         continue
                     if read.reference_start > READ_END:
                         continue
-                self._parseReadSW(chr=chr, seq=read.query_sequence, db=db)
+                self._parseReadSW(chr, read, db)
 
             # Let's process the ALTs
             if self.alts:
@@ -230,7 +233,7 @@ class BamParser:
                                 continue
                             if rstart > WINDOW_END:
                                 continue
-                            self._parseReadSW(chr=chr, seq=read.query_sequence, db=db)
+                            self._parseReadSW(chr, read, db)
                     except Exception as ex:
                         self.logger.debug("Fetch failed for region {}:{}-{} ({})".\
                                 format(c, s, e, ex))
@@ -239,8 +242,9 @@ class BamParser:
         self.logger.debug("A total of {} unmapped reads in {}:{}-{}".\
                             format(n_unmapped, chr, start, end))
 
-        for tag in ("FULL", "PREF", "REPT"):
-            self.show_counts(tag)
+        if not self.repeatpairs:
+            self.remove_pairs_of_rept()
+        self.tally_counts()
 
         # We need to make a decision here how to treat the REPT reads
         # Choices are: sum() or max(); max() is the default and sum() is used if
@@ -248,12 +252,35 @@ class BamParser:
         aggregate = sum if self.inputParams.clip else max
         self.rept = aggregate(self.counts["REPT"].values()) if self.counts["REPT"] else 0
 
-    def show_counts(self, tag):
-        countMap = self.counts[tag]
-        total = sum(v for v in countMap.values())
-        counts = ["{}:{}".format(k, v) for (k, v) in sorted(countMap.items())]
-        counts = " ".join(counts)
-        self.logger.debug("Counts [{}] (total={}) => {}".format(tag, total, counts))
+    def tally_counts(self):
+        for x in self.details:
+            self.counts[x["tag"]][x["h"]] += 1
+
+        for tag in ("FULL", "PREF", "REPT"):
+            countMap = self.counts[tag]
+            total = sum(v for v in countMap.values())
+            counts = ["{}:{}".format(k, v) for (k, v) in sorted(countMap.items())]
+            counts = " ".join(counts)
+            self.logger.debug("Counts [{}] (total={}) => {}".format(tag, total, counts))
+
+    def remove_pairs_of_rept(self):
+        '''
+        Here we remove the pairs of REPT reads (where both forward and
+        reverse reads are REPT). These reads would not show up when mapping to
+        the entire genome but could show up when the reference sequence is
+        small enough (for example, against only the STR loci). Removal of such
+        reads ensure more consistent results between different alignment
+        experiments. In practice, when whole reference genome is used, this
+        most likely has zero effect on the results.
+        '''
+        rept_reads = [x for x in self.details if x["tag"] == "REPT"]
+        rept_counts = defaultdict(int)
+        for read in rept_reads:
+            rept_counts[read["id"]] += 1
+        remove_ids = set(rid for rid, count in rept_counts.items() if count > 1)
+        self.details = [x for x in self.details if x["id"] not in remove_ids]
+        self.logger.debug("Tagging pairs of REPT to remove: {} pairs"\
+                        .format(len(remove_ids)))
 
 
 class BamParserResults:

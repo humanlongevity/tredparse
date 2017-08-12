@@ -29,15 +29,16 @@ class InputParams:
 
     def __init__(self, bam, READLEN, repo, tredName,
                        gender="Unknown", depth=30,
-                       clip=False, alts=True, **kwargs):
+                       clip=False, alts=True, repeatpairs=False, **kwargs):
         self.bam = bam
         self.READLEN = READLEN
         self.tredName = tredName
         self.gender = gender
         self.depth = depth
         self.tred = repo.get(tredName)
-        self.clip = clip    # Use clipped reads?
-        self.alts = alts    # More exhaustive search?
+        self.clip = clip                # Use clipped reads?
+        self.alts = alts                # More exhaustive search?
+        self.repeatpairs = repeatpairs  # Include pairs of REPT reads?
         self.kwargs = kwargs
 
     def getLogLevel(self, defaultLevel='INFO'):

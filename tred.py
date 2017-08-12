@@ -77,9 +77,12 @@ def set_argparse():
     p.add_argument('--noalts', default=False, action="store_true",
                         help='Do not scan extra sites for mismapped reads, '\
                              'faster but less accurate')
+    p.add_argument('--repeatpairs', default=False, action="store_true",
+                        help='Use pairs of repeat-only reads')
     p.add_argument('--log', choices=("INFO", "DEBUG"), default="INFO",
                         help='Print debug logs, DEBUG=verbose')
     p.add_argument('--version', action='version', version="%(prog)s " + __version__)
+    p.add_argument('--toy', help=argparse.SUPPRESS, action="store_true")
 
     g = p.add_argument_group("Performance options")
     g.add_argument('--cpus', help='Number of CPUs to use', type=int, default=cpu_count())
@@ -181,7 +184,8 @@ def run(arg):
     :param: referenceVersion, hg19 or hg38
     :return: dict of calls
     '''
-    samplekey, bam, repo, tredNames, maxinsert, fullsearch, clip, alts, log = arg
+    samplekey, bam, repo, tredNames, maxinsert, fullsearch, clip, alts, \
+                repeatpairs, log = arg
     cwd = os.getcwd()
     mkdir(samplekey)
     os.chdir(samplekey)
@@ -235,7 +239,7 @@ def run(arg):
         ip = InputParams(bam=bam, READLEN=READLEN, tredName=tred,
                          repo=repo, maxinsert=maxinsert, fullsearch=fullsearch,
                          gender=gender, depth=depth, clip=clip, alts=alts,
-                         log=log)
+                         repeatpairs=repeatpairs, log=log)
 
         #tpResult = runBam(ip)
         try:
@@ -471,11 +475,13 @@ if __name__ == '__main__':
     os.chdir(workdir)
 
     ref = args.ref
-    repo = TREDsRepo(ref=ref)
+    repo = TREDsRepo(ref=ref, toy=args.toy)
     repo.set_ploidy(args.haploid)
     TRED_NAMES = repo.names
-    #TRED_NAMES.remove('AR')   # Disable one AR
     treds = args.tred or TRED_NAMES
+
+    if args.toy:
+        treds = ["HD"]
 
     samplekey_index = {}
     # Parallel processing
@@ -489,7 +495,7 @@ if __name__ == '__main__':
         task_args.append((samplekey, bam, repo, _treds,
                           args.maxinsert, args.fullsearch,
                           args.useclippedreads, (not args.noalts),
-                          args.log))
+                          args.repeatpairs, args.log))
         samplekey_index[samplekey] = i
 
     cpus = min(args.cpus, len(task_args))

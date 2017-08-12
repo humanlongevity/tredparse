@@ -25,7 +25,7 @@ HLI_BAMS = datafile("HLI_bams.csv.gz")
 
 class TREDsRepo(dict):
 
-    def __init__(self, ref=REF):
+    def __init__(self, ref=REF, toy=False):
 
         # Parse ALTS first
         alts = self.get_alts(ref)
@@ -36,6 +36,14 @@ class TREDsRepo(dict):
             self[name] = TRED(name, row, ref=ref, alt=alts.get(name, []))
             self.names.append(name)
         self.df = df
+
+        if toy:
+            tr = self.get("HD")
+            tr.name = "toy"
+            tr.chr = "CHR4"
+            tr.repeat_start = 1001
+            tr.repeat_end = 1057
+            self[tr.name] = tr
 
     def to_json(self):
         s = self.df.to_json(orient='index')
