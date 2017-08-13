@@ -242,14 +242,14 @@ class BamParser:
         self.logger.debug("A total of {} unmapped reads in {}:{}-{}".\
                             format(n_unmapped, chr, start, end))
 
-        if not (self.repeatpairs or self.useclippedreads):
+        if not (self.repeatpairs or self.clip):
             self.remove_pairs_of_rept()
         self.tally_counts()
 
         # We need to make a decision here how to treat the REPT reads
         # Choices are: sum() or max(); max() is the default and sum() is used if
         # user wants to include clipped reads
-        aggregate = sum if self.inputParams.clip else max
+        aggregate = sum if self.clip else max
         self.rept = aggregate(self.counts["REPT"].values()) if self.counts["REPT"] else 0
 
     def tally_counts(self):
