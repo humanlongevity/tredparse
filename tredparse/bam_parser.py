@@ -242,7 +242,7 @@ class BamParser:
         self.logger.debug("A total of {} unmapped reads in {}:{}-{}".\
                             format(n_unmapped, chr, start, end))
 
-        if not self.repeatpairs:
+        if not (self.repeatpairs or self.useclippedreads):
             self.remove_pairs_of_rept()
         self.tally_counts()
 
