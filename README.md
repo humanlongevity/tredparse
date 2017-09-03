@@ -103,14 +103,14 @@ tredplot.py likelihood work/t001.json --tred HD
 
 This generates the following plot:
 
-![](https://dl.dropboxusercontent.com/u/15937715/Data/TREDPARSE/likelihood2.png)
+![](https://www.dropbox.com/s/2mmfjjpnmcl4jlo/likelihood2.png?raw=1)
 
 ## Server demo
 
 The server/client allows `tredparse` to be run as a service, also showing the
 detailed debug information for the detailed computation.
 
-![](https://dl.dropboxusercontent.com/u/15937715/Data/TREDPARSE/screencast.gif)
+![](https://www.dropbox.com/s/23tmoy0wtb3alwh/screencast.gif?raw=1)
 
 Install `meteor` if you don't have it yet.
 
