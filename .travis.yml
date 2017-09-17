@@ -20,16 +20,14 @@ before_install:
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  - conda install cython
-  - conda install pandas
-
+  - conda install --yes --file requirements.txt
 
   # Useful for debugging any issues with conda
   - conda info -a
 
 # Install packages
 install:
-  - for VERSION in $PYTHON_VERSIONS ; do conda create --name $VERSION --yes python=$VERSION ; source activate $VERSION ; python setup.py install; done
+  - for VERSION in $PYTHON_VERSIONS ; do conda create --name $VERSION --yes python=$VERSION --file requirements.txt ; source activate $VERSION ; python setup.py install; done
 
 # command to run tests
 script:
