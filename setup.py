@@ -11,16 +11,38 @@ classifiers = [
     'Programming Language :: Python',
     'Programming Language :: Python :: 2',
     'Topic :: Scientific/Engineering :: Bio-Informatics',
-    ]
+]
+
+
+def import_init(filename="__init__.py"):
+    """ Get various info from the package without importing them
+    """
+    import ast
+
+    with open(filename) as init_file:
+        module = ast.parse(init_file.read())
+
+    itr = lambda x: (ast.literal_eval(node.value) for node in ast.walk(module) \
+        if isinstance(node, ast.Assign) and node.targets[0].id == x)
+
+    try:
+        return next(itr("__author__")), \
+               next(itr("__email__")), \
+               next(itr("__license__")), \
+               next(itr("__version__"))
+    except StopIteration:
+        raise ValueError("One of author, email, license, or version"
+                    " cannot be found in {}".format(filename))
+
 
 libssw_ext = {"sources": ["src/ssw.c"], "include_dirs": ["src"]}
-exec(open(name + "/__init__.py").read())
+author, email, license, version = import_init(filename="tredparse/__init__.py")
 
 setup(
       name=name,
-      version=__version__,
-      author=__author__[0],
-      author_email=__email__,
+      version=version,
+      author=author[0],
+      author_email=email,
       packages=[name, "ssw"],
       package_dir={'ssw': 'src', 'tredparse': 'tredparse'},
       include_package_data=True,
@@ -34,4 +56,4 @@ setup(
       description='Short Tandem Repeat (STR) genotyper',
       long_description=open("README.md").read(),
       install_requires=['cython', 'pandas', 'pysam']
-     )
+)

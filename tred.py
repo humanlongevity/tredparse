@@ -77,8 +77,8 @@ def set_argparse():
     p.add_argument('--noalts', default=False, action="store_true",
                         help='Do not scan extra sites for mismapped reads, '\
                              'faster but less accurate')
-    p.add_argument('--repeatpairs', default=False, action="store_true",
-                        help='Include pairs of repeat-only reads from evidence')
+    p.add_argument('--norepeatpairs', default=False, action="store_true",
+                        help='Exclude pairs of repeat-only reads from evidence')
     p.add_argument('--log', choices=("INFO", "DEBUG"), default="INFO",
                         help='Print debug logs, DEBUG=verbose')
     p.add_argument('--version', action='version', version="%(prog)s " + __version__)
@@ -495,7 +495,7 @@ if __name__ == '__main__':
         task_args.append((samplekey, bam, repo, _treds,
                           args.maxinsert, args.fullsearch,
                           args.useclippedreads, (not args.noalts),
-                          args.repeatpairs, args.log))
+                          (not args.norepeatpairs), args.log))
         samplekey_index[samplekey] = i
 
     cpus = min(args.cpus, len(task_args))
