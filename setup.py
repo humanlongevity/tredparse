@@ -12,6 +12,8 @@ classifiers = [
     'Programming Language :: Python :: 2',
     'Topic :: Scientific/Engineering :: Bio-Informatics',
 ]
+with open('requirements.txt') as f:
+    required = f.read().splitlines()
 
 
 def import_init(filename="__init__.py"):
@@ -55,5 +57,5 @@ setup(
       url='https://github.com/tanghaibao/tredparse',
       description='Short Tandem Repeat (STR) genotyper',
       long_description=open("README.md").read(),
-      install_requires=['cython', 'pandas', 'pysam']
+      install_requires=required + ['pysam']
 )
