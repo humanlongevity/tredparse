@@ -92,7 +92,7 @@ A `.report.txt` file will also be generated that contains a summary of
 number of people affected by over-expanded TREDs as well as population allele
 frequency.
 
-To better understand the uncertainties in the prediction, one call plot the
+To better understand the uncertainties in the prediction, we can plot the
 likelihood surface based on the model. Using the same example as above at the
 Huntington disease case, we can run a command on the JSON output, with option
 `--tred HD` to specify the locus.
