@@ -2,6 +2,9 @@
 # -*- coding: UTF-8 -*-
 
 
+import pytest
+
+
 def test_tred():
     """ Run tred.py on sample CSV file and generate TSV file with the genotype
     """
@@ -16,6 +19,7 @@ def test_tredreport():
     main(["work/t001.json", "work/t002.json", "--tsv", "work.tsv"])
 
 
+@pytest.mark.skip(reason="Requires latex")
 def test_tredplot():
     """ Plot the likelihood surface based on the model
     """
