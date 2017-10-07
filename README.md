@@ -1,5 +1,6 @@
 # TREDPARSE: HLI Short Tandem Repeat (STR) caller
 
+[![Latest PyPI version](https://img.shields.io/pypi/v/tredparse.svg)](https://pypi.python.org/pypi/tredparse)
 [![Travis-CI](https://travis-ci.org/humanlongevity/tredparse.svg?branch=master)](https://travis-ci.org/humanlongevity/tredparse)
 
 | | |
