@@ -472,10 +472,11 @@ def main(args):
     logger.debug("Total samples: {}".format(len(samples)))
 
     task_args = []
+    sites = op.join(os.getcwd(), "sites")
     os.chdir(workdir)
 
     ref = args.ref
-    repo = TREDsRepo(ref=ref, toy=args.toy)
+    repo = TREDsRepo(ref=ref, toy=args.toy, sites=sites)
     repo.set_ploidy(args.haploid)
     TRED_NAMES = repo.names
     treds = args.tred or TRED_NAMES

@@ -28,7 +28,7 @@ SITES = "sites"
 
 class TREDsRepo(dict):
 
-    def __init__(self, ref=REF, toy=False, use_sites=True):
+    def __init__(self, ref=REF, toy=False, sites=SITES):
 
         # Parse ALTS first
         alts = self.get_alts(ref)
@@ -41,13 +41,12 @@ class TREDsRepo(dict):
         self.df = df
 
         # Get all user loci names by searching within sites folder
-        if use_sites:
-            for sites in glob("{}/*.json".format(SITES)):
-                sites = byteify(json.load(open(sites)))
-                for name, row in sites.items():
-                    name = str(name)  # json.loads gets a unicode
-                    self[name] = TRED(name, row, ref=ref, alt=alts.get(name, []))
-                    self.names.append(name)
+        for s in glob("{}/*.json".format(sites)):
+            s = byteify(json.load(open(s)))
+            for name, row in s.items():
+                name = str(name)  # json.loads gets a unicode
+                self[name] = TRED(name, row, ref=ref, alt=alts.get(name, []))
+                self.names.append(name)
 
         if toy:
             tr = self.get("HD")
