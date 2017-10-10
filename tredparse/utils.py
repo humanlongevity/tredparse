@@ -178,3 +178,20 @@ def sh(cmd, infile=None, outfile=None, errfile=None,
         logger.debug(cmd)
 
     return call(cmd, shell=True, executable=shell)
+
+
+def byteify(input):
+    """ Python's json.loads returns unicode which I sometimes need them to be str
+
+    Borrowed from:
+    <https://stackoverflow.com/questions/956867/how-to-get-string-objects-instead-of-unicode-from-json>
+    """
+    if isinstance(input, dict):
+        return {byteify(key): byteify(value)
+                for key, value in input.iteritems()}
+    elif isinstance(input, list):
+        return [byteify(element) for element in input]
+    elif isinstance(input, unicode):
+        return input.encode('utf-8')
+    else:
+        return input

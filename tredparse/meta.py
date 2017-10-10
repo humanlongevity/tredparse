@@ -13,19 +13,22 @@ STR locus.
 
 import json
 import pandas as pd
+from glob import glob
 
-from .utils import datafile
+from .utils import byteify, datafile
 
 
 REF = "hg38"
 REPO = datafile("TREDs.meta.csv")
 ALTS = datafile("TREDs.alts.csv")
 HLI_BAMS = datafile("HLI_bams.csv.gz")
+#SITES = datafile("sites")
+SITES = "sites"
 
 
 class TREDsRepo(dict):
 
-    def __init__(self, ref=REF, toy=False):
+    def __init__(self, ref=REF, toy=False, use_sites=True):
 
         # Parse ALTS first
         alts = self.get_alts(ref)
@@ -36,6 +39,15 @@ class TREDsRepo(dict):
             self[name] = TRED(name, row, ref=ref, alt=alts.get(name, []))
             self.names.append(name)
         self.df = df
+
+        # Get all user loci names by searching within sites folder
+        if use_sites:
+            for sites in glob("{}/*.json".format(SITES)):
+                sites = byteify(json.load(open(sites)))
+                for name, row in sites.items():
+                    name = str(name)  # json.loads gets a unicode
+                    self[name] = TRED(name, row, ref=ref, alt=alts.get(name, []))
+                    self.names.append(name)
 
         if toy:
             tr = self.get("HD")
@@ -81,6 +93,12 @@ class TREDsRepo(dict):
                           [get_region(x) for x in _alts.split("|")]
             alts[name] = regions
         return alts
+
+    def create_tred(self):
+        """ Make a dictionary keyed by name into another dictionary keyed by the
+        dataframe columns.
+        """
+        return dict((x, "") for x in self.df.columns)
 
 
 class TRED(object):

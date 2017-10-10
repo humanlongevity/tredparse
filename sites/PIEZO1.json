@@ -1,0 +1,28 @@
+{
+  "PIEZO1": {
+    "allele_freq": "",
+    "cutoff_prerisk": 7,
+    "cutoff_risk": 7,
+    "gene_location": "chr16:88715338-88785211:-",
+    "gene_name": "PIEZO1",
+    "gene_part": "coding region",
+    "id": "chr16_88733965_TCC",
+    "inheritance": "AD",
+    "motif": "CAG",
+    "mutation_nature": "decrease",
+    "normal": "8 repeats",
+    "omim_id": "",
+    "prefix": "AGCCCCTCGTCCCTGGAG",
+    "prerisk": "7 repeats",
+    "repeat": "TCC",
+    "repeat_location": "chr16:88733965-88733988",
+    "repeat_location.hg19": "chr16:88800373-88800396",
+    "risk": "7- repeats",
+    "src": "wikipedia",
+    "suffix": "TGCTGCTGCTGCTGATGC",
+    "symptom": "Common PIEZO1 allele in African populations causes red blood cell dehydration and attenuates Plasmodium infection.",
+    "title": "",
+    "url": "",
+    "variant_type": "short tandem repeats"
+  }
+}
