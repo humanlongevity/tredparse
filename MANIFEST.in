@@ -1,2 +1,2 @@
-include LICENSE* README* tredparse/data/*
+include LICENSE* README* tredparse/data/* requirements.txt setup_helper.py
 graft src
