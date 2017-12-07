@@ -48,7 +48,7 @@ class BamParser:
         self.clip = inputParams.clip
         self.alts = inputParams.alts
         self.repeatpairs = inputParams.repeatpairs
-
+        self.ref = inputParams.ref
         # initialize tred-specific things
         self.tred = inputParams.tred
         self.repeatSize = len(self.tred.repeat)
@@ -220,6 +220,9 @@ class BamParser:
                     if self.clip:
                         continue
                     try:
+                        if "nochr" in self.ref:
+                            c = c[3:]
+                        #print "c s e", c,s,e
                         for read in samfile.fetch(c, s, e):
                             # Check if the mate read is in the official STR region
                             rid = read.next_reference_id
