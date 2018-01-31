@@ -63,7 +63,7 @@ export const HLIDocker = new ValidatedMethod({
     }
 
     // maxBuffer increased to 1Mb to avoid maxBuffer exceeded error
-    const cmd = `docker run --rm humanlongevity/tredparse ${title}`;
+    const cmd = `docker run --rm -v $HOME/.aws:/root/.aws:ro humanlongevity/tredparse ${title}`;
     exec(cmd, { maxBuffer: 1024 * 1000 }, (err, stdout, stderr) => {
       if (err) {
           console.error(`exec error: ${err}`);
