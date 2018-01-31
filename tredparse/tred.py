@@ -376,8 +376,20 @@ def to_vcf(results, ref, repo, treds=["HD"], store=None):
 
 def get_HLI_bam(samplekey):
     """
-    From @176449128, retrieve the S3 path of the BAM
+    From @176449128, try the internal API first;
+    otherwise retrieve the S3 path of the BAM
     """
+    try:
+        import requests
+        r = requests.post("http://10.6.108.212/get/qc",
+                          data={'id': samplekey, 'q': 'BAM location'})
+        bampath = json.loads(r.text)["BAM location"]
+        if bampath.startswith("s3://") and bampath.endswith(".bam"):
+            logger.debug("Queried BAM path using SEARCH API")
+        return bampath
+    except:
+        pass
+
     import pandas as pd
     from .meta import HLI_BAMS
 

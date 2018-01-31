@@ -33,7 +33,7 @@ const Introduction = React.createClass({
                 <strong> Short tandem repeats </strong> are a common source of
                 genetic diseases that can be assayed through genome sequencing
               </h2>
-              <Button bsStyle="success" bsSize="large" style={buttonStyle} href="https://github.com/tanghaibao/tredparse">
+              <Button bsStyle="success" bsSize="large" style={buttonStyle} href="https://github.com/humanlongevity/tredparse">
                   <i className="fa fa-github"></i> Find out how
               </Button>
             </div>

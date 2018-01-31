@@ -19,7 +19,7 @@ const getCmd = (bam, tred, ref) => {
   const b = sanitize(bam);
   const t = sanitize(tred);
   const r = sanitize(ref);
-  return `tred.py ${b} --tred ${t} --ref ${r}`;
+  return `tred.py ${b} --noalts --tred ${t} --ref ${r}`;
 };
 
 const Content = React.createClass({

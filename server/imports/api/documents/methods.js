@@ -14,7 +14,7 @@ const getCmd = (bam, tred, ref) => {
   const b = sanitize(bam);
   const t = sanitize(tred);
   const r = sanitize(ref);
-  return `tred.py ${b} --tred ${t} --ref ${r}`;
+  return `tred.py ${b} --noalts --tred ${t} --ref ${r}`;
 };
 
 export const upsertDocument = new ValidatedMethod({
@@ -63,7 +63,7 @@ export const HLIDocker = new ValidatedMethod({
     }
 
     // maxBuffer increased to 1Mb to avoid maxBuffer exceeded error
-    const cmd = `docker run --rm tanghaibao/tredparse ${title}`;
+    const cmd = `docker run --rm humanlongevity/tredparse ${title}`;
     exec(cmd, { maxBuffer: 1024 * 1000 }, (err, stdout, stderr) => {
       if (err) {
           console.error(`exec error: ${err}`);
@@ -106,7 +106,7 @@ export const PublicDocker = new ValidatedMethod({
     }
 
     // maxBuffer increased to 1Mb to avoid maxBuffer exceeded error
-    const cmd = `docker run --rm tanghaibao/tredparse-public ${title}`;
+    const cmd = `docker run --rm humanlongevity/tredparse-public ${title}`;
     exec(cmd, { maxBuffer: 1024 * 1000 }, (err, stdout, stderr) => {
       if (err) {
           console.error(`exec error: ${err}`);
