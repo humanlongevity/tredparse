@@ -249,7 +249,8 @@ class BamParser:
         # We need to make a decision here how to treat the REPT reads
         # Choices are: sum() or max(); max() is the default and sum() is used if
         # user wants to include clipped reads
-        aggregate = sum if self.clip else max
+        #aggregate = sum if self.clip else max
+        aggregate = sum
         self.rept = aggregate(self.counts["REPT"].values()) if self.counts["REPT"] else 0
 
     def tally_counts(self):
