@@ -261,7 +261,7 @@ class IntegratedCaller:
             h2_range = [h1] if self.ploidy == 1 else h2range
             for h2 in h2_range:
                 if h1 > h2:
-                    h1, h2 = h2, h1
+                    continue
                 ml1 = self.evaluate_spanning(obs_spanning, h1, h2) if obs_spanning else 0
                 ml2 = self.evaluate_partial(obs_partial, h1, h2) if obs_partial else 0
                 ml3 = self.evaluate_rept(n_obs_rept, h1, h2)
