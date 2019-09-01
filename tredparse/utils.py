@@ -40,6 +40,7 @@ class InputParams:
         self.alts = alts                # More exhaustive search?
         self.repeatpairs = repeatpairs  # Include pairs of REPT reads?
         self.kwargs = kwargs
+        self.ref = repo.ref
 
     def getLogLevel(self, defaultLevel='INFO'):
         '''
