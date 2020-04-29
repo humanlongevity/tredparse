@@ -67,7 +67,7 @@
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.5",
     "d3": "^4.4.0",
-    "jquery": "^2.2.4",
+    "jquery": "^3.5.0",
     "jquery-validation": "^1.15.1",
     "react": "^15.3.2",
     "react-addons-pure-render-mixin": "^15.4.1",
